@@ -47,11 +47,15 @@ public class ItemService {
 
     public Page<ItemDto> findAll(String search, Pageable pageable) {
         int searchCondition=0;
-        Page<Item>  postEntities = switch (searchCondition) {
-            case 1  -> itemRepository.findAll(pageable);
-            default -> itemRepository.findAll(pageable);
+        Page<ItemDto>  postEntities = switch (searchCondition) {
+            case 1  -> itemRepository.findMyItems(pageable);
+            default -> itemRepository.findMyItems(pageable);
         };
-        return postEntities.map(itemEntityMapper::toDto);
+        return postEntities;
+    }
+
+    public ItemDto findById(long id) {
+        return itemRepository.findById((int)id).map(itemEntityMapper::toDto).orElse(null);
     }
 
     /*public PostDto getById(Long id) {

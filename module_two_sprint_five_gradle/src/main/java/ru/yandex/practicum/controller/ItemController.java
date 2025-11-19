@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.Paging;
 import ru.yandex.practicum.service.ItemService;
@@ -25,6 +29,7 @@ class ItemController {
 	private final ItemService service;
 
 	private static final String VIEWS_ITEMS_CHART_FORM = "items";
+	private static final String VIEWS_ITEMS_ITEM_FORM = "item";
 
 	public ItemController(ItemService service) {
 		this.service = service;
@@ -66,6 +71,31 @@ class ItemController {
 		model.addAttribute("paging", new Paging(pageSize, pageNumber, false, false));
 
 		return VIEWS_ITEMS_CHART_FORM;
+	}
+
+	@PostMapping(value={"/items"})
+	public String postItems(HttpServletRequest request,
+							@RequestParam(defaultValue = "") String search,
+							@RequestParam(defaultValue = "NO") String sort,
+							@RequestParam(defaultValue = "1") int pageNumber,
+							@RequestParam(defaultValue = "5") int pageSize,
+							@RequestParam(required = true) String action,
+							Model model ){
+		return "redirect:/items?search="+search+"&sort="+sort+"&pageNumber="+pageNumber+"&pageSize="+pageSize;
+	}
+
+	@GetMapping(value={"/items/{id}"})
+	public String getItem(@PathVariable(name = "id") Long id, Model model){
+		ItemDto itemDto = service.findById(id);
+		model.addAttribute("item", itemDto);
+		return VIEWS_ITEMS_ITEM_FORM;
+	}
+
+	@PostMapping(value={"/items/{id}"})
+	public String controlItem(@PathVariable(name = "id") Long id, @RequestParam(required = true) String action, Model model){
+		ItemDto itemDto = service.findById(id);
+		model.addAttribute("item", itemDto);
+		return VIEWS_ITEMS_ITEM_FORM;
 	}
 
 	/*

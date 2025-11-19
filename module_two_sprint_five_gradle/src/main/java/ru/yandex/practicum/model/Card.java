@@ -32,6 +32,4 @@ public class Card {
     public void setId(Long id) {
         this.id = id;
     }
-
-    //TODO [Reverse Engineering] generate columns from DB
 }

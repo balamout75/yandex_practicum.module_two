@@ -12,14 +12,9 @@ create table if not exists items(
                                     id          bigserial primary key,
                                     title       varchar NOT NULL,
                                     description varchar NOT NULL,
-                                    price       numeric(10,2) NOT NULL,
+                                    price       bigint default 0,
                                     Quantity    bigint default 0,
                                     imgPath     varchar NOT NULL);
-
-drop table if exists cards cascade ;
-create table if not exists cards(
-                                    id      bigserial primary key,
-                                    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE);
 
 drop table if exists orders cascade ;
 create table if not exists orders(
@@ -30,10 +25,11 @@ create table if not exists orders(
 
 drop table if exists in_card cascade;
 create table if not exists in_card(
-                                    card_id      bigint NOT NULL default 1,
+                                    user_id      bigint NOT NULL default 1,
                                     item_id      bigint NOT NULL,
-                                    PRIMARY KEY  (card_id, item_id),
-                                    FOREIGN KEY  (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                                    count        bigint NOT NULL default 0,
+                                    PRIMARY KEY  (user_id, item_id),
+                                    FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE,
                                     FOREIGN KEY  (item_id) REFERENCES items (id) ON DELETE CASCADE);
 
 drop table if exists in_order cascade;
@@ -44,19 +40,27 @@ create table if not exists in_order(
                                     FOREIGN KEY   (order_id)    REFERENCES orders(id) ON DELETE CASCADE,
                                     FOREIGN KEY   (item_id)     REFERENCES items (id) ON DELETE CASCADE);
 
+insert into users (id, firstname, lastname) values (1, 'John','Smith');
+
 insert into items values (1,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (2,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (3,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (4,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (5,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (6,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (7,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (8,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (9,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (10,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (11,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (12,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (13,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                                                                                                              (14,'Кепка','бейсболка большого размера',1200,12,'cap.jpg');
+                         (2,'Кепка1','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (3,'Кепка2','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (4,'Кепка3','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (5,'Кепка4','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (6,'Кепка5','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (7,'Кепка6','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (8,'Кепка7','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (9,'Кепка8','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (10,'Кепка9','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (11,'Кепка10','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (12,'Кепка11','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (13,'Кепка12','бейсболка большого размера',1200,12,'cap.jpg'),
+                         (14,'Кепка13','бейсболка большого размера',1200,12,'cap.jpg');
+
+insert into in_card values  (1,3,5),
+                            (1,4,6);
+
 commit;
-select *  from items;
+
+
+select i.*, coalesce(ic.count, 0) as count from items i left join (select * from in_card where user_id=1) ic on i.id = ic.item_id ORDER BY i.id;

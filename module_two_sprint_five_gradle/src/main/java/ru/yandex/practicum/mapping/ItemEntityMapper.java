@@ -16,6 +16,7 @@ public class ItemEntityMapper {
                            item.getDescription(),
                            UPLOAD_DIR+item.getImgPath(),
                            item.getPrice(),
-                           item.getQuantity());
+                           item.getQuantity(),
+                           0);
     }
 }
