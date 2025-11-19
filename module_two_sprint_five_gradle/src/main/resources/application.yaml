@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: module_two_sprint_five_gradle
+  datasource:
+    url: jdbc:postgresql://localhost:5432/practicum_user
+    username: practicum_user
+    password: mysecretpassword
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+images.path: images/

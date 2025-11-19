@@ -1,0 +1,25 @@
+package ru.yandex.practicum.dto;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+public record ItemDto (
+        long id,
+        String title,
+        String description,
+        String imgPath,
+        long price,
+        int count) {
+
+    public ItemDto(long id, String title, String description, String imgPath, long price, int count) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.imgPath = imgPath;
+        this.price = price;
+        this.count = count;
+    }
+    public ItemDto() {
+        this(-1, null, null, null, 0, 0);
+    }
+}
+
