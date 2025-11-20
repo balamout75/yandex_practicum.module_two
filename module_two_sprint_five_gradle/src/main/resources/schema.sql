@@ -34,9 +34,10 @@ create table if not exists in_card(
 
 drop table if exists in_order cascade;
 create table if not exists in_order(
+                                    id            bigserial primary key,
                                     order_id      bigint NOT NULL,
                                     item_id       bigint NOT NULL default 1,
-                                    PRIMARY KEY   (order_id, item_id),
+                                    count         bigint NOT NULL default 0,
                                     FOREIGN KEY   (order_id)    REFERENCES orders(id) ON DELETE CASCADE,
                                     FOREIGN KEY   (item_id)     REFERENCES items (id) ON DELETE CASCADE);
 

@@ -7,9 +7,6 @@ import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapping.ItemEntityMapper;
 
 import ru.yandex.practicum.model.InCart;
-import ru.yandex.practicum.model.Item;
-import ru.yandex.practicum.model.User;
-import ru.yandex.practicum.repository.InCartRepository;
 import ru.yandex.practicum.repository.ItemRepository;
 import ru.yandex.practicum.repository.UserRepository;
 
@@ -32,15 +29,13 @@ public class CartService {
         this.inCartService = inCartService;
         this.itemEntityMapper = itemEntityMapper;
         this.userRepository = userRepository;
-
-
     }
 
     public CartDto findCardsItems(long userId) {
-        long total = userRepository.findById(userId).getInCards().stream()
+        long total = userRepository.findById(userId).getInCarts().stream()
                 .mapToLong(u -> u.getCount()*u.getItem().getPrice())
                 .sum();
-        List <ItemDto> items =userRepository.findById(userId).getInCards().stream()
+        List <ItemDto> items =userRepository.findById(userId).getInCarts().stream()
                 .map(InCart::getItem)
                 .map(itemEntityMapper::toDto)
                 .toList();

@@ -2,8 +2,7 @@ package ru.yandex.practicum.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.ListUtils;
@@ -28,6 +27,7 @@ class ItemController {
 
 	private static final String VIEWS_ITEMS_CHART_FORM = "items";
 	private static final String VIEWS_ITEMS_ITEM_FORM = "item";
+	private static final long USER_ID = 1;
 
 	public ItemController(ItemService service) {
 		this.service = service;
@@ -77,8 +77,6 @@ class ItemController {
 			default		: System.out.println("default");
 
 		};
-
-
 		return "redirect:/items?search="+search+"&sort="+sort+"&pageNumber="+pageNumber+"&pageSize="+pageSize;
 	}
 
@@ -89,17 +87,14 @@ class ItemController {
 		return VIEWS_ITEMS_ITEM_FORM;
 	}
 
-	@PostMapping(value={"/items/{id}"})
-	public String controlItem(@PathVariable(name = "id") Long id, @RequestParam(required = true) String action, Model model){
-		ItemDto itemDto = service.findById(id);
-		model.addAttribute("item", itemDto);
-		return VIEWS_ITEMS_ITEM_FORM;
-	}
-
 	@PostMapping(value={"/buy"})
 	public String buyCart() {
-
+		service.closeCart(USER_ID);
 		return "sss";
 	}
+
+	/*
+
+	*/
 
 }

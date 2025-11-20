@@ -22,19 +22,17 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final InCartRepository inCartRepository;
     private final InCartService inCartService;
+    private final OrderService orderService;
 
     private final ItemEntityMapper itemEntityMapper;
 
-    public ItemService(UserRepository userRepository, ItemRepository itemRepository, InCartRepository inCartRepository, InCartService inCartService, ItemEntityMapper itemEntityMapper) {
+    public ItemService(UserRepository userRepository, ItemRepository itemRepository, InCartService inCartService, OrderService orderService, ItemEntityMapper itemEntityMapper) {
         this.itemRepository = itemRepository;
         this.inCartService = inCartService;
+        this.orderService = orderService;
         this.itemEntityMapper = itemEntityMapper;
         this.userRepository = userRepository;
-        this.inCartRepository = inCartRepository;
-
-
     }
 
     public Page<ItemDto> findAll(String search, Pageable pageable) {
@@ -52,5 +50,9 @@ public class ItemService {
 
     public void changeInCardCount(long id, boolean b) {
         inCartService.changeInCardCount(id, (b)?1:2);
+    }
+
+    public void closeCart(long userId) {
+        orderService.closeCart(userId);
     }
 }

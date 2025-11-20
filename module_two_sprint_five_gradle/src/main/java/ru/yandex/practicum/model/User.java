@@ -15,24 +15,11 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "firstname", nullable = false, length = Integer.MAX_VALUE)
-    private String firstname;
-
-    @NotNull
-    @Column(name = "lastname", nullable = false, length = Integer.MAX_VALUE)
-    private String lastname;
-
-    @ColumnDefault("true")
-    @Column(name = "available")
-    private Boolean available;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
-
     @OneToMany(mappedBy="user")
     private Set<InCart> inCarts;
+
+    @OneToMany(mappedBy="user")
+    private Set<Order> orders;
 
     public Long getId() {
         return id;
@@ -42,43 +29,19 @@ public class User {
         this.id = id;
     }
 
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public Boolean getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Boolean available) {
-        this.available = available;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Set<InCart> getInCards() {
+    public Set<InCart> getInCarts() {
         return inCarts;
     }
 
-    public void setInCards(Set<InCart> inCarts) {
+    public void setInCarts(Set<InCart> inCarts) {
         this.inCarts = inCarts;
+    }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
     }
 }
