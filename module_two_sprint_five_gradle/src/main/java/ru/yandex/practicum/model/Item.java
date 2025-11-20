@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Entity
 @Table(name = "items")
@@ -32,6 +33,9 @@ public class Item {
 
     @Column(name = "imgpath")
     private String imgPath;
+
+    @OneToMany(mappedBy = "item")
+    private Set<InCard> inCards;
 
     public Long getId() {
         return id;
@@ -81,4 +85,11 @@ public class Item {
         this.imgPath = imgPath;
     }
 
+    public Set<InCard> getInCards() {
+        return inCards;
+    }
+
+    public void setInCards(Set<InCard> inCards) {
+        this.inCards = inCards;
+    }
 }

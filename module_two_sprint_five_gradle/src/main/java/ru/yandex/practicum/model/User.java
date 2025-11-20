@@ -31,12 +31,8 @@ public class User {
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private Card card;
-
     @OneToMany(mappedBy="user")
-    private Set<Order> orders;// = new LinkedHashSet<>();
+    private Set<InCard> inCards;
 
     public Long getId() {
         return id;
@@ -78,4 +74,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public Set<InCard> getInCards() {
+        return inCards;
+    }
+
+    public void setInCards(Set<InCard> inCards) {
+        this.inCards = inCards;
+    }
 }

@@ -16,8 +16,9 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
     //@Query("select distinct p from Post p join p.tags t where p.title ilike :searchSubString and lower(t.tag) in (:tags) group by p.id having count(p.id) = :tagCount")
-    @NativeQuery(value = "select i.*, coalesce(ic.count, 0) as count from items i left join in_card ic on i.id = ic.item_id")
-    Page<ItemDto> findMyItems(Pageable pageable);
+    //@NativeQuery(value = "select i.*, coalesce(ic.count, 0) as count from items i left join in_card ic on i.id = ic.item_id")
+    //Page<ItemDto> findMyItems(Pageable pageable);
+    //Page<Item> findAll(Pageable pageable);
 
 
 

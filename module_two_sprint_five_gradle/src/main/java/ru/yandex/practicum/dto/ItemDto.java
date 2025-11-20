@@ -8,20 +8,18 @@ public record ItemDto (
         String description,
         String imgPath,
         long price,
-        long quantity,
         long count) {
 
-    public ItemDto(long id, String title, String description, String imgPath, long price, long quantity, long count) {
+    public ItemDto(long id, String title, String description, String imgPath, long price, long count) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imgPath = imgPath;
         this.price = price;
-        this.quantity = quantity;
         this.count = count;
     }
     public ItemDto() {
-        this(-1, null, null, null, 0,0, 0);
+        this(-1, null, null, null, 0, 0);
     }
 }
 
