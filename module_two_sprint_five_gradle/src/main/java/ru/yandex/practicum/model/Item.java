@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 @Entity
@@ -35,7 +34,7 @@ public class Item {
     private String imgPath;
 
     @OneToMany(mappedBy = "item")
-    private Set<InCard> inCards;
+    private Set<InCart> inCarts;
 
     public Long getId() {
         return id;
@@ -85,11 +84,11 @@ public class Item {
         this.imgPath = imgPath;
     }
 
-    public Set<InCard> getInCards() {
-        return inCards;
+    public Set<InCart> getInCards() {
+        return inCarts;
     }
 
-    public void setInCards(Set<InCard> inCards) {
-        this.inCards = inCards;
+    public void setInCards(Set<InCart> inCarts) {
+        this.inCarts = inCarts;
     }
 }

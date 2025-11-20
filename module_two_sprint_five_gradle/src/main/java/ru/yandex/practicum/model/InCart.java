@@ -6,17 +6,19 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "in_card")
-public class InCard {
-    @EmbeddedId
-    private InCardId id;
+public class InCart {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
     @ManyToOne
-    @MapsId("userId")
+    //@MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @MapsId("itemId")
+    //@MapsId("itemId")
     @JoinColumn(name = "item_id")
     private Item item;
 
@@ -25,11 +27,11 @@ public class InCard {
     @Column(name = "count", nullable = false)
     private Long count;
 
-    public InCardId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(InCardId id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

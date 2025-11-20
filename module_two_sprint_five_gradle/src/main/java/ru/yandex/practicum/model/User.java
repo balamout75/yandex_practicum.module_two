@@ -32,7 +32,7 @@ public class User {
     private OffsetDateTime createdAt;
 
     @OneToMany(mappedBy="user")
-    private Set<InCard> inCards;
+    private Set<InCart> inCarts;
 
     public Long getId() {
         return id;
@@ -74,11 +74,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public Set<InCard> getInCards() {
-        return inCards;
+    public Set<InCart> getInCards() {
+        return inCarts;
     }
 
-    public void setInCards(Set<InCard> inCards) {
-        this.inCards = inCards;
+    public void setInCards(Set<InCart> inCarts) {
+        this.inCarts = inCarts;
     }
 }

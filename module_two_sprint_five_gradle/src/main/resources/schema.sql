@@ -25,10 +25,10 @@ create table if not exists orders(
 
 drop table if exists in_card cascade;
 create table if not exists in_card(
+                                    id           bigserial primary key,
                                     user_id      bigint NOT NULL default 1,
                                     item_id      bigint NOT NULL,
                                     count        bigint NOT NULL default 0,
-                                    PRIMARY KEY  (user_id, item_id),
                                     FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE,
                                     FOREIGN KEY  (item_id) REFERENCES items (id) ON DELETE CASCADE);
 
@@ -57,8 +57,8 @@ insert into items values (1,'Кепка','бейсболка большого р
                          (13,'Кепка12','бейсболка большого размера',1200,12,'cap.jpg'),
                          (14,'Кепка13','бейсболка большого размера',1200,12,'cap.jpg');
 
-insert into in_card values  (1,3,5),
-                            (1,4,6);
+insert into in_card values  (1,1,5, 3),
+                            (2,1,6, 4);
 
 commit;
 
