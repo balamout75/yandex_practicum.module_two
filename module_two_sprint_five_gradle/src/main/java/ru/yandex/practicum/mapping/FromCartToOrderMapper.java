@@ -4,12 +4,12 @@ import ru.yandex.practicum.model.InCart;
 import ru.yandex.practicum.model.InOrder;
 import ru.yandex.practicum.model.Order;
 
-public class InCartToInOrderMapper {
+public class FromCartToOrderMapper {
     private Order order;
 
-    public InCartToInOrderMapper() {     }
+    public FromCartToOrderMapper() {     }
 
-    public InOrder toInOrder(InCart  inCart) {
+    public InOrder toInOrder(InCart inCart) {
         InOrder inOrder = new InOrder();
         inOrder.setOrder(order);
         inOrder.setItem(inCart.getItem());

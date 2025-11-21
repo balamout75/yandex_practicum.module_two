@@ -1,46 +1,42 @@
 package ru.yandex.practicum.service;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.mapping.InCartToInOrderMapper;
-import ru.yandex.practicum.mapping.OrderEntityMapper;
+import ru.yandex.practicum.mapping.FromCartToOrderMapper;
+import ru.yandex.practicum.mapping.OrderToDtoMapper;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Lazy
 @Service
 public class OrderService {
+    private final InOrderRepository     inOrderRepository;
+    private final OrderRepository       orderRepository;
+    private final InCartRepository      inCartRepository;
+    private final FromCartToOrderMapper fromCartToOrderMapper;
+    private final OrderToDtoMapper orderToDtoMapper;
 
-    private final InOrderRepository inOrderRepository;
-
-    private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
-    private final InCartRepository inCartRepository;
-    private final InCartToInOrderMapper inCartToInOrderMapper;
-    private final OrderEntityMapper orderEntityMapper;
-
-    public OrderService(UserRepository userRepository, OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, InCartToInOrderMapper inCartToInOrderMapper, OrderEntityMapper orderEntityMapper) {
-
-        this.userRepository = userRepository;
+    public OrderService(OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper) {
         this.orderRepository = orderRepository;
         this.inCartRepository = inCartRepository;
         this.inOrderRepository = inOrderRepository;
-        this.inCartToInOrderMapper = inCartToInOrderMapper;
-        this.orderEntityMapper = orderEntityMapper;
+        this.fromCartToOrderMapper = fromCartToOrderMapper;
+        this.orderToDtoMapper = orderToDtoMapper;
     }
 
     @Transactional
-    public long closeCart(long userId) {
-        User user = userRepository.findById(userId);
+    public long closeCart(User user) {
         Order order = new Order();
         order.setUser(user);
         orderRepository.save(order);
-        inCartToInOrderMapper.setOrder(order);
+        fromCartToOrderMapper.setOrder(order);
         user.getInCarts().stream()
-                .map(inCartToInOrderMapper::toInOrder)
+                .map(fromCartToOrderMapper::toInOrder)
                 .map(inOrderRepository::save)
                 .collect(Collectors.toSet());
         orderRepository.save(order);
@@ -48,16 +44,14 @@ public class OrderService {
         return order.getId();
     }
 
-    public List<OrderDto> findOrders(long userId) {
-        User user = userRepository.findById(userId);
+    public List<OrderDto> findOrders(User user) {
         return orderRepository.findByUser(user).stream()
-                              .map(orderEntityMapper::toDto)
+                              .map(orderToDtoMapper::toDto)
                               .toList();
-
     }
 
     public OrderDto findOrder(long userId, Long orderId) {
         Order order = orderRepository.findById(orderId);
-        return orderEntityMapper.toDto(order);
+        return orderToDtoMapper.toDto(order);
     }
 }

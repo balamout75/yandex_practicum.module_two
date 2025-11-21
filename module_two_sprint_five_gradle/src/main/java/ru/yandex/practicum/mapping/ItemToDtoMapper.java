@@ -4,19 +4,19 @@ import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.model.InCart;
 import ru.yandex.practicum.model.Item;
+import ru.yandex.practicum.model.User;
 
-public class ItemEntityMapper {
+public class ItemToDtoMapper {
     @Value("${images.path}")
     private String UPLOAD_DIR;
 
-    public ItemEntityMapper() {   }
+    public ItemToDtoMapper() {   }
 
-    public ItemDto toDto(Item item) {
+    public ItemDto toDto(User user, Item item) {
         long count = item.getInCards().stream()
-                            .filter(inCard -> inCard.getUser().getId().intValue()==1)
-                            .findFirst()
+                            .filter(inCard -> inCard.getUser().equals(user))
                             .map(InCart::getCount)
-                            .orElse(0l);
+                            .reduce(0L, Long::sum);
 
         return new ItemDto(item.getId(),
                            item.getTitle(),

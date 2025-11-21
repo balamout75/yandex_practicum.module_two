@@ -17,20 +17,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.Paging;
 import ru.yandex.practicum.service.ItemService;
+import ru.yandex.practicum.service.UserService;
 
 @CrossOrigin(maxAge = 3600)
 @Controller
 @RequestMapping("/items")
 class ItemController {
 
+	private final UserService userService;
 	private final ItemService service;
 
 	private static final String VIEWS_ITEMS_CHART_FORM = "items";
 	private static final String VIEWS_ITEMS_ITEM_FORM = "item";
 	private static final long USER_ID = 1;
 
-	public ItemController(ItemService service) {
-		this.service = service;
+	public ItemController(UserService userService, ItemService service) {
+        this.userService = userService;
+        this.service = service;
 	}
 
 	@GetMapping()
@@ -45,7 +48,7 @@ class ItemController {
 		};
 
 		Pageable pageable = PageRequest.of(pageNumber-1, pageSize, sortmode);
-		Page<ItemDto> paged = service.findAll(search,pageable);
+		Page<ItemDto> paged = userService.findAll(USER_ID,search,pageable);
 		List<ItemDto> itemsList = new ArrayList<>(paged.getContent());
 		while ((itemsList.size() % 3) !=0 ) { itemsList.add(new ItemDto());}
 		List<List<ItemDto>> itemsTupleList = ListUtils.partition(itemsList, 3);
@@ -68,8 +71,8 @@ class ItemController {
 							RedirectAttributes redirectAttributes  ){
 
 		switch (action.toLowerCase()) {
-			case "minus": System.out.println("minus"); service.changeInCardCount(USER_ID, id, false); break;
-			case "plus" : System.out.println("plus");  service.changeInCardCount(USER_ID, id, true); break;
+			case "plus" : System.out.println("plus");  userService.changeInCardCount(USER_ID, id, 1); break;
+			case "minus": System.out.println("minus"); userService.changeInCardCount(USER_ID, id, 2); break;
 			default		: System.out.println("default");
 
 		};
@@ -81,8 +84,8 @@ class ItemController {
 	}
 
 	@GetMapping(value={"/{id}"})
-	public String getItem(@PathVariable(name = "id") Long id, Model model){
-		ItemDto itemDto = service.findById(id);
+	public String getItem(@PathVariable(name = "id") Long itemId, Model model){
+		ItemDto itemDto = userService.findItem(USER_ID, itemId);
 		model.addAttribute("item", itemDto);
 		return VIEWS_ITEMS_ITEM_FORM;
 	}

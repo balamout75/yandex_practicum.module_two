@@ -1,4 +1,5 @@
 package ru.yandex.practicum.repository;
+import io.micrometer.observation.ObservationFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.Item;
@@ -8,8 +9,5 @@ import ru.yandex.practicum.model.Item;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    //@Query("select distinct p from Post p join p.tags t where p.title ilike :searchSubString and lower(t.tag) in (:tags) group by p.id having count(p.id) = :tagCount")
-    //@NativeQuery(value = "select i.*, coalesce(ic.count, 0) as count from items i left join in_card ic on i.id = ic.item_id")
-    //Page<ItemDto> findMyItems(Pageable pageable);
-    //Page<Item> findAll(Pageable pageable);
+    Item findById(long itemId);
 }

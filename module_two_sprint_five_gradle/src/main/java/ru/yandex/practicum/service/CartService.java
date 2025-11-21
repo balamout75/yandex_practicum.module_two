@@ -4,50 +4,40 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
 
-import ru.yandex.practicum.mapping.ItemEntityMapper;
+import ru.yandex.practicum.mapping.ItemToDtoMapper;
 
 import ru.yandex.practicum.model.InCart;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.InCartRepository;
-import ru.yandex.practicum.repository.ItemRepository;
 import ru.yandex.practicum.repository.UserRepository;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CartService {
 
 
-    private final ItemRepository itemRepository;
+    //private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final InCartRepository inCartRepository;
-    private final ItemEntityMapper itemEntityMapper;
+    private final ItemToDtoMapper itemToDtoMapper;
 
-    public CartService(UserRepository userRepository, ItemRepository itemRepository, InCartRepository inCartRepository, ItemEntityMapper itemEntityMapper) {
-        this.itemRepository = itemRepository;
+    public CartService(UserRepository userRepository, InCartRepository inCartRepository, ItemToDtoMapper itemToDtoMapper) {
         this.inCartRepository = inCartRepository;
-        this.itemEntityMapper = itemEntityMapper;
+        this.itemToDtoMapper = itemToDtoMapper;
         this.userRepository = userRepository;
     }
 
-    public ItemDto findById(long id) {
-        return itemRepository.findById((int)id).map(itemEntityMapper::toDto).orElse(null);
-    }
-
-    public void changeInCardCount(long userId, long itemId, int command) {
-        User user = userRepository.findById(userId);
-        AtomicReference<Item> item = new AtomicReference<>();
+    public void changeInCardCount(User user, Item item, int command) {
         InCart inCart = user.getInCarts().stream()
-                .filter(u -> u.getItem().getId() == itemId)
-                .peek(u -> item.set(u.getItem()))
+                .filter(u -> u.getItem().equals(item))
                 .findFirst().orElse(null);
         switch (command) {
             case 1: {
                 if (inCart ==null) { inCart =new InCart();
-                    inCart.setItem(item.get());
+                    inCart.setItem(item);
                     inCart.setUser(user);
                     inCart.setCount(0l);
                     inCartRepository.save(inCart);
@@ -71,12 +61,14 @@ public class CartService {
     }
 
     public CartDto getCart(long userId) {
+        User user = userRepository.findById(userId);
         AtomicLong cartTotal= new AtomicLong();
-        List <ItemDto> items =userRepository.findById(userId).getInCarts().stream()
+        List <ItemDto> items =user.getInCarts().stream()
                 .map(InCart::getItem)
-                .map(itemEntityMapper::toDto)
+                .map(u -> itemToDtoMapper.toDto(user,u))
                 .peek(u -> cartTotal.set(cartTotal.get() + u.count() * u.price()))
                 .toList();
         return new CartDto(items,cartTotal.get());
     }
+
 }
