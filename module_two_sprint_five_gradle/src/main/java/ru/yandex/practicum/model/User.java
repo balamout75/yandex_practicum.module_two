@@ -1,10 +1,6 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -31,10 +27,6 @@ public class User {
 
     public Set<InCart> getInCarts() {
         return inCarts;
-    }
-
-    public void setInCarts(Set<InCart> inCarts) {
-        this.inCarts = inCarts;
     }
 
     public Set<Order> getOrders() {

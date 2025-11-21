@@ -36,8 +36,7 @@ class CartController {
     }
 
     @PostMapping("/items")
-    public String postItems(HttpServletRequest request,
-                            @RequestParam(name = "id") long itemId,
+    public String postItems(@RequestParam(name = "id") long itemId,
                             @RequestParam String action,
                             Model model ){
 
@@ -46,7 +45,7 @@ class CartController {
             case "minus"    : userService.changeInCardCount(USER_ID, itemId, 2); break;
             case "delete"   : userService.changeInCardCount(USER_ID, itemId, 3); break;
             default		    : System.out.println("default");
-        };
+        }
         CartDto cartDto = service.getCart(USER_ID);
         model.addAttribute("items", cartDto.items());
         model.addAttribute("total", cartDto.total());
@@ -61,7 +60,7 @@ class CartController {
     }
 
     @PostMapping(value={"/items/{id}"})
-    public String controlItem(@PathVariable(name = "id") Long id, @RequestParam(required = true) String action, Model model){
+    public String controlItem(@PathVariable(name = "id") Long id, @RequestParam String action, Model model){
         ItemDto itemDto = userService.findItem(USER_ID, id);
         model.addAttribute("item", itemDto);
         return VIEWS_ITEMS_ITEM_FORM;

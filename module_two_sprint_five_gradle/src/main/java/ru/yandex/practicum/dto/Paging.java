@@ -6,13 +6,6 @@ public record Paging (
         boolean hasPrevious,
         boolean hasNext) {
 
-    public Paging(int pageSize, int pageNumber, boolean hasPrevious, boolean hasNext) {
-        this.pageSize = pageSize;
-        this.pageNumber = pageNumber;
-        this.hasPrevious = hasPrevious;
-        this.hasNext = hasNext;
-    }
-
     @Override
     public int pageSize() {
         return pageSize;

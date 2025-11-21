@@ -25,15 +25,12 @@ import ru.yandex.practicum.service.UserService;
 class ItemController {
 
 	private final UserService userService;
-	private final ItemService service;
-
 	private static final String VIEWS_ITEMS_CHART_FORM = "items";
 	private static final String VIEWS_ITEMS_ITEM_FORM = "item";
 	private static final long USER_ID = 1;
 
-	public ItemController(UserService userService, ItemService service) {
+	public ItemController(UserService userService) {
         this.userService = userService;
-        this.service = service;
 	}
 
 	@GetMapping()
@@ -75,7 +72,7 @@ class ItemController {
 			case "minus": System.out.println("minus"); userService.changeInCardCount(USER_ID, id, 2); break;
 			default		: System.out.println("default");
 
-		};
+		}
 		redirectAttributes.addAttribute("search", search);
 		redirectAttributes.addAttribute("sort", sort);
 		redirectAttributes.addAttribute("pageNumber", pageNumber);

@@ -56,10 +56,6 @@ public class Item {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Long getPrice() {
         return price;
     }
@@ -68,27 +64,12 @@ public class Item {
         this.price = price;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
     public String getImgPath() {
         return imgPath;
-    }
-
-    public void setImgPath(String imgPath) {
-        this.imgPath = imgPath;
     }
 
     public Set<InCart> getInCards() {
         return inCarts;
     }
 
-    public void setInCards(Set<InCart> inCarts) {
-        this.inCarts = inCarts;
-    }
 }

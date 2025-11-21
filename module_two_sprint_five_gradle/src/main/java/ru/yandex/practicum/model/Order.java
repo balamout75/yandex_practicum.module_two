@@ -1,9 +1,6 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -31,14 +28,6 @@ public class Order {
 
     public Set<InOrder> getInOrder() {
         return inOrder;
-    }
-
-    public void setInOrder(Set<InOrder> inOrder) {
-        this.inOrder = inOrder;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public void setUser(User user) {

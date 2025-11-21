@@ -3,7 +3,6 @@ package ru.yandex.practicum.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.yandex.practicum.service.ItemService;
 import ru.yandex.practicum.service.UserService;
 
 @CrossOrigin(maxAge = 3600)
