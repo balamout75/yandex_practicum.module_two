@@ -1,27 +1,24 @@
 package ru.yandex.practicum.mapping;
 
-import org.springframework.beans.factory.annotation.Value;
-import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.model.InCart;
-import ru.yandex.practicum.model.Item;
+import ru.yandex.practicum.model.InOrder;
+import ru.yandex.practicum.model.Order;
 
 public class InCartToInOrderMapper {
-    private String UPLOAD_DIR;
+    private Order order;
 
-    public InCartToInOrderMapper() {   }
+    public InCartToInOrderMapper() {     }
 
-    public ItemDto toDto(Item item) {
-        long count = item.getInCards().stream()
-                .filter(inCard -> inCard.getUser().getId().intValue()==1)
-                .findFirst()
-                .map(InCart::getCount)
-                .orElse(0l);
-
-        return new ItemDto(item.getId(),
-                item.getTitle(),
-                item.getDescription(),
-                UPLOAD_DIR+item.getImgPath(),
-                item.getPrice(),
-                count);
+    public InOrder toInOrder(InCart  inCart) {
+        InOrder inOrder = new InOrder();
+        inOrder.setOrder(order);
+        inOrder.setItem(inCart.getItem());
+        inOrder.setCount(inCart.getCount());
+        return inOrder;
     }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
 }

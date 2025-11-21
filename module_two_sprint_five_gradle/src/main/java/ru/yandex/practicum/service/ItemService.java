@@ -7,32 +7,20 @@ import ru.yandex.practicum.dto.ItemDto;
 
 import ru.yandex.practicum.mapping.ItemEntityMapper;
 
-import ru.yandex.practicum.model.InCart;
 import ru.yandex.practicum.model.Item;
-import ru.yandex.practicum.model.User;
-import ru.yandex.practicum.repository.InCartRepository;
 import ru.yandex.practicum.repository.ItemRepository;
-import ru.yandex.practicum.repository.UserRepository;
 
 @Service
 public class ItemService {
 
-    //@Value("${images.path}")
-    private String UPLOAD_DIR;
-
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
-    private final InCartService inCartService;
-    private final OrderService orderService;
-
+    private final CartService cartService;
     private final ItemEntityMapper itemEntityMapper;
 
-    public ItemService(UserRepository userRepository, ItemRepository itemRepository, InCartService inCartService, OrderService orderService, ItemEntityMapper itemEntityMapper) {
-        this.itemRepository = itemRepository;
-        this.inCartService = inCartService;
-        this.orderService = orderService;
-        this.itemEntityMapper = itemEntityMapper;
-        this.userRepository = userRepository;
+    public ItemService(ItemRepository itemRepository, CartService cartService, ItemEntityMapper itemEntityMapper) {
+        this.itemRepository     = itemRepository;
+        this.cartService        = cartService;
+        this.itemEntityMapper   = itemEntityMapper;
     }
 
     public Page<ItemDto> findAll(String search, Pageable pageable) {
@@ -48,11 +36,8 @@ public class ItemService {
         return itemRepository.findById((int)id).map(itemEntityMapper::toDto).orElse(null);
     }
 
-    public void changeInCardCount(long id, boolean b) {
-        inCartService.changeInCardCount(id, (b)?1:2);
+    public void changeInCardCount(long userId, long itemId, boolean command) {
+        cartService.changeInCardCount(userId, itemId,  (command)?1:2);
     }
 
-    public void closeCart(long userId) {
-        orderService.closeCart(userId);
-    }
 }

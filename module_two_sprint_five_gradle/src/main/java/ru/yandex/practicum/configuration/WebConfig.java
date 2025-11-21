@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ru.yandex.practicum.mapping.InCartToInOrderMapper;
+import ru.yandex.practicum.mapping.InOrderEntityMapper;
 import ru.yandex.practicum.mapping.ItemEntityMapper;
+import ru.yandex.practicum.mapping.OrderEntityMapper;
 
 @AutoConfiguration
 public class WebConfig {
@@ -29,6 +31,28 @@ public class WebConfig {
         @ConditionalOnMissingBean
         public InCartToInOrderMapper inCartToInOrderMapper() {
             return new InCartToInOrderMapper();
+        }
+
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(OrderEntityMapper.class)
+    public static class OrderEntityMapperConfiguration {
+        @Bean
+        @ConditionalOnMissingBean
+        public OrderEntityMapper orderEntityMapper(InOrderEntityMapper inOrderEntityMapper) {
+            return new OrderEntityMapper(inOrderEntityMapper);
+        }
+
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(InOrderEntityMapper.class)
+    public static class InOrderEntityMapperConfiguration {
+        @Bean
+        @ConditionalOnMissingBean
+        public InOrderEntityMapper inOrderEntityMapper() {
+            return new InOrderEntityMapper();
         }
 
     }

@@ -13,14 +13,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.Paging;
 import ru.yandex.practicum.service.ItemService;
 
 @CrossOrigin(maxAge = 3600)
 @Controller
-@RequestMapping()
+@RequestMapping("/items")
 class ItemController {
 
 	private final ItemService service;
@@ -33,7 +33,7 @@ class ItemController {
 		this.service = service;
 	}
 
-	@GetMapping(value={"/","/items"})
+	@GetMapping()
 	public String getItems(	@RequestParam(defaultValue = "") String search,
 						   	@RequestParam(defaultValue = "NO") String sort,
 							@RequestParam(defaultValue = "1") int pageNumber,
@@ -45,56 +45,45 @@ class ItemController {
 		};
 
 		Pageable pageable = PageRequest.of(pageNumber-1, pageSize, sortmode);
-
 		Page<ItemDto> paged = service.findAll(search,pageable);
 		List<ItemDto> itemsList = new ArrayList<>(paged.getContent());
-
 		while ((itemsList.size() % 3) !=0 ) { itemsList.add(new ItemDto());}
-
 		List<List<ItemDto>> itemsTupleList = ListUtils.partition(itemsList, 3);
 
         model.addAttribute("items", itemsTupleList);
 		model.addAttribute("search", search);
 		model.addAttribute("sort", sort);
 		model.addAttribute("paging", new Paging(pageSize, pageNumber, false, false));
-
 		return VIEWS_ITEMS_CHART_FORM;
 	}
 
-	@PostMapping(value={"/items"})
+	@PostMapping()
 	public String postItems(HttpServletRequest request,
-							@RequestParam(required = true) long id,
+							@RequestParam() long id,
 							@RequestParam(defaultValue = "") String search,
 							@RequestParam(defaultValue = "NO") String sort,
 							@RequestParam(defaultValue = "1") int pageNumber,
 							@RequestParam(defaultValue = "5") int pageSize,
-							@RequestParam(required = true) String action,
-							Model model ){
+							@RequestParam() String action,
+							RedirectAttributes redirectAttributes  ){
 
 		switch (action.toLowerCase()) {
-			case "minus": System.out.println("minus"); service.changeInCardCount(id, false); break;
-			case "plus" : System.out.println("plus"); service.changeInCardCount(id, true); break;
+			case "minus": System.out.println("minus"); service.changeInCardCount(USER_ID, id, false); break;
+			case "plus" : System.out.println("plus");  service.changeInCardCount(USER_ID, id, true); break;
 			default		: System.out.println("default");
 
 		};
-		return "redirect:/items?search="+search+"&sort="+sort+"&pageNumber="+pageNumber+"&pageSize="+pageSize;
+		redirectAttributes.addAttribute("search", search);
+		redirectAttributes.addAttribute("sort", sort);
+		redirectAttributes.addAttribute("pageNumber", pageNumber);
+		redirectAttributes.addAttribute("pageSize", pageSize);
+		return "redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}";
 	}
 
-	@GetMapping(value={"/items/{id}"})
+	@GetMapping(value={"/{id}"})
 	public String getItem(@PathVariable(name = "id") Long id, Model model){
 		ItemDto itemDto = service.findById(id);
 		model.addAttribute("item", itemDto);
 		return VIEWS_ITEMS_ITEM_FORM;
 	}
-
-	@PostMapping(value={"/buy"})
-	public String buyCart() {
-		service.closeCart(USER_ID);
-		return "sss";
-	}
-
-	/*
-
-	*/
-
 }

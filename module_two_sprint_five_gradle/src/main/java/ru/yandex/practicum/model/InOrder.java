@@ -27,14 +27,6 @@ public class InOrder {
     @Column(name = "count", nullable = false)
     private Long count;
 
-    public InOrder() {
-    }
-
-    public InOrder(InCart inCart) {
-        this.item = inCart.getItem();
-        this.count = inCart.getCount();
-    }
-
     public Long getId() {
         return id;
     }
