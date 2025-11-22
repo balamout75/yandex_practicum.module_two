@@ -5,33 +5,40 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "in_card")
-public class InCart {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+@Table(name = "cart_items")
+public class CartItem {
+
+    @EmbeddedId
+    private CartItemId id;
 
     @ManyToOne
-    //@MapsId("userId")
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    //@MapsId("itemId")
+    @MapsId("itemId")
     @JoinColumn(name = "item_id")
     private Item item;
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "count", nullable = false)
-    private Long count;
+    private long count;
 
-    public Long getId() {
+    public CartItem() { }
+
+    public CartItem(User user, Item item) {
+        this.item = item;
+        this.user = user;
+        this.id = new CartItemId(user.getId(), item.getId());
+    }
+
+    public CartItemId getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(CartItemId id) {
         this.id = id;
     }
 
@@ -57,6 +64,13 @@ public class InCart {
 
     public void setCount(Long count) {
         this.count = count;
+    }
+
+    public void countPlus() {
+        this.count++;
+    }
+    public void countMinus() {
+        this.count--;
     }
 
 }

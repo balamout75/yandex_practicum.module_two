@@ -1,24 +1,18 @@
 package ru.yandex.practicum.mapping;
 
-import ru.yandex.practicum.model.InCart;
-import ru.yandex.practicum.model.InOrder;
+import ru.yandex.practicum.model.CartItem;
+import ru.yandex.practicum.model.OrderItem;
 import ru.yandex.practicum.model.Order;
+import ru.yandex.practicum.model.OrderItemId;
 
 public class FromCartToOrderMapper {
-    private Order order;
+    //private Order order;
 
     public FromCartToOrderMapper() {     }
 
-    public InOrder toInOrder(InCart inCart) {
-        InOrder inOrder = new InOrder();
-        inOrder.setOrder(order);
-        inOrder.setItem(inCart.getItem());
-        inOrder.setCount(inCart.getCount());
-        return inOrder;
+    public OrderItem toInOrder(Order order, CartItem cartItem) {
+        return new OrderItem(order,cartItem.getItem(),cartItem.getCount());
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
 }

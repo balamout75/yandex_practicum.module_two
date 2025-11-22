@@ -7,12 +7,12 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "users_sequence", allocationSize = 1)
     private Long id;
 
     @OneToMany(mappedBy="user")
-    private Set<InCart> inCarts;
+    private Set<CartItem> CartItems;
 
     @OneToMany(mappedBy="user")
     private Set<Order> orders;
@@ -25,8 +25,8 @@ public class User {
         this.id = id;
     }
 
-    public Set<InCart> getInCarts() {
-        return inCarts;
+    public Set<CartItem> getInCarts() {
+        return CartItems;
     }
 
     public Set<Order> getOrders() {

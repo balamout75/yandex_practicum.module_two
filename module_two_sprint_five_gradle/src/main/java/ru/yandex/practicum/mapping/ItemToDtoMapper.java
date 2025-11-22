@@ -2,7 +2,7 @@ package ru.yandex.practicum.mapping;
 
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.model.InCart;
+import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 
@@ -15,7 +15,7 @@ public class ItemToDtoMapper {
     public ItemDto toDto(User user, Item item) {
         long count = item.getInCards().stream()
                             .filter(inCard -> inCard.getUser().equals(user))
-                            .map(InCart::getCount)
+                            .map(CartItem::getCount)
                             .reduce(0L, Long::sum);
 
         return new ItemDto(item.getId(),

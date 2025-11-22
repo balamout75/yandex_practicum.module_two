@@ -4,9 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.ItemDto;
-
 import ru.yandex.practicum.mapping.ItemToDtoMapper;
-
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.ItemRepository;
@@ -26,12 +24,9 @@ public class ItemService {
     }
 
     public Page<ItemDto> findAll(User user, String search, Pageable pageable) {
-        int searchCondition=0;
-        Page<Item>  postEntities = switch (searchCondition) {
-            case 1  -> itemRepository.findAll(pageable);
-            default -> itemRepository.findAll(pageable);
-        };
-        return postEntities.map(u -> itemToDtoMapper.toDto(user,u));
+        if (search.isBlank()) { return itemRepository.findAll(pageable).map(u -> itemToDtoMapper.toDto(user,u)) ;}
+        else { return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase
+                                        (search,pageable).map(u -> itemToDtoMapper.toDto(user,u)) ; }
     }
 
     public ItemDto findItem(User user, long itemId) {

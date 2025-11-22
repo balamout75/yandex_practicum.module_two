@@ -3,15 +3,12 @@ package ru.yandex.practicum.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
-
 import ru.yandex.practicum.mapping.ItemToDtoMapper;
-
-import ru.yandex.practicum.model.InCart;
+import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.InCartRepository;
 import ru.yandex.practicum.repository.UserRepository;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,7 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CartService {
 
 
-    //private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final InCartRepository inCartRepository;
     private final ItemToDtoMapper itemToDtoMapper;
@@ -31,31 +27,26 @@ public class CartService {
     }
 
     public void changeInCardCount(User user, Item item, int command) {
-        InCart inCart = user.getInCarts().stream()
+        CartItem cartItem = user.getInCarts().stream()
                 .filter(u -> u.getItem().equals(item))
                 .findFirst().orElse(null);
         switch (command) {
             case 1: {
-                if (inCart ==null) { inCart =new InCart();
-                    inCart.setItem(item);
-                    inCart.setUser(user);
-                    inCart.setCount(0l);
-                    inCartRepository.save(inCart);
-                }
-                inCart.setCount(inCart.getCount()+1);
-                inCartRepository.save(inCart);
+                if (cartItem ==null) { cartItem =new CartItem(user, item); }
+                cartItem.countPlus();
+                inCartRepository.save(cartItem);
                 break;
             }
             case 2: {
-                if ((inCart !=null)&&(inCart.getCount()>0)) {
-                    inCart.setCount(inCart.getCount()-1);
-                    inCartRepository.save(inCart);
-                    if (inCart.getCount()==0)  { inCartRepository.delete(inCart); }
+                if ((cartItem !=null)&&(cartItem.getCount()>0)) {
+                    cartItem.countMinus();
+                    inCartRepository.save(cartItem);
+                    if (cartItem.getCount()==0)  { inCartRepository.delete(cartItem); }
                 }
                 break;
             }
             case 3: {
-                if (inCart !=null) { inCartRepository.delete(inCart); }
+                if (cartItem !=null) { inCartRepository.delete(cartItem); }
             }
         }
     }
@@ -64,7 +55,7 @@ public class CartService {
         User user = userRepository.findById(userId);
         AtomicLong cartTotal= new AtomicLong();
         List <ItemDto> items =user.getInCarts().stream()
-                .map(InCart::getItem)
+                .map(CartItem::getItem)
                 .map(u -> itemToDtoMapper.toDto(user,u))
                 .peek(u -> cartTotal.set(cartTotal.get() + u.count() * u.price()))
                 .toList();

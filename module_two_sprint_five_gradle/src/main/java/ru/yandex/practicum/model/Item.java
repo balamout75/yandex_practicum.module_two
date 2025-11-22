@@ -10,7 +10,8 @@ import java.util.Set;
 @Table(name = "items")
 public class Item {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_seq")
+    @SequenceGenerator(name = "item_seq", sequenceName = "items_sequence", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -34,7 +35,7 @@ public class Item {
     private String imgPath;
 
     @OneToMany(mappedBy = "item")
-    private Set<InCart> inCarts;
+    private Set<CartItem> CartItems;
 
     public Long getId() {
         return id;
@@ -68,8 +69,8 @@ public class Item {
         return imgPath;
     }
 
-    public Set<InCart> getInCards() {
-        return inCarts;
+    public Set<CartItem> getInCards() {
+        return CartItems;
     }
 
 }

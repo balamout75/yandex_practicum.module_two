@@ -5,34 +5,34 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "in_order")
-public class InOrder {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+@Table(name = "order_items")
+public class OrderItem {
+
+    @EmbeddedId
+    private OrderItemId id;
 
     @ManyToOne
-    //@MapsId("userId")
+    @MapsId("orderId")
     @JoinColumn(name = "order_id")
     private Order order;
 
     @ManyToOne
-    //@MapsId("itemId")
+    @MapsId("itemId")
     @JoinColumn(name = "item_id")
     private Item item;
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "count", nullable = false)
-    private Long count;
+    private long count;
 
-    public Long getId() {
-        return id;
-    }
+    public OrderItem() { }
 
-    public void setId(Long id) {
-        this.id = id;
+    public OrderItem(Order order, Item item, long count) {
+        this.order = order;
+        this.item = item;
+        this.count = count;
+        this.id = new OrderItemId(order.getId(), item.getId());
     }
 
     public Order getOrder() {

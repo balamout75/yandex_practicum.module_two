@@ -10,7 +10,6 @@ import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Lazy
 @Service
@@ -31,14 +30,11 @@ public class OrderService {
 
     @Transactional
     public long closeCart(User user) {
-        Order order = new Order();
-        order.setUser(user);
+        Order order = new Order(user);
         orderRepository.save(order);
-        fromCartToOrderMapper.setOrder(order);
         user.getInCarts().stream()
-                .map(fromCartToOrderMapper::toInOrder)
-                .map(inOrderRepository::save)
-                .collect(Collectors.toSet());
+                .map(u-> fromCartToOrderMapper.toInOrder(order,u))
+                .forEach(inOrderRepository::save);
         orderRepository.save(order);
         inCartRepository.deleteAll(user.getInCarts());
         return order.getId();

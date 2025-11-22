@@ -13,7 +13,7 @@ create table if not exists items(
                                     title       varchar NOT NULL,
                                     description varchar NOT NULL,
                                     price       bigint default 0,
-                                    Quantity    bigint default 0,
+                                    quantity    bigint default 0,
                                     imgPath     varchar NOT NULL);
 
 drop table if exists orders cascade ;
@@ -23,8 +23,8 @@ create table if not exists orders(
                                     user_id      bigint NOT NULL default 1,
                                     FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE);
 
-drop table if exists in_card cascade;
-create table if not exists in_card(
+drop table if exists cart_item cascade;
+create table if not exists cart_item(
                                     id           bigserial primary key,
                                     user_id      bigint NOT NULL default 1,
                                     item_id      bigint NOT NULL,
@@ -32,8 +32,8 @@ create table if not exists in_card(
                                     FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE,
                                     FOREIGN KEY  (item_id) REFERENCES items (id) ON DELETE CASCADE);
 
-drop table if exists in_order cascade;
-create table if not exists in_order(
+drop table if exists order_item cascade;
+create table if not exists order_item(
                                     id            bigserial primary key,
                                     order_id      bigint NOT NULL,
                                     item_id       bigint NOT NULL default 1,
