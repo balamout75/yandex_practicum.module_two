@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="insert data to items" author="Ivan Vasilyev">
+        <insert tableName="items">
+	    <column name="id" 		value="1"/>
+	    <column name="title" 	value="Бейсболка утепленная"/>
+            <column name="description" 	value="Утепленная бейсболка для несуровой зимы"/>
+	    <column name="price" 	value="1200"/>
+            <column name="quantity" 	value="60"/>
+            <column name="imgpath" 	value="Cap.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="2"/>
+	    <column name="title" 	value="Рюкзак"/>
+            <column name="description" 	value="Рюкзак для треккинга. Объем 40 литров. Изготовлен в Китае"/>
+	    <column name="price" 	value="4500"/>
+            <column name="quantity" 	value="6"/>
+            <column name="imgpath" 	value="Bag.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="3"/>
+	    <column name="title" 	value="Мяч"/>
+            <column name="description" 	value="Футбольный мяч. Очень красивый и легкий."/>
+	    <column name="price" 	value="2100"/>
+            <column name="quantity" 	value="100"/>
+            <column name="imgpath" 	value="Ball.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="4"/>
+	    <column name="title" 	value="Горный велосипед"/>
+            <column name="description" 	value="Горный велосипед с широкими покрышками (полуфэтбайк) с оборудованием предпрофессионального класса Shimano, 11 скоростей. Подходит для активной езды по различным дорогам и пересеченной местности. Диаметр колес - 29 дюймов. Вес - 14,96 кг."/>
+	    <column name="price" 	value="44500"/>
+            <column name="quantity" 	value="16"/>
+            <column name="imgpath" 	value="Bike.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="5"/>
+	    <column name="title" 	value="Кофе"/>
+            <column name="description" 	value="Отличный кофе, выглядит как Арабика"/>
+	    <column name="price" 	value="500"/>
+            <column name="quantity" 	value="4"/>
+            <column name="imgpath" 	value="Coffey.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="6"/>
+	    <column name="title" 	value="Ежедневник"/>
+            <column name="description" 	value="Отличный ежедневник, 400 страниц, с картами мира и страницами на текущий год. Много потенциально-полезной информации прилагается"/>
+	    <column name="price" 	value="300"/>
+            <column name="quantity" 	value="1"/>
+            <column name="imgpath" 	value="notebook.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="7"/>
+	    <column name="title" 	value="Проект Ракета 800"/>
+            <column name="description" 	value="Проект спортивной парусной лодки Ракета 800 для самостоятельной постройки. Хотите поразвлечься - спросите нас, как"/>
+	    <column name="price" 	value="40000"/>
+            <column name="quantity" 	value="1"/>
+            <column name="imgpath" 	value="Rocket800.gif"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="8"/>
+	    <column name="title" 	value="Сноуборд"/>
+            <column name="description" 	value="Детский сноуборд для первоначальной подготовки. Предназначен для подростков 10-15 лет. Вес райдера не более 40 кг."/>
+	    <column name="price" 	value="2500"/>
+            <column name="quantity" 	value="17"/>
+            <column name="imgpath" 	value="Snowboard.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="9"/>
+	    <column name="title" 	value="ZX Spectrum"/>
+            <column name="description" 	value="Винтажный восьмибитный ретрокомпьютер на архаичном процессоре Z80. Музыкальный сопроцессор on-board"/>
+	    <column name="price" 	value="9000"/>
+            <column name="quantity" 	value="1"/>
+            <column name="imgpath" 	value="Spectrum.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="10"/>
+	    <column name="title" 	value="Мультитул"/>
+            <column name="description" 	value="Универсальный набор отверток, понастоящему необходимый в ситуациях, когда его с собою нет"/>
+	    <column name="price" 	value="5000"/>
+            <column name="quantity" 	value="15"/>
+            <column name="imgpath" 	value="tool.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="11"/>
+	    <column name="title" 	value="Зонт"/>
+            <column name="description" 	value="Просто зонт"/>
+	    <column name="price" 	value="3000"/>
+            <column name="quantity" 	value="16"/>
+            <column name="imgpath" 	value="umbrella.jpg"/>
+        </insert>
+        <insert tableName="items">
+	    <column name="id" 		value="12"/>
+	    <column name="title" 	value="Kingsong S22"/>
+            <column name="description" 	value="Моноколесо изрядной мощности на подвеске. Отлично подходит к большинству Outdoor предприятий"/>
+	    <column name="price" 	value="212000"/>
+            <column name="quantity" 	value="8"/>
+            <column name="imgpath" 	value="Unicycle.jpg"/>
+        </insert>
+    	<rollback>
+        	<delete tableName="items">
+      			<where>id BETWEEN 1 AND 10</where>
+		</delete>
+	</rollback>
+    </changeSet>
+</databaseChangeLog>
