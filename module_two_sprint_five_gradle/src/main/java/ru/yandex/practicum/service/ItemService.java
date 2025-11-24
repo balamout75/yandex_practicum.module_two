@@ -26,7 +26,7 @@ public class ItemService {
     public Page<ItemDto> findAll(User user, String search, Pageable pageable) {
         if (search.isBlank()) { return itemRepository.findAll(pageable).map(u -> itemToDtoMapper.toDto(user,u)) ;}
         else { return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase
-                                        (search,pageable).map(u -> itemToDtoMapper.toDto(user,u)) ; }
+                                        (search,search,pageable).map(u -> itemToDtoMapper.toDto(user,u)) ; }
     }
 
     public ItemDto findItem(User user, long itemId) {

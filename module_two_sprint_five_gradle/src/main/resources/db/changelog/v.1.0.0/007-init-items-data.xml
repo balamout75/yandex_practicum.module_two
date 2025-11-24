@@ -12,7 +12,7 @@
             <column name="description" 	value="Утепленная бейсболка для несуровой зимы"/>
 	    <column name="price" 	value="1200"/>
             <column name="quantity" 	value="60"/>
-            <column name="imgpath" 	value="Cap.jpg"/>
+            <column name="imgpath" 	value="cap.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="2"/>
@@ -20,7 +20,7 @@
             <column name="description" 	value="Рюкзак для треккинга. Объем 40 литров. Изготовлен в Китае"/>
 	    <column name="price" 	value="4500"/>
             <column name="quantity" 	value="6"/>
-            <column name="imgpath" 	value="Bag.jpg"/>
+            <column name="imgpath" 	value="bag.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="3"/>
@@ -28,7 +28,7 @@
             <column name="description" 	value="Футбольный мяч. Очень красивый и легкий."/>
 	    <column name="price" 	value="2100"/>
             <column name="quantity" 	value="100"/>
-            <column name="imgpath" 	value="Ball.jpg"/>
+            <column name="imgpath" 	value="ball.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="4"/>
@@ -36,7 +36,7 @@
             <column name="description" 	value="Горный велосипед с широкими покрышками (полуфэтбайк) с оборудованием предпрофессионального класса Shimano, 11 скоростей. Подходит для активной езды по различным дорогам и пересеченной местности. Диаметр колес - 29 дюймов. Вес - 14,96 кг."/>
 	    <column name="price" 	value="44500"/>
             <column name="quantity" 	value="16"/>
-            <column name="imgpath" 	value="Bike.jpg"/>
+            <column name="imgpath" 	value="bike.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="5"/>
@@ -44,7 +44,7 @@
             <column name="description" 	value="Отличный кофе, выглядит как Арабика"/>
 	    <column name="price" 	value="500"/>
             <column name="quantity" 	value="4"/>
-            <column name="imgpath" 	value="Coffey.jpg"/>
+            <column name="imgpath" 	value="coffey.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="6"/>
@@ -60,7 +60,7 @@
             <column name="description" 	value="Проект спортивной парусной лодки Ракета 800 для самостоятельной постройки. Хотите поразвлечься - спросите нас, как"/>
 	    <column name="price" 	value="40000"/>
             <column name="quantity" 	value="1"/>
-            <column name="imgpath" 	value="Rocket800.gif"/>
+            <column name="imgpath" 	value="rocket800.gif"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="8"/>
@@ -68,7 +68,7 @@
             <column name="description" 	value="Детский сноуборд для первоначальной подготовки. Предназначен для подростков 10-15 лет. Вес райдера не более 40 кг."/>
 	    <column name="price" 	value="2500"/>
             <column name="quantity" 	value="17"/>
-            <column name="imgpath" 	value="Snowboard.jpg"/>
+            <column name="imgpath" 	value="snowboard.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="9"/>
@@ -76,7 +76,7 @@
             <column name="description" 	value="Винтажный восьмибитный ретрокомпьютер на архаичном процессоре Z80. Музыкальный сопроцессор on-board"/>
 	    <column name="price" 	value="9000"/>
             <column name="quantity" 	value="1"/>
-            <column name="imgpath" 	value="Spectrum.jpg"/>
+            <column name="imgpath" 	value="spectrum.jpg"/>
         </insert>
         <insert tableName="items">
 	    <column name="id" 		value="10"/>
@@ -100,7 +100,7 @@
             <column name="description" 	value="Моноколесо изрядной мощности на подвеске. Отлично подходит к большинству Outdoor предприятий"/>
 	    <column name="price" 	value="212000"/>
             <column name="quantity" 	value="8"/>
-            <column name="imgpath" 	value="Unicycle.jpg"/>
+            <column name="imgpath" 	value="unicycle.jpg"/>
         </insert>
     	<rollback>
         	<delete tableName="items">

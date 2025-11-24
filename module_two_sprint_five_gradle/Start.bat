@@ -1,4 +1,36 @@
-﻿docker run --name yp-database --rm --env-file postgres.env -p 5432:5432 -v modile_two_postgres_data:/var/lib/postgresql/18/docker postgres:18.1
+﻿postgress
+docker run --name yp-database --rm --env-file postgres.env -p 5432:5432 -v modile_two_postgres_data:/var/lib/postgresql/18/docker postgres:18.1
+docker run --name yp-database --rm --net practicum-network --env-file postgres.env -p 5432:5432 -v modile_two_postgres_data:/var/lib/postgresql/18/docker postgres:18.1
+
 
 
 /var/lib/postgresql/18/docker)
+
+
+
+
+MyApp
+docker build -t yp-work-five-image .
+docker run --name work-five_dock_container -p 8080:8080 work_five_image
+
+docker run --name yp-work-five --net practicum-network --env-file app.env yp-work-five-image
+
+
+Nginx
+docker run --name gateway -p 80:80 -v ./proxy/nginx-practicum-proxy.conf:/etc/nginx/conf.d/default.conf -d nginx 
+
+Network
+docker network create practicum-network
+docker network connect practicum-network gateway
+
+
+
+docker run --name yp-database --rm --net practicum-network --env-file postgres.env -p 5432:5432 -v modile_two_postgres_data:/var/lib/postgresql/18/docker postgres:18.1
+
+ POSTGRES_USER=practicum_user
+ POSTGRES_PASSWORD=mysecretpassword
+
+
+
+
+docker run --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle gradle build
