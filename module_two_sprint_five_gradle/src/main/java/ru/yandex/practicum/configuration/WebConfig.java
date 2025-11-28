@@ -4,14 +4,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.yandex.practicum.mapping.FromCartToOrderMapper;
-import ru.yandex.practicum.mapping.OrderPositionToDtoMapper;
-import ru.yandex.practicum.mapping.ItemToDtoMapper;
-import ru.yandex.practicum.mapping.OrderToDtoMapper;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import ru.yandex.practicum.mapping.*;
 
 @AutoConfiguration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
     // Здесь конфигурация, связанная с контроллерами, ViewResolvers и т. д.
+
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(ItemToDtoMapper.class)
     public static class ItemMapperConfiguration {
@@ -25,10 +27,10 @@ public class WebConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(FromCartToOrderMapper.class)
-    public static class InCartToInOrderMapperConfiguration {
+    public static class FromCartToOrderMapperConfiguration {
         @Bean
         @ConditionalOnMissingBean
-        public FromCartToOrderMapper inCartToInOrderMapper() {
+        public FromCartToOrderMapper fromCartToOrderMapper() {
             return new FromCartToOrderMapper();
         }
 
@@ -36,10 +38,10 @@ public class WebConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(OrderToDtoMapper.class)
-    public static class OrderEntityMapperConfiguration {
+    public static class OrderToDtoMapperConfiguration {
         @Bean
         @ConditionalOnMissingBean
-        public OrderToDtoMapper orderEntityMapper(OrderPositionToDtoMapper orderPositionToDtoMapper) {
+        public OrderToDtoMapper orderToDtoMapper(OrderPositionToDtoMapper orderPositionToDtoMapper) {
             return new OrderToDtoMapper(orderPositionToDtoMapper);
         }
 
@@ -47,12 +49,21 @@ public class WebConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(OrderPositionToDtoMapper.class)
-    public static class InOrderEntityMapperConfiguration {
+    public static class OrderPositionToDtoConfiguration {
         @Bean
         @ConditionalOnMissingBean
-        public OrderPositionToDtoMapper inOrderEntityMapper() {
+        public OrderPositionToDtoMapper orderPositionToDto() {
             return new OrderPositionToDtoMapper();
         }
+    }
 
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(ConverterRegistrator.class)
+    public static class ConverterRegistratorConfiguration {
+        @Bean
+        @ConditionalOnMissingBean
+        public ConverterRegistrator converterRegistrator(FormatterRegistry registry) {
+            return new ConverterRegistrator(registry);
+        }
     }
 }

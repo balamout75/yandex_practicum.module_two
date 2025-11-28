@@ -1,45 +1,41 @@
-drop table if exists users cascade ;
+create sequence items_sequence increment by 1;
+create sequence orders_sequence increment by 1;
+create sequence users_sequence increment by 1;
+
 create table if not exists users(
-                                    id          bigserial primary key,
+                                    id          bigint primary key DEFAULT nextval('users_sequence'),
                                     firstname   varchar NOT NULL,
-                                    lastname    varchar NOT NULL,
-                                    available   boolean  default true,
-                                    created_at timestamp with time zone default current_timestamp);
+                                    lastname    varchar NOT NULL);
 
-
-drop table if exists items cascade ;
 create table if not exists items(
-                                    id          bigserial primary key,
+                                    id          bigint primary key DEFAULT nextval('items_sequence'),
                                     title       varchar NOT NULL,
                                     description varchar NOT NULL,
                                     price       bigint default 0,
                                     quantity    bigint default 0,
                                     imgPath     varchar NOT NULL);
 
-drop table if exists orders cascade ;
 create table if not exists orders(
-                                    id           bigserial primary key,
+                                    id           bigint primary key DEFAULT nextval('orders_sequence'),
                                     created_at   timestamp with time zone default current_timestamp,
                                     user_id      bigint NOT NULL default 1,
                                     FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE);
 
-drop table if exists cart_item cascade;
-create table if not exists cart_item(
-                                    id           bigserial primary key,
+create table if not exists cart_items(
                                     user_id      bigint NOT NULL default 1,
                                     item_id      bigint NOT NULL,
                                     count        bigint NOT NULL default 0,
                                     FOREIGN KEY  (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                                    FOREIGN KEY  (item_id) REFERENCES items (id) ON DELETE CASCADE);
+                                    FOREIGN KEY  (item_id) REFERENCES items (id) ON DELETE CASCADE,
+                                    primary key  (user_id, item_id));
 
-drop table if exists order_item cascade;
-create table if not exists order_item(
-                                    id            bigserial primary key,
+create table if not exists order_items(
                                     order_id      bigint NOT NULL,
                                     item_id       bigint NOT NULL default 1,
                                     count         bigint NOT NULL default 0,
                                     FOREIGN KEY   (order_id)    REFERENCES orders(id) ON DELETE CASCADE,
-                                    FOREIGN KEY   (item_id)     REFERENCES items (id) ON DELETE CASCADE);
+                                    FOREIGN KEY   (item_id)     REFERENCES items (id) ON DELETE CASCADE,
+                                    primary key  (order_id, item_id));
 
 insert into users (id, firstname, lastname) values (1, 'John','Smith');
 
@@ -57,11 +53,3 @@ insert into items values (1,'Кепка','бейсболка большого р
                          (12,'Кепка11','бейсболка большого размера',1200,12,'cap.jpg'),
                          (13,'Кепка12','бейсболка большого размера',1200,12,'cap.jpg'),
                          (14,'Кепка13','бейсболка большого размера',1200,12,'cap.jpg');
-
-insert into in_card values  (1,1,5, 3),
-                            (2,1,6, 4);
-
-commit;
-
-
-select i.*, coalesce(ic.count, 0) as count from items i left join (select * from in_card where user_id=1) ic on i.id = ic.item_id ORDER BY i.id;

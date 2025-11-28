@@ -34,7 +34,7 @@ public class Item {
     @Column(name = "imgpath")
     private String imgPath;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "item")
     private Set<CartItem> CartItems;
 
     public Long getId() {

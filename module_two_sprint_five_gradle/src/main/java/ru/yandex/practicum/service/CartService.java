@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
+import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.mapping.ItemToDtoMapper;
 import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
@@ -26,27 +27,35 @@ public class CartService {
         this.userRepository = userRepository;
     }
 
-    public void changeInCardCount(User user, Item item, int command) {
-        CartItem cartItem = user.getInCarts().stream()
-                .filter(u -> u.getItem().equals(item))
-                .findFirst().orElse(null);
-        switch (command) {
-            case 1: {
-                if (cartItem ==null) { cartItem =new CartItem(user, item); }
-                cartItem.countPlus();
-                inCartRepository.save(cartItem);
-                break;
-            }
-            case 2: {
-                if ((cartItem !=null)&&(cartItem.getCount()>0)) {
-                    cartItem.countMinus();
+    public void changeInCardCount(User user, Optional <Item> item, ActionModes action) {
+        if (item.isPresent()) {
+            CartItem cartItem = user.getInCarts().stream()
+                    .filter(u -> u.getItem().equals(item.get()))
+                    .findFirst().orElse(null);
+            switch (action) {
+                case ActionModes.PLUS: {
+                    if (cartItem == null) {
+                        cartItem = new CartItem(user, item.get());
+                    }
+                    cartItem.countPlus();
                     inCartRepository.save(cartItem);
-                    if (cartItem.getCount()==0)  { inCartRepository.delete(cartItem); }
+                    break;
                 }
-                break;
-            }
-            case 3: {
-                if (cartItem !=null) { inCartRepository.delete(cartItem); }
+                case ActionModes.MINUS: {
+                    if ((cartItem != null) && (cartItem.getCount() > 0)) {
+                        cartItem.countMinus();
+                        inCartRepository.save(cartItem);
+                        if (cartItem.getCount() == 0) {
+                            inCartRepository.delete(cartItem);
+                        }
+                    }
+                    break;
+                }
+                case ActionModes.DELETE: {
+                    if (cartItem != null) {
+                        inCartRepository.delete(cartItem);
+                    }
+                }
             }
         }
     }

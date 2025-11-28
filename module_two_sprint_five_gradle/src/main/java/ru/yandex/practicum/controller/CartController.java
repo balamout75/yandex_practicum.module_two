@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
+import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.service.CartService;
 import ru.yandex.practicum.service.UserService;
 
@@ -37,15 +38,10 @@ class CartController {
 
     @PostMapping("/items")
     public String postItems(@RequestParam(name = "id") long itemId,
-                            @RequestParam String action,
+                            @RequestParam() ActionModes action,
                             Model model ){
 
-        switch (action.toLowerCase()) {
-            case "plus"     : userService.changeInCardCount(USER_ID, itemId, 1); break;
-            case "minus"    : userService.changeInCardCount(USER_ID, itemId, 2); break;
-            case "delete"   : userService.changeInCardCount(USER_ID, itemId, 3); break;
-            default		    : System.out.println("default");
-        }
+        userService.changeInCardCount(USER_ID, itemId, action);
         CartDto cartDto = service.getCart(USER_ID);
         model.addAttribute("items", cartDto.items());
         model.addAttribute("total", cartDto.total());

@@ -11,7 +11,6 @@ import ru.yandex.practicum.model.Item;
 
 
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Integer> {
-    Item findById(long itemId);
+public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description, Pageable pageable);
 }

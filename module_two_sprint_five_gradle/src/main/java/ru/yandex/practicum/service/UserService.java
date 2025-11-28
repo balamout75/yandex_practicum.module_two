@@ -6,11 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.OrderDto;
+import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.UserRepository;
 import java.util.List;
 
-@Lazy
 @Service
 public class UserService {
 
@@ -35,15 +35,19 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public void changeInCardCount(long userId, long itemId, int i) {
-        itemService.changeInCardCount(getUser(userId), itemId, i);
+    public void changeInCardCount(long userId, long itemId, ActionModes action) {
+        itemService.changeInCardCount(getUser(userId), itemId, action);
     }
 
     public Page<ItemDto> findAll(long userId, String search, Pageable pageable) {
         return itemService.findAll(getUser(userId), search, pageable);
     }
 
-    public ItemDto findItem(long userId, Long itemId) {
+    public ItemDto findItem(Long userId, Long itemId) {
         return itemService.findItem(getUser(userId), itemId);
+    }
+
+    public boolean exists(Long userId, Long itemId) {
+        return itemService.exists(getUser(userId), itemId);
     }
 }
