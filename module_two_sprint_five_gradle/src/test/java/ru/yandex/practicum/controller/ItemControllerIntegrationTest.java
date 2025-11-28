@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -52,11 +53,40 @@ class ItemControllerIntegrationTest {
     @Value("${images.path}")
     private String UPLOAD_DIR;
 
+    public record SearchPattern(
+            String  pattern,
+            int     count
+    ) {}
+
+    static Stream<Arguments> applyPattern() {
+        return Stream.of(
+                    Arguments.of(new SearchPattern("зонт",1)),
+                    Arguments.of(new SearchPattern("Зонт",1)),
+                    Arguments.of(new SearchPattern("  зонт  ",1)),
+                    Arguments.of(new SearchPattern("кепка",2)),
+                    Arguments.of(new SearchPattern("моноколесо",1))
+        );
+    };
+
+    @ParameterizedTest
+    @MethodSource("applyPattern")
+    void findItemsByTitleOrDescription(SearchPattern searchPattern) throws Exception {
+        mockMvc.perform(get("/items")
+                .queryParam("id", "1")
+                .queryParam("search", searchPattern.pattern())
+                .queryParam("sort", SortModes.ALPHA.toString())
+                .queryParam("pageNumber", "1")
+                .queryParam("pageSize", "5")
+        )       .andExpect(status().isOk());
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "title"));
+        Page<ItemDto> paged = userService.findAll(1L,searchPattern.pattern(), pageable);
+        assertEquals(searchPattern.count, paged.getTotalElements());
+    }
+
     @Test
-    @Order(1)
     void getItemByIdSuccesfull() throws Exception {
         ItemDto item = new ItemDto (1,"Кепка","бейсболка большого размера",UPLOAD_DIR+"cap.jpg", 1200,0);
-        assertTrue(userService.exists(1L,1L));
+        assertTrue(userService.existsItem(1L,1L));
         assertEquals(userService.findItem(1L,1L),item);
         mockMvc.perform(get("/items/1"))
                 .andExpect(status().isOk())
@@ -64,9 +94,8 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    @Order(2)
     void getItemByIdNotFound() throws Exception {
-        assertFalse(userService.exists(1L,21L));
+        assertFalse(userService.existsItem(1L,21L));
         mockMvc.perform(get("/items/21"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("text/html;charset=UTF-8"));
@@ -95,10 +124,9 @@ class ItemControllerIntegrationTest {
     // Тестируем StringToSortModesConverter - конвертор значения параметра сортировки товаров,
     // вызываемый в методе ItemController.getItems(). Для разгрузки сервисов замокал userService.findAll
     // Проверяю, что при вызове подается корректно сгенерированный pageable=f(sortmode)
-    @Order(3)
     @ParameterizedTest
     @MethodSource("applySortModeString")
-    void testSortParameterConverterAtGetItems(SortRequest sortRequest) throws Exception {
+    void testRequestSortParameterConverter(SortRequest sortRequest) throws Exception {
         Sort sortmode = switch (sortRequest.sortModes) {
             case SortModes.PRICE 	-> Sort.by(Sort.Direction.ASC, "price") ;
             case SortModes.ALPHA 	-> Sort.by(Sort.Direction.ASC, "title") ;
@@ -137,12 +165,11 @@ class ItemControllerIntegrationTest {
 
     // Тестируем StringToActionModesConverter - конвертор значения параметра изменения счетчика количества
     // товаров в корзине, вызываемый в методе ItemController.postItem(). Для разгрузки сервисов замокал userService.changeInCardCount()
-    // Проверяю, что при вызове подается корректно сгенерированный activeMode. Ну и еще поупражнялся в форсмровании запросов без
-    // конкатенации строк. Получилось интересно, но не успел вытащить из request'a URI, ограничился контролем параметров модели
-    @Order(4)
+    // Проверяю, что при вызове подается корректно сгенерированный activeMode и выполняется Redirect. Ну и еще поупражнялся в форсмровании
+    // запросов без конкатенации строк. Получилось интересно, но не успел вытащить из request'a URI, ограничился контролем параметров модели
     @ParameterizedTest
     @MethodSource("applyActiveModeString")
-    void testRequestParameterConverter1(ActionRequest actionRequest) throws Exception {
+    void testRequestActionParameterConverterAndRedirection(ActionRequest actionRequest) throws Exception {
         doNothing().when(userService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
         mockMvc.perform(post("/items")
                     .queryParam("id", "1")

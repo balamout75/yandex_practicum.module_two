@@ -8,11 +8,8 @@ import ru.yandex.practicum.model.User;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository <Order, Integer> {
+public interface OrderRepository extends JpaRepository <Order, Long> {
 
     List<Order> findByUser(User user);
-
-    Order findById(Long orderId);
-
     //
 }

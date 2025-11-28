@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.mapping.FromCartToOrderMapper;
 import ru.yandex.practicum.mapping.OrderToDtoMapper;
+import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.*;
@@ -18,7 +19,7 @@ public class OrderService {
     private final OrderRepository       orderRepository;
     private final InCartRepository      inCartRepository;
     private final FromCartToOrderMapper fromCartToOrderMapper;
-    private final OrderToDtoMapper orderToDtoMapper;
+    private final OrderToDtoMapper      orderToDtoMapper;
 
     public OrderService(OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper) {
         this.orderRepository = orderRepository;
@@ -46,8 +47,12 @@ public class OrderService {
                               .toList();
     }
 
-    public OrderDto findOrder(long userId, Long orderId) {
-        Order order = orderRepository.findById(orderId);
-        return orderToDtoMapper.toDto(order);
+    public OrderDto findOrder(User user, Long orderId) {
+        Optional <Order> order = orderRepository.findById(orderId);
+        return order.map(orderToDtoMapper::toDto).orElse(null);
+    }
+
+    public boolean exists(User user, Long orderId) {
+        return orderRepository.existsById(orderId);
     }
 }

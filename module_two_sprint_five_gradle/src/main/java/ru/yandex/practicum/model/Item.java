@@ -2,8 +2,10 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -71,6 +73,10 @@ public class Item {
 
     public Set<CartItem> getInCards() {
         return CartItems;
+    }
+
+    public boolean isSimilar(Item item) {
+        return this.id.equals(item.getId());
     }
 
 }

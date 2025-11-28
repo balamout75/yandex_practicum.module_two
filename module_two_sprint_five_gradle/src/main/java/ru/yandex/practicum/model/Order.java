@@ -11,7 +11,7 @@ public class Order {
     @SequenceGenerator(name = "order_seq", sequenceName = "orders_sequence", allocationSize = 1)
     private Long id;
 
-    @OneToMany(mappedBy="order")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="order")
     private Set<OrderItem> orderItem;
 
     @ManyToOne

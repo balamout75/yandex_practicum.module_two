@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.InCartRepository;
+import ru.yandex.practicum.repository.ItemRepository;
 import ru.yandex.practicum.repository.UserRepository;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,7 +32,7 @@ public class CartService {
     public void changeInCardCount(User user, Optional <Item> item, ActionModes action) {
         if (item.isPresent()) {
             CartItem cartItem = user.getInCarts().stream()
-                    .filter(u -> u.getItem().equals(item.get()))
+                    .filter(u -> u.getItem().isSimilar(item.get()))
                     .findFirst().orElse(null);
             switch (action) {
                 case ActionModes.PLUS: {
@@ -57,11 +59,13 @@ public class CartService {
                     }
                 }
             }
+            //userRepository.save(user);
+            //itemRepository.save(item.get());
         }
     }
 
     public CartDto getCart(long userId) {
-        User user = userRepository.findById(userId);
+        User user = userRepository.findById(userId).orElse(null);
         AtomicLong cartTotal= new AtomicLong();
         List <ItemDto> items =user.getInCarts().stream()
                 .map(CartItem::getItem)

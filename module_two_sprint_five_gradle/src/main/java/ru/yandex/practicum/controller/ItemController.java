@@ -45,7 +45,6 @@ class ItemController {
 			case SortModes.ALPHA 	-> Sort.by(Sort.Direction.ASC, "title") ;
 			default					-> Sort.unsorted();
 		};
-
 		Pageable pageable = PageRequest.of(pageNumber-1, pageSize, sortmode);
 		Page<ItemDto> paged = userService.findAll(USER_ID,search,pageable);
 		List<ItemDto> itemsList = new ArrayList<>(paged.getContent());
@@ -79,7 +78,7 @@ class ItemController {
 
 	@GetMapping(value={"/{id}"})
 	public String getItem(@PathVariable(name = "id") Long itemId, Model model, HttpServletResponse response){
-		if (!userService.exists(USER_ID, itemId)) {
+		if (!userService.existsItem(USER_ID, itemId)) {
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 			return "not-found"; // Страница not-found.html
 		}

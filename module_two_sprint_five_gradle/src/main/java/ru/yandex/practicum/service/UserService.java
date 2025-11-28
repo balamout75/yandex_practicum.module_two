@@ -32,7 +32,7 @@ public class UserService {
         return orderService.closeCart(getUser(userId));
     }
     public User getUser(long userId) {
-        return userRepository.findById(userId);
+        return userRepository.findById(userId).orElse(null);
     }
 
     public void changeInCardCount(long userId, long itemId, ActionModes action) {
@@ -40,14 +40,22 @@ public class UserService {
     }
 
     public Page<ItemDto> findAll(long userId, String search, Pageable pageable) {
-        return itemService.findAll(getUser(userId), search, pageable);
+        return itemService.findAll(getUser(userId), search.trim(), pageable);
     }
 
     public ItemDto findItem(Long userId, Long itemId) {
         return itemService.findItem(getUser(userId), itemId);
     }
 
-    public boolean exists(Long userId, Long itemId) {
+    public boolean existsItem(Long userId, Long itemId) {
         return itemService.exists(getUser(userId), itemId);
+    }
+
+    public boolean existsOrder(Long userId, Long orderId) {
+        return orderService.exists(getUser(userId), orderId);
+    }
+
+    public OrderDto findOrder(long userId, Long orderId) {
+        return orderService.findOrder(getUser(userId), orderId);
     }
 }

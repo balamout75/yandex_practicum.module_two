@@ -38,7 +38,6 @@ public class ItemService {
     }
 
     public Optional <Item> getItem(Long itemId) {
-        System.out.println(itemRepository.existsById(itemId));
         return itemRepository.findById(itemId);
     }
 

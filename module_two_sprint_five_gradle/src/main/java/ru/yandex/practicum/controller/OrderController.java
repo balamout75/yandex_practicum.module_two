@@ -1,5 +1,7 @@
 package ru.yandex.practicum.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,16 +30,21 @@ class OrderController {
 
     @GetMapping()
     public String getOrders( Model model ){
-        List<OrderDto> convertedOrders = userService.findOrders(USER_ID);
-        model.addAttribute("orders", convertedOrders);
+        List<OrderDto> orders = userService.findOrders(USER_ID);
+        model.addAttribute("orders", orders);
         return VIEW_ORDERS;
     }
 
     @GetMapping("/{id}")
-    public String getOrder(@PathVariable(name = "id") Long id, @RequestParam(defaultValue = "false") String action, Model model ){
-        OrderDto orderDto = service.findOrder(USER_ID,id);
-        model.addAttribute("order",     orderDto);
-        model.addAttribute("newOrder",  action);
+    public String getOrder(@PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder,
+                           Model model, HttpServletResponse response){
+        if (!userService.existsOrder(USER_ID, orderId)) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return "not-found"; // Страница not-found.html
+        }
+        OrderDto order = userService.findOrder(USER_ID, orderId);
+        model.addAttribute("order",     order);
+        model.addAttribute("newOrder",  newOrder);
         return VIEW_ORDER;
     }
 

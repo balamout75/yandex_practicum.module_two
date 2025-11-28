@@ -1,6 +1,16 @@
-create sequence items_sequence increment by 1;
-create sequence orders_sequence increment by 1;
-create sequence users_sequence increment by 1;
+drop table if exists items cascade;
+drop table if exists orders cascade;
+drop table if exists users cascade;
+drop table if exists cart_items cascade;
+drop table if exists order_items cascade;
+
+drop sequence if exists items_sequence;
+drop sequence if exists orders_sequence;
+drop sequence if exists users_sequence;
+
+create sequence items_sequence start 6 increment by 1;
+create sequence orders_sequence start 2 increment by 1;
+create sequence users_sequence start 2 increment by 1;
 
 create table if not exists users(
                                     id          bigint primary key DEFAULT nextval('users_sequence'),
@@ -40,16 +50,17 @@ create table if not exists order_items(
 insert into users (id, firstname, lastname) values (1, 'John','Smith');
 
 insert into items values (1,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (2,'Кепка1','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (3,'Кепка2','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (4,'Кепка3','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (5,'Кепка4','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (6,'Кепка5','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (7,'Кепка6','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (8,'Кепка7','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (9,'Кепка8','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (10,'Кепка9','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (11,'Кепка10','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (12,'Кепка11','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (13,'Кепка12','бейсболка большого размера',1200,12,'cap.jpg'),
-                         (14,'Кепка13','бейсболка большого размера',1200,12,'cap.jpg');
+                         (2,'Самокат','Моноколесо',120000,12,'cap.jpg'),
+                         (3,'ZX-Spectrum','Ретрокомпьютер',12000,12,'cap.jpg'),
+                         (4,'Зонт','просто зонт',2000,12,'cap.jpg'),
+                         (5,'Ежедневник','Записная книжка на каждый день, и кепка',200,12,'cap.jpg');
+
+insert into orders (id, user_id) values (1, 1);
+
+insert into order_items values (1, 1, 10),
+                               (1, 2, 9),
+                               (1, 3, 8);
+
+
+insert into cart_items values  (1, 4, 1),
+                               (1, 5, 3);

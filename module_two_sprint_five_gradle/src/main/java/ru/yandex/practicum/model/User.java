@@ -11,10 +11,10 @@ public class User {
     @SequenceGenerator(name = "user_seq", sequenceName = "users_sequence", allocationSize = 1)
     private Long id;
 
-    @OneToMany(mappedBy="user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
     private Set<CartItem> CartItems;
 
-    @OneToMany(mappedBy="user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
     private Set<Order> orders;
 
     public Long getId() {
