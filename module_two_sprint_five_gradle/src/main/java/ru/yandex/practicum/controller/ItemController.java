@@ -62,8 +62,7 @@ class ItemController {
 	}
 
 	@PostMapping()
-	public String postItems(HttpServletRequest request,
-							@RequestParam(name = "id") long itemId,
+	public String postItems(@RequestParam(name = "id") long itemId,
 							@RequestParam(defaultValue = "") String search,
 							@RequestParam(defaultValue = "NO") String sort,
 							@RequestParam(defaultValue = "1") int pageNumber,

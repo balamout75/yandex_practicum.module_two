@@ -44,7 +44,7 @@ public class ItemService {
     }
 
     public boolean exists(long userId, Long itemId) {
-        User user = userService.getUser(userId);
+        //User user = userService.getUser(userId);
         return itemRepository.existsById(itemId);
     }
 }

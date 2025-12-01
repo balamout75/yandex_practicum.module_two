@@ -1,6 +1,5 @@
 package ru.yandex.practicum.service;
 
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
@@ -10,8 +9,6 @@ import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.InCartRepository;
-import ru.yandex.practicum.repository.ItemRepository;
-import ru.yandex.practicum.repository.UserRepository;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 

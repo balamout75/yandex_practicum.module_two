@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import ru.yandex.practicum.configuration.TestPostgresContainer;
 import ru.yandex.practicum.mapping.ActionModes;
@@ -33,9 +32,8 @@ class UserServiceLimitedIntegrationTest {
     private UserService userService;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
     private CartService cartService;
+
     @Autowired
     private OrderService orderService;
 
