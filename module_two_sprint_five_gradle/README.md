@@ -5,7 +5,7 @@
 
 - **ItemController** (`/items`):
     - `GET /items` — витрина товаров, параметры:
-            search - поиковая строка;
+            search - поисковая строка;
             sort (ALPHA/PRICE/NO) - сортировка товаров;
             pageNumber, pageSize - параметры постраничного отображения.
     - `GET /items/{id}` — карточка товара с соответствующим ID.
