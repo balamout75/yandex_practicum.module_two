@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.mapping.ItemToDtoMapper;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
@@ -15,24 +14,27 @@ import java.util.Optional;
 @Service
 public class ItemService {
 
+    private final UserService       userService;
     private final ItemRepository    itemRepository;
-    private final CartService       cartService;
     private final ItemToDtoMapper   itemToDtoMapper;
 
 
-    public ItemService(ItemRepository itemRepository, CartService cartService, ItemToDtoMapper itemToDtoMapper) {
+    public ItemService(UserService userService, ItemRepository itemRepository, ItemToDtoMapper itemToDtoMapper) {
+        this.userService        = userService;
         this.itemRepository     = itemRepository;
-        this.cartService        = cartService;
-        this.itemToDtoMapper = itemToDtoMapper;
+        this.itemToDtoMapper    = itemToDtoMapper;
     }
 
-    public Page<ItemDto> findAll(User user, String search, Pageable pageable) {
+    public Page<ItemDto> findAll(long userId, String search, Pageable pageable) {
+        search = search.trim();
+        User user = userService.getUser(userId);
         if (search.isBlank()) { return itemRepository.findAll(pageable).map(u -> itemToDtoMapper.toDto(user,u)) ;}
         else { return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase
                                         (search,search,pageable).map(u -> itemToDtoMapper.toDto(user,u)) ; }
     }
 
-    public ItemDto findItem(User user, long itemId) {
+    public ItemDto findItem(long userId, long itemId) {
+        User user = userService.getUser(userId);
         Optional <Item> item =  itemRepository.findById(itemId);
         return item.map(value -> itemToDtoMapper.toDto(user, value)).orElse(null);
     }
@@ -41,11 +43,8 @@ public class ItemService {
         return itemRepository.findById(itemId);
     }
 
-    public void changeInCardCount(User user, long itemId, ActionModes action) {
-        cartService.changeInCardCount(user, getItem(itemId), action);
-    }
-
-    public boolean exists(User user, Long itemId) {
+    public boolean exists(long userId, Long itemId) {
+        User user = userService.getUser(userId);
         return itemRepository.existsById(itemId);
     }
 }

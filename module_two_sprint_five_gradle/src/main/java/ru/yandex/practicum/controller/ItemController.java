@@ -18,7 +18,8 @@ import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.Paging;
 import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.mapping.SortModes;
-import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.service.CartService;
+import ru.yandex.practicum.service.ItemService;
 
 
 @CrossOrigin(maxAge = 3600)
@@ -26,13 +27,15 @@ import ru.yandex.practicum.service.UserService;
 @RequestMapping("/items")
 class ItemController {
 
-	private final UserService 	userService;
+	private final ItemService 	itemService;
 	private static final String VIEWS_ITEMS_CHART_FORM = "items";
 	private static final String VIEWS_ITEMS_ITEM_FORM = "item";
 	private static final long 	USER_ID = 1;
+	private final CartService cartService;
 
-	public ItemController(UserService userService) {
-        this.userService = userService;
+	ItemController(ItemService itemService, CartService cartService) {
+        this.itemService = itemService;
+		this.cartService = cartService;
 	}
 
 	@GetMapping()
@@ -46,7 +49,7 @@ class ItemController {
 			default					-> Sort.unsorted();
 		};
 		Pageable pageable = PageRequest.of(pageNumber-1, pageSize, sortmode);
-		Page<ItemDto> paged = userService.findAll(USER_ID,search,pageable);
+		Page<ItemDto> paged = itemService.findAll(USER_ID,search,pageable);
 		List<ItemDto> itemsList = new ArrayList<>(paged.getContent());
 		while ((itemsList.size() % 3) !=0 ) { itemsList.add(new ItemDto());}
 		List<List<ItemDto>> itemsTupleList = ListUtils.partition(itemsList, 3);
@@ -68,7 +71,7 @@ class ItemController {
 							@RequestParam() ActionModes action,
 							RedirectAttributes redirectAttributes  ){
 
-		userService.changeInCardCount(USER_ID, itemId, action);
+		cartService.changeInCardCount(USER_ID, itemId, action);
 		redirectAttributes.addAttribute("search", search);
 		redirectAttributes.addAttribute("sort", sort);
 		redirectAttributes.addAttribute("pageNumber", pageNumber);
@@ -78,11 +81,11 @@ class ItemController {
 
 	@GetMapping(value={"/{id}"})
 	public String getItem(@PathVariable(name = "id") Long itemId, Model model, HttpServletResponse response){
-		if (!userService.existsItem(USER_ID, itemId)) {
+		if (!itemService.exists(USER_ID, itemId)) {
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 			return "not-found"; // Страница not-found.html
 		}
-		ItemDto itemDto = userService.findItem(USER_ID, itemId);
+		ItemDto itemDto = itemService.findItem(USER_ID, itemId);
 		model.addAttribute("item", itemDto);
 		return VIEWS_ITEMS_ITEM_FORM;
 	}

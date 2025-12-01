@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import ru.yandex.practicum.configuration.TestPostgresContainer;
 import ru.yandex.practicum.mapping.ActionModes;
@@ -33,6 +34,10 @@ class UserServiceLimitedIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private OrderService orderService;
 
 
     //тест на перенос элементов из корзины в заказ
@@ -44,7 +49,7 @@ class UserServiceLimitedIntegrationTest {
         //запоминаем количество заказов, в тестовой схеме их 1
         assertEquals(1, user.getOrders().size());
         //Создаем новый заказ на основе существующей корзины
-        userService.closeCart(user.getId());
+        orderService.closeCart(user.getId());
         //актуализируем сущность User
         user = userService.getUser(user.getId());
         //убеждаемся, что корзина пуста
@@ -81,8 +86,8 @@ class UserServiceLimitedIntegrationTest {
     @MethodSource("applyInCardCountRequest")
     @Sql(scripts = "/schema.sql", executionPhase = AFTER_TEST_METHOD)
     void testChangeInCardCount(ChangeInCardCountRequest request) {
-        Long userId = request.userId();
-        Long itemId = request.itemId();
+        long userId = request.userId();
+        long itemId = request.itemId();
         ActionModes actionMode = request.actionModes();
         long initialCount = userService.getUser(userId).getInCarts().stream()
                                 .filter(u-> u.getItem().getId().equals(itemId))
@@ -90,7 +95,7 @@ class UserServiceLimitedIntegrationTest {
                                 .findFirst()
                                 .orElse(0L);
 
-        userService.changeInCardCount(userId, itemId, actionMode);
+        cartService.changeInCardCount(userId, itemId, actionMode);
 
         long resultCount = userService.getUser(userId).getInCarts().stream()
                 .filter(u-> u.getItem().getId()==itemId)

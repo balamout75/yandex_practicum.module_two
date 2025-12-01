@@ -19,17 +19,21 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CartService {
 
 
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final ItemService itemService;
     private final InCartRepository inCartRepository;
     private final ItemToDtoMapper itemToDtoMapper;
 
-    public CartService(UserRepository userRepository, InCartRepository inCartRepository, ItemToDtoMapper itemToDtoMapper) {
+    public CartService(UserService userService, ItemService itemService, InCartRepository inCartRepository, ItemToDtoMapper itemToDtoMapper) {
+        this.itemService = itemService;
         this.inCartRepository = inCartRepository;
         this.itemToDtoMapper = itemToDtoMapper;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
-    public void changeInCardCount(User user, Optional <Item> item, ActionModes action) {
+    public void changeInCardCount(Long userId, Long itemId, ActionModes action) {
+        User user = userService.getUser(userId);
+        Optional <Item> item = itemService.getItem(itemId);
         if (item.isPresent()) {
             CartItem cartItem = user.getInCarts().stream()
                     .filter(u -> u.getItem().isSimilar(item.get()))
@@ -59,13 +63,11 @@ public class CartService {
                     }
                 }
             }
-            //userRepository.save(user);
-            //itemRepository.save(item.get());
         }
     }
 
     public CartDto getCart(long userId) {
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userService.getUser(userId);
         AtomicLong cartTotal= new AtomicLong();
         List <ItemDto> items =user.getInCarts().stream()
                 .map(CartItem::getItem)

@@ -1,13 +1,11 @@
 package ru.yandex.practicum.controller;
 
-
 import org.junit.ClassRule;
 import org.junit.jupiter.api.*;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +19,8 @@ import ru.yandex.practicum.configuration.TestPostgresContainer;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.mapping.SortModes;
-import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.service.CartService;
+import ru.yandex.practicum.service.ItemService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +47,13 @@ class ItemControllerIntegrationTest {
     public static PostgreSQLContainer<TestPostgresContainer> postgreSQLContainer = TestPostgresContainer.getInstance();
 
     @MockitoSpyBean
-    private UserService userService;
+    private ItemService itemService;
 
     @Value("${images.path}")
     private String UPLOAD_DIR;
+
+    @MockitoSpyBean
+    private CartService cartService;
 
     public record SearchPattern(
             String  pattern,
@@ -66,7 +68,7 @@ class ItemControllerIntegrationTest {
                     Arguments.of(new SearchPattern("кепка",2)),
                     Arguments.of(new SearchPattern("моноколесо",1))
         );
-    };
+    }
 
     @ParameterizedTest
     @MethodSource("applyPattern")
@@ -79,15 +81,15 @@ class ItemControllerIntegrationTest {
                 .queryParam("pageSize", "5")
         )       .andExpect(status().isOk());
         Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "title"));
-        Page<ItemDto> paged = userService.findAll(1L,searchPattern.pattern(), pageable);
+        Page<ItemDto> paged = itemService.findAll(1L,searchPattern.pattern(), pageable);
         assertEquals(searchPattern.count, paged.getTotalElements());
     }
 
     @Test
-    void getItemByIdSuccesfull() throws Exception {
+    void getItemByIdSuccessfully() throws Exception {
         ItemDto item = new ItemDto (1,"Кепка","бейсболка большого размера",UPLOAD_DIR+"cap.jpg", 1200,0);
-        assertTrue(userService.existsItem(1L,1L));
-        assertEquals(userService.findItem(1L,1L),item);
+        assertTrue(itemService.exists(1L,1L));
+        assertEquals(itemService.findItem(1L,1L),item);
         mockMvc.perform(get("/items/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"));
@@ -95,7 +97,7 @@ class ItemControllerIntegrationTest {
 
     @Test
     void getItemByIdNotFound() throws Exception {
-        assertFalse(userService.existsItem(1L,21L));
+        assertFalse(itemService.exists(1L,21L));
         mockMvc.perform(get("/items/21"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("text/html;charset=UTF-8"));
@@ -136,10 +138,10 @@ class ItemControllerIntegrationTest {
         Pageable pageable = PageRequest.of(0, 5, sortmode);
         List<ItemDto> items = new ArrayList<>();
         Page<ItemDto> pagedResponse = new PageImpl<>(items);
-        doReturn(pagedResponse).when(userService).findAll(anyLong(), anyString(),any());
+        doReturn(pagedResponse).when(itemService).findAll(anyLong(), anyString(),any());
         mockMvc.perform(get("/items?search=&sort="+sortRequest.inputString+"&pageNumber=1&pageSize=5"))
                 .andExpect(status().isOk());
-        verify(userService).findAll(anyLong(), anyString(), eq(pageable));
+        verify(itemService).findAll(anyLong(), anyString(), eq(pageable));
     }
 
     public record ActionRequest(
@@ -170,7 +172,7 @@ class ItemControllerIntegrationTest {
     @ParameterizedTest
     @MethodSource("applyActiveModeString")
     void testRequestActionParameterConverterAndRedirection(ActionRequest actionRequest) throws Exception {
-        doNothing().when(userService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
+        doNothing().when(cartService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
         mockMvc.perform(post("/items")
                     .queryParam("id", "1")
                     .queryParam("search", "")
@@ -185,6 +187,6 @@ class ItemControllerIntegrationTest {
                 .andExpect(model().attribute("pageNumber", "1"))
                 .andExpect(model().attribute("pageSize", "5"));
 
-        verify(userService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
+        verify(cartService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
     }
 }

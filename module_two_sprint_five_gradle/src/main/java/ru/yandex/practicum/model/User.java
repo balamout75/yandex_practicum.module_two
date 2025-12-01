@@ -12,9 +12,11 @@ public class User {
     private Long id;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
+    //@OneToMany(mappedBy="user")
     private Set<CartItem> CartItems;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
+    //@OneToMany(mappedBy="user")
     private Set<Order> orders;
 
     public Long getId() {

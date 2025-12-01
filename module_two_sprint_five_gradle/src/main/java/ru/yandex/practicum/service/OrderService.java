@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.mapping.FromCartToOrderMapper;
 import ru.yandex.practicum.mapping.OrderToDtoMapper;
-import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.*;
@@ -15,13 +14,15 @@ import java.util.*;
 @Lazy
 @Service
 public class OrderService {
+    private final UserService           userService;
     private final InOrderRepository     inOrderRepository;
     private final OrderRepository       orderRepository;
     private final InCartRepository      inCartRepository;
     private final FromCartToOrderMapper fromCartToOrderMapper;
     private final OrderToDtoMapper      orderToDtoMapper;
 
-    public OrderService(OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper) {
+    public OrderService(UserService userService, OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper) {
+        this.userService = userService;
         this.orderRepository = orderRepository;
         this.inCartRepository = inCartRepository;
         this.inOrderRepository = inOrderRepository;
@@ -30,7 +31,8 @@ public class OrderService {
     }
 
     @Transactional
-    public long closeCart(User user) {
+    public long closeCart(Long userId) {
+        User user = userService.getUser(userId);
         Order order = new Order(user);
         orderRepository.save(order);
         user.getInCarts().stream()
@@ -41,18 +43,19 @@ public class OrderService {
         return order.getId();
     }
 
-    public List<OrderDto> findOrders(User user) {
+    public List<OrderDto> findOrders(Long userId) {
+        User user = userService.getUser(userId);
         return orderRepository.findByUser(user).stream()
                               .map(orderToDtoMapper::toDto)
                               .toList();
     }
 
-    public OrderDto findOrder(User user, Long orderId) {
+    public OrderDto findOrder(Long userId, Long orderId) {
         Optional <Order> order = orderRepository.findById(orderId);
         return order.map(orderToDtoMapper::toDto).orElse(null);
     }
 
-    public boolean exists(User user, Long orderId) {
+    public boolean exists(Long userId, Long orderId) {
         return orderRepository.existsById(orderId);
     }
 }

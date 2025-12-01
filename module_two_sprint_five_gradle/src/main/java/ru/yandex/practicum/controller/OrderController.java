@@ -7,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.service.OrderService;
-import ru.yandex.practicum.service.UserService;
 
 import java.util.List;
 
@@ -16,21 +15,19 @@ import java.util.List;
 @RequestMapping("/orders")
 class OrderController {
 
-    private final OrderService service;
-    private final UserService userService;
+    private final OrderService orderService;
 
     private static final String VIEW_ORDERS = "orders";
     private static final String VIEW_ORDER  = "order";
     private static final long USER_ID = 1;
 
-    public OrderController(OrderService service, UserService userService) {
-        this.service = service;
-        this.userService = userService;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @GetMapping()
     public String getOrders( Model model ){
-        List<OrderDto> orders = userService.findOrders(USER_ID);
+        List<OrderDto> orders = orderService.findOrders(USER_ID);
         model.addAttribute("orders", orders);
         return VIEW_ORDERS;
     }
@@ -38,11 +35,11 @@ class OrderController {
     @GetMapping("/{id}")
     public String getOrder(@PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder,
                            Model model, HttpServletResponse response){
-        if (!userService.existsOrder(USER_ID, orderId)) {
+        if (!orderService.exists(USER_ID, orderId)) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return "not-found"; // Страница not-found.html
         }
-        OrderDto order = userService.findOrder(USER_ID, orderId);
+        OrderDto order = orderService.findOrder(USER_ID, orderId);
         model.addAttribute("order",     order);
         model.addAttribute("newOrder",  newOrder);
         return VIEW_ORDER;

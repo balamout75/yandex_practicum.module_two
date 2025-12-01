@@ -3,6 +3,7 @@ package ru.yandex.practicum.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.yandex.practicum.service.OrderService;
 import ru.yandex.practicum.service.UserService;
 
 @CrossOrigin(maxAge = 3600)
@@ -10,11 +11,11 @@ import ru.yandex.practicum.service.UserService;
 @RequestMapping()
 class UserController {
 
-    private final UserService service;
+    private final OrderService orderService;
     private static final long USER_ID = 1;
 
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @GetMapping("/")
@@ -32,7 +33,7 @@ class UserController {
 
     @PostMapping(value={"/buy"})
     public String buyCart(RedirectAttributes redirectAttributes) {
-        long orderId = service.closeCart(USER_ID);
+        long orderId = orderService.closeCart(USER_ID);
         redirectAttributes.addAttribute("id", orderId);
         return "redirect:/orders/{id}?newOrder=true";
     }

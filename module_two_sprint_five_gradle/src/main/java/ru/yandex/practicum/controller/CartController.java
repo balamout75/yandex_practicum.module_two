@@ -1,6 +1,5 @@
 package ru.yandex.practicum.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,29 +7,29 @@ import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.service.CartService;
-import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.service.ItemService;
 
 @CrossOrigin(maxAge = 3600)
 @Controller
 @RequestMapping("/cart")
 class CartController {
 
-    private final UserService userService;
-    private final CartService service;
-
+    //private final UserService userService;
+    private final CartService cartService;
+    private final ItemService itemService;
     private static final String VIEWS_ITEMS_CART_FORM = "cart";
     private static final String VIEWS_ITEMS_ITEM_FORM = "item";
     private static final long USER_ID = 1;
 
-    public CartController(UserService userService, CartService service) {
-        this.userService = userService;
-        this.service = service;
+    public CartController(CartService cartService, ItemService itemService) {
+        this.cartService = cartService;
+        this.itemService = itemService;
     }
 
     @GetMapping("/items")
     public String getItems(	 Model model ){
 
-        CartDto cartDto = service.getCart(USER_ID);
+        CartDto cartDto = cartService.getCart(USER_ID);
         model.addAttribute("items", cartDto.items());
         model.addAttribute("total", cartDto.total());
         return VIEWS_ITEMS_CART_FORM;
@@ -41,8 +40,8 @@ class CartController {
                             @RequestParam() ActionModes action,
                             Model model ){
 
-        userService.changeInCardCount(USER_ID, itemId, action);
-        CartDto cartDto = service.getCart(USER_ID);
+        cartService.changeInCardCount(USER_ID, itemId, action);
+        CartDto cartDto = cartService.getCart(USER_ID);
         model.addAttribute("items", cartDto.items());
         model.addAttribute("total", cartDto.total());
         return VIEWS_ITEMS_CART_FORM;
@@ -50,14 +49,14 @@ class CartController {
 
     @GetMapping(value={"/items/{id}"})
     public String getItem(@PathVariable(name = "id") Long itemId, Model model){
-        ItemDto itemDto = userService.findItem(USER_ID, itemId);
+        ItemDto itemDto = itemService.findItem(USER_ID, itemId);
         model.addAttribute("item", itemDto);
         return VIEWS_ITEMS_ITEM_FORM;
     }
 
     @PostMapping(value={"/items/{id}"})
     public String controlItem(@PathVariable(name = "id") Long id, @RequestParam String action, Model model){
-        ItemDto itemDto = userService.findItem(USER_ID, id);
+        ItemDto itemDto = itemService.findItem(USER_ID, id);
         model.addAttribute("item", itemDto);
         return VIEWS_ITEMS_ITEM_FORM;
     }
