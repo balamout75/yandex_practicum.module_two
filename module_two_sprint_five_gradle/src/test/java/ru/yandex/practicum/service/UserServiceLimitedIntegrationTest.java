@@ -1,5 +1,7 @@
 package ru.yandex.practicum.service;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,18 +10,25 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import ru.yandex.practicum.configuration.TestPostgresContainer;
 import ru.yandex.practicum.mapping.ActionModes;
 import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.repository.UserRepository;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.transaction.TransactionDefinition.ISOLATION_READ_UNCOMMITTED;
 
 @SpringBootTest
 @ImportTestcontainers(TestPostgresContainer.class)
@@ -37,10 +46,20 @@ class UserServiceLimitedIntegrationTest {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private SessionFactory sessionFactory;
+    @Autowired
+    private UserRepository userRepository;
+
 
     //тест на перенос элементов из корзины в заказ
     @Test
+    @Sql(scripts = "/schema.sql", executionPhase = AFTER_TEST_METHOD)
+    //@Transactional
+    //@Commit
     void testCloseChartByUserId() {
+        //Session session = sessionFactory.openSession();
+        //TestTransaction.start();
         User user = userService.getUser(1L);
         //проверяем наличие товаров в корзине, в тестовой схеме их 2
         assertEquals(2, user.getInCarts().size());
@@ -48,8 +67,10 @@ class UserServiceLimitedIntegrationTest {
         assertEquals(1, user.getOrders().size());
         //Создаем новый заказ на основе существующей корзины
         orderService.closeCart(user.getId());
+        //TestTransaction.c
         //актуализируем сущность User
         user = userService.getUser(user.getId());
+        user = userRepository.save(user);
         //убеждаемся, что корзина пуста
         assertEquals(0, user.getInCarts().size());
         //количество заказов + 1
@@ -57,6 +78,8 @@ class UserServiceLimitedIntegrationTest {
         //в новом заказе две позиции. При необходимости можно уточнить, какие, и те ли, что были в корзине
         int orderSize = user.getOrders().stream().filter(u -> u.getId()==2).map(u->u.getInOrder().size()).findFirst().orElse(0);
         assertEquals(2, orderSize);
+        //TestTransaction.end();
+        //session.close();
     }
 
     public record ChangeInCardCountRequest(

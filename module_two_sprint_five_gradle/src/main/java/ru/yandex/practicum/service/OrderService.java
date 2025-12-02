@@ -2,6 +2,8 @@ package ru.yandex.practicum.service;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.mapping.FromCartToOrderMapper;
@@ -20,26 +22,29 @@ public class OrderService {
     private final InCartRepository      inCartRepository;
     private final FromCartToOrderMapper fromCartToOrderMapper;
     private final OrderToDtoMapper      orderToDtoMapper;
+    private final UserRepository        userRepository;
 
-    public OrderService(UserService userService, OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper) {
+    public OrderService(UserService userService, OrderRepository orderRepository, InCartRepository inCartRepository, InOrderRepository inOrderRepository, FromCartToOrderMapper fromCartToOrderMapper, OrderToDtoMapper orderToDtoMapper,
+                        UserRepository userRepository) {
         this.userService = userService;
         this.orderRepository = orderRepository;
         this.inCartRepository = inCartRepository;
         this.inOrderRepository = inOrderRepository;
         this.fromCartToOrderMapper = fromCartToOrderMapper;
         this.orderToDtoMapper = orderToDtoMapper;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public long closeCart(Long userId) {
         User user = userService.getUser(userId);
-        Order order = new Order(user);
-        orderRepository.save(order);
+        Order order = orderRepository.save(new Order(user));
         user.getInCarts().stream()
                 .map(u-> fromCartToOrderMapper.toInOrder(order,u))
                 .forEach(inOrderRepository::save);
-        orderRepository.save(order);
+        //orderRepository.save(order);
         inCartRepository.deleteAll(user.getInCarts());
+        userRepository.save(user);
         return order.getId();
     }
 
