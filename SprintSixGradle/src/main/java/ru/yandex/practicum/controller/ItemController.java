@@ -43,18 +43,18 @@ public class ItemController {
             default					-> Sort.unsorted();
         };
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize, sortmode);
-
-        model.addAttribute("items",  itemService.findAll(pageable).collectList()
-                                                        .map(items -> {
-                                                                while ((items.size() % 3) !=0 ) { items.add(new ItemDto());}
-                                                                return ListUtils.partition(items, 3);
-                                                        }));
-        model.addAttribute("search", search);
-        model.addAttribute("sort",   sort);
-        model.addAttribute("paging", new Paging(pageSize, pageNumber, false, false));
-        return Mono.just(Rendering.view(VIEWS_ITEMS_CHART_FORM)
-                        .build()
-        );
+        return  itemService.findAll(pageable).collectList()
+                .map(items -> {
+                        while ((items.size() % 3) !=0 ) { items.add(new ItemDto());}
+                        return ListUtils.partition(items, 3);
+                    }
+                )
+                .map(u -> Rendering.view(VIEWS_ITEMS_CHART_FORM)
+                                                    .modelAttribute("items",u)
+                                                    .modelAttribute("search", search)
+                                                    .modelAttribute("sort",   sort)
+                                                    .modelAttribute("paging", new Paging(pageSize, pageNumber, false, false))
+                                                    .build());
     }
 
     @GetMapping(value={"/{id}"})

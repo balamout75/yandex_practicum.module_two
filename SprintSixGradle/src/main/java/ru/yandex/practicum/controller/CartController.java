@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
@@ -29,16 +30,18 @@ class CartController {
     }
 
     @GetMapping("/items")
-    public Mono<Rendering> getItems(	 Model model ){
-        return cartService.getCart(USER_ID)
+    public Mono<Rendering> getItems(){
+        return cartService.getCart(USER_ID).collectList().zipWith(cartService.getCartCount(USER_ID))
                 .map(u -> Rendering.view(VIEWS_ITEMS_CART_FORM)
-                        .modelAttribute("items", u.items())
-                        .modelAttribute("total", u.total())
-                        .build());
+                        .modelAttribute("items", u.getT1())
+                        .modelAttribute("total", u.getT2())
+                        .build())
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found").build()));
     }
 
+     /*
 
-    /*@PostMapping("/items")
+    @PostMapping("/items")
     public String postItems(@RequestParam(name = "id") long itemId,
                             @RequestParam() ActionModes action,
                             Model model ){

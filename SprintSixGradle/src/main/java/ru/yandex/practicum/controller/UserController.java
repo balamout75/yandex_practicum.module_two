@@ -23,11 +23,11 @@ class UserController {
                                     @RequestParam(defaultValue = "1") int pageNumber,
                                     @RequestParam(defaultValue = "5") int pageSize) {
         return Mono.just(Rendering.redirectTo("/items")
-                .modelAttribute("search", search)
-                .modelAttribute("sort", sort)
-                .modelAttribute("pageNumber", pageNumber)
-                .modelAttribute("pageSize", pageSize)
-                .build());
+                        .modelAttribute("search", search)
+                        .modelAttribute("sort", sort)
+                        .modelAttribute("pageNumber", pageNumber)
+                        .modelAttribute("pageSize", pageSize)
+                        .build());
     }
 
     /*
