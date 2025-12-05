@@ -6,9 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.mapper.OrderForming;
-import ru.yandex.practicum.model.Order;
-import ru.yandex.practicum.model.OrderItem;
-import ru.yandex.practicum.model.OrdersItems;
+import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.repository.CartItemRepository;
 import ru.yandex.practicum.repository.OrderItemRepository;
 import ru.yandex.practicum.repository.OrderRepository;
@@ -45,33 +43,43 @@ public class OrderService {
                                         .toList();
                                 });
     }
-
-    public Mono<Long> closeCart(Long userId) {
-        cartItemRepository.inCartItems(userId)
-                .switchIfEmpty(Mono.empty())
-                .zipWith(orderRepository.save(new Order()))
-                .collectList()
-                .map(u -> {
-                    u.stream().map(tuple -> tuple.getT1())
-
-
-                    OrderItem oi = new OrderItem(tuple.getT1)
-                })
-
-                .
-        return Mono.just(userId);
+    private record MyStupideless (
+        OrderItem oi,
+        Void      x,
+        Order     order) {
     }
 
-/*
-        User user = userService.getUser(userId);
-        Order order = orderRepository.save(new Order(user));
-        user.getInCarts().stream()
-                .map(u-> fromCartToOrderMapper.toInOrder(order,u))
-                .forEach(inOrderRepository::save);
-        //orderRepository.save(order);
-        inCartRepository.deleteAll(user.getInCarts());
-        userRepository.save(user);
-        return order.getId();
- */
+    public Mono<Long> moveRecords(List<UsersItems> items, Order order) {
+        items.stream().
+                map(u -> {
+                    Mono<OrderItem> orderItems = orderItemRepository.save(new OrderItem(1L, u.id()));
+                    Mono<Void>      none       = cartItemRepository.deleteById(new CartItemId(1L,u.id()));
+                    Mono<Order>     savedorder = orderRepository.save(order);
+                    return Mono.zip(orderItems, none, savedorder)
+                            .map(x-> new MyStupideless(x.getT1(), x.getT2(), x.getT3()))
+                            .map(y -> y.order().getId());})
+                .forEach(System.out::println);
+        return Mono.just(order.getId());
+    }
+
+    /*public Mono<Long> closeCart(Long userId) {
+        return cartItemRepository.inCartItems(userId).collectList()
+                .switchIfEmpty(Mono.empty())
+                .zipWith(orderRepository.getId().map(Order::new))
+                .flatMap(tuple -> moveRecords(tuple.getT1(),tuple.getT2()));
+    }*/
+    public Mono<Long> closeCart(Long userId) {
+        return orderRepository.getId().map(Order::new).map(orderRepository::save).map(o -> o.getId());
+    }
 
 }
+
+/*
+
+                                        .zipWith(cartItemRepository.deleteById(new CartItemId(1L,item.id())))
+
+                                .map(ee -> {ee.})
+                                .getFirst().;
+
+                        });
+ */

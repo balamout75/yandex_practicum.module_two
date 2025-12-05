@@ -9,7 +9,7 @@ public record UsersItems(
         long count) {
 
     public UsersItems() {
-        this(-1L, null, null, null, 0L, 0L);
+        this(-1L,null, null, null, 0L, 0L);
     }
 }
 
