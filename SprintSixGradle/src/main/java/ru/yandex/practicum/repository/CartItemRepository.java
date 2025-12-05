@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.UsersItems;
 
+import java.util.List;
+
 
 @Repository
 public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Long> {
@@ -18,4 +20,8 @@ public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Lon
 
     @Query("select SUM(i.price*ci.count) from items i join cart_items ci on i.id = ci.item_id where ci.user_id  = :userId")
     Mono<Long> inCartCount(Long userId);
+
+    Mono<CartItem> findByUserIdAndItemId(long userId, long itemId);
+
+    //Mono<Long> updateCountByUserIdAndItemId(long count,long userId, long itemId);
 }

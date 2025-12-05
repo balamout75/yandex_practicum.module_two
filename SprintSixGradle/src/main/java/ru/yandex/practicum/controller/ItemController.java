@@ -6,28 +6,32 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.ItemDto;
+import ru.yandex.practicum.dto.ItemsRequest;
 import ru.yandex.practicum.dto.Paging;
+import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.SortModes;
+import ru.yandex.practicum.service.CartService;
 import ru.yandex.practicum.service.ItemService;
 
+//@CrossOrigin(maxAge = 3600)
 @Controller
 @RequestMapping("/items")
 public class ItemController {
 
     private final ItemService itemService;
+    private final CartService cartService;
     private static final String VIEWS_ITEMS_CHART_FORM = "items";
     private static final String VIEWS_ITEMS_ITEM_FORM = "item";
     private static final long 	USER_ID = 1;
 
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, CartService cartService) {
         this.itemService = itemService;
+        this.cartService = cartService;
     }
 
 
@@ -65,6 +69,30 @@ public class ItemController {
                         .build())
                 .switchIfEmpty(Mono.just(Rendering.redirectTo(VIEWS_ITEMS_CHART_FORM).build()));
     }
+
+
+    @PostMapping()
+    public Mono<String> postItems(@ModelAttribute ItemsRequest itemsRequest, Model model) {
+        model.addAttribute("search",        itemsRequest.search());
+        model.addAttribute("sort",          itemsRequest.sort());
+        model.addAttribute("pageNumber",    itemsRequest.pageNumber());
+        model.addAttribute("pageSize",      itemsRequest.pageSize());
+        return cartService.changeInCardCount(USER_ID, itemsRequest.id(), itemsRequest.action())
+                .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
+    }
+
+
+    /*
+    public Mono<Rendering> postItems(@RequestParam(name = "id") long itemId,
+                            @RequestParam(defaultValue = "") String search,
+                            @RequestParam(defaultValue = "NO") String sort,
+                            @RequestParam(defaultValue = "1") int pageNumber,
+                            @RequestParam(defaultValue = "5") int pageSize,
+                            @RequestParam() String action){
+
+
+*/
+
     /*
     // Карточка пользователя
     @GetMapping("/{id}")

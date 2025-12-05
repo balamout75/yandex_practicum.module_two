@@ -9,6 +9,7 @@ import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
 //import ru.yandex.practicum.model.CartItem;
+import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.CartItemRepository;
@@ -28,47 +29,28 @@ public class CartService {
             this.repository = repository;
     }
 
-    /*public void changeInCardCount(Long userId, Long itemId, ActionModes action) {
-        User user = userService.getUser(userId);
-        Optional <Item> item = itemService.getItem(itemId);
-        if (item.isPresent()) {
-            CartItem cartItem = user.getInCarts().stream()
-                    .filter(u -> u.getItem().isSimilar(item.get()))
-                    .findFirst().orElse(null);
-            switch (action) {
-                case ActionModes.PLUS: {
-                    if (cartItem == null) {
-                        cartItem = new CartItem(user, item.get());
-                    }
-                    cartItem.countPlus();
-                    inCartRepository.save(cartItem);
-                    break;
-                }
-                case ActionModes.MINUS: {
-                    if ((cartItem != null) && (cartItem.getCount() > 0)) {
-                        cartItem.countMinus();
-                        inCartRepository.save(cartItem);
-                        if (cartItem.getCount() == 0) {
-                            inCartRepository.delete(cartItem);
-                        }
-                    }
-                    break;
-                }
-                case ActionModes.DELETE: {
-                    if (cartItem != null) {
-                        inCartRepository.delete(cartItem);
-                    }
-                }
-            }
-        }
-    }*/
-
     public Flux<ItemDto> getCart(long userId) {
         return repository.inCartItems(userId).map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
     }
 
     public Mono<Long> getCartCount(long userId) {
         return repository.inCartCount(userId);
+    }
+
+    public Mono<Object> changeInCardCount(long userId, long itemId, ActionModes action) {
+        return switch (action) {
+            case ActionModes.PLUS   -> repository.findByUserIdAndItemId(userId, itemId)
+                .defaultIfEmpty(new CartItem(userId, itemId))
+                .flatMap(u -> repository.save(u.countPlus()).then());
+            case ActionModes.MINUS  -> repository.findByUserIdAndItemId(userId, itemId)
+                .switchIfEmpty(Mono.empty())
+                .flatMap(u -> (u.getCount()>1) ? repository.save(u.countMinus()) : repository.delete(u));
+            case ActionModes.DELETE  -> repository.findByUserIdAndItemId(userId, itemId)
+                .switchIfEmpty(Mono.empty())
+                .flatMap(repository::delete);
+            case ActionModes.NOTHING  -> Mono.empty();
+        };
+
     }
 
 }

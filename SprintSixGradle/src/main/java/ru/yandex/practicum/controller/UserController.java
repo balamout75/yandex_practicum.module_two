@@ -1,9 +1,11 @@
 package ru.yandex.practicum.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.service.OrderService;
 //import ru.yandex.practicum.service.OrderService;
 
 @Controller
@@ -12,9 +14,10 @@ class UserController {
 
     //private final OrderService orderService;
     private static final long USER_ID = 1;
+    private final OrderService orderService;
 
-    public UserController(/*OrderService orderService*/) {
-        //this.orderService = orderService;
+    public UserController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @GetMapping("/")
@@ -30,14 +33,11 @@ class UserController {
                         .build());
     }
 
-    /*
     @PostMapping(value={"/buy"})
-    public String buyCart(RedirectAttributes redirectAttributes) {
-        long orderId = orderService.closeCart(USER_ID);
-        redirectAttributes.addAttribute("id", orderId);
-        return "redirect:/orders/{id}?newOrder=true";
+    public Mono<Rendering> buyCart(Model model) {
+        return orderService.closeCart(USER_ID)
+                .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")
+                        .modelAttribute("id", u)
+                        .build()));
     }
-
-     */
-
 }
