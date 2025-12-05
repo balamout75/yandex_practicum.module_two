@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="insert data to users" author="Ivan Vasilyev">
+        <insert tableName="users">
+	    <column name="id" value="1"/>
+	    <column name="firstname" value="John"/>
+            <column name="lastname" value="Smith"/>
+        </insert>
+	<rollback>
+        	<delete tableName="users">
+      			<where>id= 1</where>
+		</delete>
+    	</rollback>
+    </changeSet>
+</databaseChangeLog>
