@@ -69,7 +69,10 @@ public class OrderService {
                 .flatMap(tuple -> moveRecords(tuple.getT1(),tuple.getT2()));
     }*/
     public Mono<Long> closeCart(Long userId) {
-        return orderRepository.getId().map(Order::new).map(orderRepository::save).map(o -> o.getId());
+        return orderRepository.getId()
+                        .map(Order::new)
+                        .flatMap(orderRepository::save)
+                        .map(Order::getId);
     }
 
 }
