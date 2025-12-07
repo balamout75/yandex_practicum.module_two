@@ -1,7 +1,10 @@
 package ru.yandex.practicum.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,6 +15,7 @@ import ru.yandex.practicum.repository.ItemRepository;
 @Service
 public class ItemService {
 
+    private static final Logger log = LoggerFactory.getLogger(ItemService.class);
     @Value("${images.path}")
     private String UPLOAD_DIR;
 
@@ -21,38 +25,17 @@ public class ItemService {
         this.repository = repository;
     }
 
-    public Flux<ItemDto> findAll(Pageable pageable) {
-        return repository.findAll(pageable).map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
+    public Flux<ItemDto> findAll(String searchstring, Pageable pageable) {
+        if (searchstring.isBlank()){
+            return switch ()
+                    repository.findByDescription(sort, sort).map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
     }
 
     public Mono<ItemDto> findItem(long userId, Long itemId) {
         return repository.findById(userId, itemId).map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
     }
 
-
-    /*
-    public Mono<Item> findById(Long id) {
-        return repository.findById(id);
+    public Mono<Long> count() {
+        return repository.count();
     }
-
-    public Mono<Item> create(Item item) {
-        return repository.save(item);
-    }
-    */
-    /*public Mono<User> update(Long id, User patch) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Пользователь не найден: " + id)))
-                .flatMap(user -> {
-                    user.setFirstName(patch.getFirstName());
-                    user.setLastName(patch.getLastName());
-                    user.setAge(patch.getAge());
-                    user.setActive(patch.isActive());
-                    return repository.save(user);
-                });
-    }*/
-
-    public Mono<Void> delete(Long id) {
-        return repository.deleteById(id);
-    }
-
 }

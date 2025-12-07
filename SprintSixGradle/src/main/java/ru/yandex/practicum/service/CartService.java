@@ -30,7 +30,8 @@ public class CartService {
     }
 
     public Flux<ItemDto> getCart(long userId) {
-        return repository.inCartItems(userId).map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
+        return repository.inCartItems(userId)
+                .map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
     }
 
     public Mono<Long> getCartCount(long userId) {

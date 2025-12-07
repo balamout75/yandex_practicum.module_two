@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OrderForming {
-    public static OrderDto toOrderDto(List<OrdersItems> ordersItemsList) {
-        if (ordersItemsList.isEmpty()) return null;
-        long orderId = ordersItemsList.getFirst().orderid();
+    public static OrderDto toOrderDto(List<OrdersItems> ordersItemsList, Long orderId) {
+        //long orderId = ordersItemsList.getFirst().orderid();
         AtomicLong totalSum = new AtomicLong();
         List <ShortItemDto> list = ordersItemsList.stream()
                         .map(ItemToDtoMapper::toShortDto)

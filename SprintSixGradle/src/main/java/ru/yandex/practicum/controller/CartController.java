@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.CartRequest;
+
 import ru.yandex.practicum.service.CartService;
-import ru.yandex.practicum.service.ItemService;
+
 
 @Controller
 @RequestMapping("/cart")
 class CartController {
 
-    //private final UserService userService;
+
     private final CartService cartService;
     private static final String VIEWS_ITEMS_CART_FORM = "cart";
     private static final String VIEWS_ITEMS_ITEM_FORM = "item";
@@ -30,7 +31,7 @@ class CartController {
                         .modelAttribute("items", u.getT1())
                         .modelAttribute("total", u.getT2())
                         .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found").build()));
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("redirect:/items").build()));
     }
 
     @PostMapping("/items")

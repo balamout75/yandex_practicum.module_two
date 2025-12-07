@@ -29,10 +29,10 @@ public class OrderItem implements Persistable<OrderItemId> {
 
     public OrderItem() {}
 
-    public OrderItem(Long orderId, Long itemId) {
+    public OrderItem(Long orderId, Long itemId, Long count) {
         this.orderId    = orderId;
         this.itemId     = itemId;
-        this.count      = 0L;
+        this.count      = count;
         this.isNew      = true;
         id = new OrderItemId(orderId, itemId);
     }

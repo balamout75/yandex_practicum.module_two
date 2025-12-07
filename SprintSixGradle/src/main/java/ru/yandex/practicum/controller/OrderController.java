@@ -26,18 +26,17 @@ class OrderController {
                 .map(u -> Rendering.view(VIEW_ORDERS)
                         .modelAttribute("orders", u)
                         .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found").build()));
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found2").build()));
     }
 
     @GetMapping("/{id}")
     public Mono<Rendering> getOrder(@PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder){
+        System.out.println("orderId: " + orderId);
         return orderService.findOrder(USER_ID, orderId)
                 .map(u -> Rendering.view(VIEW_ORDER)
                         .modelAttribute("order", u)
                         .modelAttribute("newOrder", newOrder)
                         .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found").build()));
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("not-found3").build()));
     }
-
-
 }

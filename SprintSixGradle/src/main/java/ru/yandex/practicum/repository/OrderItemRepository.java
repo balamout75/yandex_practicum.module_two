@@ -11,12 +11,21 @@ import ru.yandex.practicum.model.*;
 
 @Repository
 public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, OrderItemId> {
-    @Query("select oi.order_id as orderid, i.id as itemid, i.title as title, i.price as price, oi.count as count " +
+    @Query("select      oi.order_id as orderid," +
+                        "i.id as itemid, " +
+                        "i.title as title, " +
+                        "i.price as price, " +
+                        "oi.count as count " +
             "from items i join order_items oi on i.id = oi.item_id")
     Flux<OrdersItems> findByUser();
 
-    @Query("select i.id as id, i.title as title, i.price as price, oi.count as count " +
-            "from items i join order_items oi on i.id = oi.item_id where oi.order_id  = :orderId")
+    @Query("select      oi.order_id as orderid, " +
+                        "i.id       as itemid, " +
+                        "i.title    as title, " +
+                        "i.price    as price, " +
+                        "oi.count   as count " +
+            "from items i join order_items oi on i.id = oi.item_id " +
+            "where oi.order_id  = :orderId")
     Flux<OrdersItems> findByUserAndOrder(Long orderId);
 
 
