@@ -1,12 +1,12 @@
 package ru.yandex.practicum.model;
 
-import org.jspecify.annotations.NonNull;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "users")
 public class User {
-
+    @Id
     @Column("id")
     private Long id;
 

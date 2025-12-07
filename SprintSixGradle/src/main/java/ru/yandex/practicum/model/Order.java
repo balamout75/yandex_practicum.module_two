@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import reactor.core.publisher.Mono;
 
 @Table(name = "orders")
 public class Order implements Persistable<Long> {

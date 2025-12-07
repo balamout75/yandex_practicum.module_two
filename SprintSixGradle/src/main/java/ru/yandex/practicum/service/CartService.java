@@ -4,34 +4,33 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.dto.CartDto;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
-//import ru.yandex.practicum.model.CartItem;
 import ru.yandex.practicum.model.CartItem;
-import ru.yandex.practicum.model.Item;
-import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.CartItemRepository;
-//import ru.yandex.practicum.repository.CartItemRepository;
+import ru.yandex.practicum.repository.ItemRepository;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class CartService {
 
+    //private final ItemRepository itemService;
     @Value("${images.path}")
     private String UPLOAD_DIR;
 
+    private final ItemRepository itemRepository;
     private final CartItemRepository repository;
 
-    public CartService(CartItemRepository repository) {
-            this.repository = repository;
+    public CartService(CartItemRepository repository, ItemRepository itemRepository1) {
+        this.repository = repository;
+        this.itemRepository = itemRepository1;
     }
 
     public Flux<ItemDto> getCart(long userId) {
-        return repository.inCartItems(userId)
-                .map(u -> ItemToDtoMapper.toDto(u, UPLOAD_DIR));
+        return repository.findByUserId(userId)
+                .flatMap(cartItem -> Mono.just(cartItem).zipWhen(ci -> itemRepository.findById(ci.getItemId())))
+                .map(u -> ItemToDtoMapper.toDto(u.getT2(),u.getT1().getCount(), UPLOAD_DIR));
     }
 
     public Mono<Long> getCartCount(long userId) {
@@ -54,4 +53,9 @@ public class CartService {
 
     }
 
+    public Mono<Long> getInCartCount(long userId, long itemId) {
+        return repository.findByUserIdAndItemId(userId, itemId)
+                .map(CartItem::getCount)
+                .switchIfEmpty(Mono.just(0L));
+    }
 }

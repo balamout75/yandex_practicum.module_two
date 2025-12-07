@@ -46,7 +46,7 @@ public class ItemController {
         log.info("класс проверили "+itemsRequest.toString());
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber()-1, itemsRequest.getPageSize(), sortmode);
         log.info("класс проверили "+pageable);
-        return  itemService.findAll(pageable).collectList()
+        return  itemService.findAll(USER_ID, itemsRequest.getSearch(),pageable).collectList()
                 .map(items -> {
                         while ((items.size() % 3) !=0 ) { items.add(new ItemDto());}
                         return ListUtils.partition(items, 3);

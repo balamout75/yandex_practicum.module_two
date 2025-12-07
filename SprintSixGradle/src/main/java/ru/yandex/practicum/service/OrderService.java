@@ -1,12 +1,11 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.mapper.OrderForming;
+import ru.yandex.practicum.mapper.OrderToDtoMapper;
 import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.repository.CartItemRepository;
 import ru.yandex.practicum.repository.OrderItemRepository;
@@ -21,27 +20,43 @@ public class OrderService {
     private final OrderRepository       orderRepository;
     private final OrderItemRepository   orderItemRepository;
     private final CartItemRepository    cartItemRepository;
+    private final ItemService itemService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository, ItemService itemService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
+        this.itemService = itemService;
     }
 
     public Mono<OrderDto> findOrder(Long userId, Long orderId) {
-        return orderItemRepository.findByUserAndOrder(orderId).collectList()
-                .switchIfEmpty(Mono.empty())
-                .mapNotNull(u -> OrderForming.toOrderDto(u, orderId));
+        return orderItemRepository.findByOrder(orderId)
+                .flatMap(orderItem->Mono.just(orderItem).zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
+                .collectList()
+                .map(list ->  OrderToDtoMapper.toDto2(list,orderId));
     }
 
-    public Mono<List<OrderDto>> findOrders(Long userId) {
-        return orderItemRepository.findByUser().collectList()
+    public Flux<OrderDto> findOrders(Long userId) {
+        return orderItemRepository.findByUser(userId)
+                .flatMap(orderItem->Mono.just(orderItem).zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
+                .collectList()
+                .map(tuple ->  {
+                    Map<Long, List<Tuple2<OrderItem, Item>>> myMap = tuple.stream().collect(Collectors.groupingBy(f->f.getT1().getOrderId()));
+                    return myMap.entrySet().stream()
+                            .map(x -> OrderToDtoMapper.toDto2(x.getValue(), x.getKey()))
+                            .toList();
+                })
+                .flatMapMany(Flux::fromIterable);
+/*
+
+
+        return orderItemRepository.findByUser(userId).collectList()
                         .map(u -> {
-                                Map<Long, List<OrdersItems>> myMap = u.stream().collect(Collectors.groupingBy(OrdersItems::orderid));
+                                Map<Long, List<OrderItem>> myMap = u.stream().collect(Collectors.groupingBy(OrderItem::getOrderId));
                                 return myMap.entrySet().stream()
-                                        .map(U -> OrderForming.toOrderDto(U.getValue(), U.getKey()))
+                                        .map(entry -> OrderToDtoMapper.toDto(entry.getValue(), entry.getKey()))
                                         .toList();
-                                });
+                                });*/
     }
 
     public Mono <OrderItem> newOrderItem(long orderId, Long itemId, Long count) {
