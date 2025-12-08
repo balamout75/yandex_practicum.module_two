@@ -5,13 +5,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.dto.ItemsRequest;
 import ru.yandex.practicum.service.OrderService;
 
 @Controller
 @RequestMapping()
 class UserController {
 
-    //private final OrderService orderService;
     private static final long USER_ID = 1;
     private final OrderService orderService;
 
@@ -20,19 +20,16 @@ class UserController {
     }
 
     @GetMapping("/")
-    public Mono<Rendering> getItems(@RequestParam(defaultValue = "") String search,
-                                    @RequestParam(defaultValue = "NO") String sort,
-                                    @RequestParam(defaultValue = "1") int pageNumber,
-                                    @RequestParam(defaultValue = "5") int pageSize) {
+    public Mono<Rendering> getItems(@ModelAttribute ItemsRequest itemsRequest) {
         return Mono.just(Rendering.redirectTo("/items")
-                        .modelAttribute("search", search)
-                        .modelAttribute("sort", sort)
-                        .modelAttribute("pageNumber", pageNumber)
-                        .modelAttribute("pageSize", pageSize)
-                        .build());
+                .modelAttribute("search", itemsRequest.getSearch())
+                .modelAttribute("sort", itemsRequest.getSort())
+                .modelAttribute("pageNumber", itemsRequest.getPageNumber())
+                .modelAttribute("pageSize", itemsRequest.getPageSize())
+                .build());
     }
 
-    @PostMapping(value={"/buy"})
+    @PostMapping(value = {"/buy"})
     public Mono<Rendering> buyCart(Model model) {
         return orderService.closeCart(USER_ID)
                 .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")

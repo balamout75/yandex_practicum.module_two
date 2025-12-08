@@ -10,13 +10,6 @@ import ru.yandex.practicum.model.CartItemId;
 
 @Repository
 public interface CartItemRepository extends ReactiveCrudRepository<CartItem, CartItemId> {
-    /*@Query("select i.id as id, i.title as title, i.description as description, i.imgpath as imgpath, i.price as price, " +
-            "CASE WHEN ci.count is NULL tHEN 0 ELSE ci.count END as count " +
-            "from items i join cart_items ci on i.id = ci.item_id where ci.user_id  = :userId")
-
-    Flux<CartItem> inCartItems(Long userId);
-
-    */
 
     @Query("select SUM(i.price*ci.count) from items i join cart_items ci on i.id = ci.item_id where ci.user_id  = :userId")
     Mono<Long> inCartCount(Long userId);
@@ -24,6 +17,4 @@ public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Car
     Mono<CartItem> findByUserIdAndItemId(long userId, long itemId);
 
     Flux<CartItem> findByUserId(long userId);
-
-    //Mono<Long> updateCountByUserIdAndItemId(long count,long userId, long itemId);
 }

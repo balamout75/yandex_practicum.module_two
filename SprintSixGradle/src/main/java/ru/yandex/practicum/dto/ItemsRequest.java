@@ -4,7 +4,7 @@ import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.SortModes;
 
 public class ItemsRequest{
-        private Long id=0L;
+        private Long id=null;
         private String search="";
         private SortModes sort=SortModes.NO;
         private Integer pageSize = 5;

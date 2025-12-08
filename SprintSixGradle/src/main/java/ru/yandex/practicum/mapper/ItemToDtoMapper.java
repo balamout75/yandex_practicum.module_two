@@ -5,7 +5,6 @@ import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.ShortItemDto;
 import ru.yandex.practicum.model.Item;
 import ru.yandex.practicum.model.OrderItem;
-import ru.yandex.practicum.model.OrdersItems;
 
 
 public class ItemToDtoMapper {
@@ -13,13 +12,6 @@ public class ItemToDtoMapper {
 
     public ItemToDtoMapper() {   }
 
-
-    public static ShortItemDto toShortDto(OrdersItems ordersItems) {
-        return new ShortItemDto(ordersItems.itemid(),
-                ordersItems.title(),
-                ordersItems.price(),
-                ordersItems.count());
-    }
 
     public static ItemDto toDto(Item item, Long count, String uploadDir) {
         return new ItemDto(item.getId(),
