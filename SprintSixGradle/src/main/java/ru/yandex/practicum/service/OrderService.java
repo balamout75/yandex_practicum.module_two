@@ -45,15 +45,15 @@ public class OrderService {
                 .flatMapMany(Flux::fromIterable);
     }
 
-    public Mono<OrderItem> newOrderItem(long orderId, Long itemId, Long count) {
+    private Mono<OrderItem> newOrderItem(long orderId, Long itemId, Long count) {
         return orderItemService.save(new OrderItem(orderId, itemId, count));
     }
 
-    public Flux<CartItem> getCartItems(long userId) {
+    private Flux<CartItem> getCartItems(long userId) {
         return cartItemService.findByUserId(userId);
     }
 
-    public Mono<Void> deleteCartItem(long userId, long itemId) {
+    private Mono<Void> deleteCartItem(long userId, long itemId) {
         return cartItemService.deleteById(new CartItemId(userId, itemId));
     }
 

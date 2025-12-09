@@ -1,14 +1,20 @@
 spring:
   application:
     name: module_two_sprint_five_gradle
-  datasource:
-    url     : ${TEST_URL}
-    username: ${TEST_USERNAME}
-    password: ${TEST_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
+  r2dbc:
+    url: r2dbc:postgresql://${TEST_DB_HOST:localhost}:${TEST_DB_PORT:5432}/${TEST_USERNAME:practicum_user}
+    username: ${TEST_USERNAME:practicum_user}
+    password: ${TEST_PASSWORD:mysecretpassword}
+    pool:
+      enabled: true                               # Включение пула соединений
+      initial-size: 10                            # Начальное количество соединений в пуле
+      max-size: 50                                # Максимальное количество соединений
+      max-idle-time: 30s                          # Время бездействия соединения перед закрытием
+      max-life-time: 10m                          # Максимальное время жизни соединения
+      validation-query: SELECT 1
   liquibase:
     enabled: false
+  sql:
+    init:
+      mode: always
 images.path: images/

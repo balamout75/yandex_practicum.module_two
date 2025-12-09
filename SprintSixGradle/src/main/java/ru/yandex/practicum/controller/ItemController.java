@@ -1,6 +1,6 @@
 package ru.yandex.practicum.controller;
 
-import org.apache.commons.collections4.ListUtils;
+import com.google.common.collect.Lists;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,9 +37,9 @@ public class ItemController {
     @GetMapping
     public Mono<Rendering> list(@ModelAttribute ItemsRequest itemsRequest) {
         Sort sortmode = switch (itemsRequest.getSort()) {
-            case SortModes.PRICE -> Sort.by(Sort.Direction.ASC, "price");
-            case SortModes.ALPHA -> Sort.by(Sort.Direction.ASC, "title");
-            default -> Sort.by(Sort.Direction.ASC, "id");
+            case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
+            case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
+            default                 -> Sort.unsorted();
         };
         log.info("класс проверили " + itemsRequest);
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
@@ -48,11 +48,11 @@ public class ItemController {
             while ((items.size() % 3) != 0) {
                 items.add(new ItemDto());
             }
-            return ListUtils.partition(items, 3);
-        }).zipWith(chartService.count()).map(p -> {
-            var c = new PageImpl<>(p.getT1(), pageable, p.getT2());
-            return c;
-        }).map(u -> Rendering.view(VIEWS_ITEMS_CHART_FORM).modelAttribute("items", u)
+            return Lists.partition(items, 3);
+        }).zipWith(chartService.count())
+            .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()))
+            .map(u -> Rendering.view(VIEWS_ITEMS_CHART_FORM)
+                .modelAttribute("items", u)
                 .modelAttribute("search", itemsRequest.getSearch())
                 .modelAttribute("sort", itemsRequest.getSort().toString())
                 .modelAttribute("paging", new Paging(itemsRequest.getPageSize(),
@@ -69,7 +69,7 @@ public class ItemController {
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
                         .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo(VIEWS_ITEMS_CHART_FORM).build()));
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
     }
 
     @PostMapping()

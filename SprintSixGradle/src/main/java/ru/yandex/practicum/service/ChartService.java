@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
 
+import java.util.Comparator;
+
 @Service
 public class ChartService {
 
@@ -22,9 +24,17 @@ public class ChartService {
     }
 
     public Flux<ItemDto> findAll(Long userId, String searchstring, Pageable pageable) {
+        searchstring = searchstring.trim();
+        Comparator<ItemDto> compare = switch (pageable.getSort().toString()) {
+            case "title: ASC" -> Comparator.comparing(ItemDto::title);
+            case "price: ASC" -> Comparator.comparingLong(ItemDto::price);
+            default           -> Comparator.comparingLong(ItemDto::id);
+        };
+
         return itemService.findAll(userId, searchstring, pageable)
                 .flatMap(item -> Mono.just(item).zipWhen(i -> cartItemService.getInCartCount(userId, i.getId())))
-                .map(x -> ItemToDtoMapper.toDto(x.getT1(), x.getT2(), UPLOAD_DIR));
+                .map(x -> ItemToDtoMapper.toDto(x.getT1(), x.getT2(), UPLOAD_DIR))
+                .sort(compare);
     }
 
     public Mono<ItemDto> findItem(long userId, Long itemId) {

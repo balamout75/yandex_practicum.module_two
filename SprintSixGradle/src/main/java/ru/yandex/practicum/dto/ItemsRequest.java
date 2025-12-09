@@ -3,6 +3,8 @@ package ru.yandex.practicum.dto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.SortModes;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 public class ItemsRequest{
         private Long id=null;
         private String search="";
@@ -31,8 +33,12 @@ public class ItemsRequest{
         return sort;
     }
 
-    public void setSort(SortModes sort) {
-        this.sort = sort;
+    public void setSort(String sort) {
+        try {
+            this.sort = SortModes.valueOf(sort.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            this.sort =  SortModes.NO;
+        }
     }
 
     public Integer getPageSize() {
@@ -55,7 +61,11 @@ public class ItemsRequest{
         return action;
     }
 
-    public void setAction(ActionModes action) {
-        this.action = action;
+    public void setAction(String action) {
+        try {
+            this.action = ActionModes.valueOf(action.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            this.action =  ActionModes.NOTHING;
+        }
     }
 }

@@ -17,7 +17,8 @@ public class ItemService {
     }
 
     public Flux<Item> findAll(Long userId, String searchstring, Pageable pageable) {
-        return repository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchstring, searchstring, pageable);
+        return searchstring.isBlank() ? repository.findAllBy(pageable) :
+               repository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchstring, searchstring, pageable);
     }
 
     public Mono<Long> count() {
