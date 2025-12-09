@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.dto.CartRequest;
 import ru.yandex.practicum.dto.ItemDto;
 import ru.yandex.practicum.dto.ItemsRequest;
 import ru.yandex.practicum.dto.Paging;
@@ -81,4 +82,13 @@ public class ItemController {
         return cartItemService.changeInCardCount(USER_ID, itemsRequest.getId(), itemsRequest.getAction())
                 .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
     }
+
+    @PostMapping(value = {"/{id}"})
+    public Mono<String> postItem(@ModelAttribute CartRequest cartRequest, Model model) {
+        model.addAttribute("id", cartRequest.id());
+        return cartItemService.changeInCardCount(USER_ID, cartRequest.id(), cartRequest.action())
+                .thenReturn("redirect:/items/{id}");
+    }
+
+
 }

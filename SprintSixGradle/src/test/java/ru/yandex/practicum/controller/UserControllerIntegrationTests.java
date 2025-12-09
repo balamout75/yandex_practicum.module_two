@@ -37,9 +37,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @Testcontainers
@@ -56,7 +53,7 @@ class UserControllerIntegrationTests {
 	private String UPLOAD_DIR;
 
 	@MockitoSpyBean
-	private CartItemService cartService;
+	private CartItemService cartItemService;
 
 	public record SearchPattern(
 			String  pattern,
@@ -73,7 +70,6 @@ class UserControllerIntegrationTests {
 		);
 	}
 
-	@Order(1)
 	@ParameterizedTest
 	@MethodSource("applyPattern")
 	void findItemsByTitleOrDescription(SearchPattern searchPattern) {
@@ -98,7 +94,6 @@ class UserControllerIntegrationTests {
 		assertEquals(searchPattern.count, myList.size());
 	}
 
-	@Order(2)
 	@Test
 	void getItemByIdSuccessfully() throws Exception {
 		ItemDto item = new ItemDto (1,"Кепка","бейсболка большого размера",UPLOAD_DIR+"cap.jpg", 1200,0);
@@ -194,7 +189,7 @@ class UserControllerIntegrationTests {
 	@ParameterizedTest
 	@MethodSource("applyActiveModeString")
 	void testRequestActionParameterConverterAndRedirection(ActionRequest actionRequest) {
-		doReturn(Mono.just("ok")).when(cartService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
+		doReturn(Mono.just("ok")).when(cartItemService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
 		webTestClient.post()
 				.uri(uriBuilder -> uriBuilder
 						.path("/items")
@@ -208,6 +203,6 @@ class UserControllerIntegrationTests {
 				.exchange()
 				.expectStatus().is3xxRedirection();
 
-		verify(cartService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
+		verify(cartItemService).changeInCardCount(anyLong(), anyLong(), eq(actionRequest.actonModes()));
 	}
 }
