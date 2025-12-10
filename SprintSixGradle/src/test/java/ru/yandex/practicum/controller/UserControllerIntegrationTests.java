@@ -148,7 +148,7 @@ class UserControllerIntegrationTests {
 		Sort sortmode = switch (sortRequest.sortModes) {
 			case SortModes.PRICE -> Sort.by(Sort.Direction.ASC, "price");
 			case SortModes.ALPHA -> Sort.by(Sort.Direction.ASC, "title");
-			default -> Sort.unsorted();
+			default 			 -> Sort.by(Sort.Direction.ASC, "id");
 		};
 		Pageable pageable = PageRequest.of(0, 5, sortmode);
 		List<ItemDto> items = new ArrayList<>();

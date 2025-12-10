@@ -40,7 +40,7 @@ public class ItemController {
         Sort sortmode = switch (itemsRequest.getSort()) {
             case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
-            default                 -> Sort.unsorted();
+            default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
         log.info("класс проверили " + itemsRequest);
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
