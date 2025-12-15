@@ -14,6 +14,13 @@ java {
 	}
 }
 
+//lombook
+//configurations {
+//	compileOnly {
+//		extendsFrom(configurations.annotationProcessor.get())
+//	}
+//}
+
 repositories {
 	mavenCentral()
 }
@@ -24,13 +31,14 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
 	implementation("org.springframework:spring-jdbc")
-
-	//implementation("com.google.guava:guava:33.0.0-jre")
-	//implementation("com.google.common:google-collect:1.0-rc1")
 	implementation("com.google.guava:guava:32.1.3-jre")
-	//implementation("com.google.guava:guava")
-	//implementation("com.google.common:google-collect")
+
+	//compileOnly("org.projectlombok:lombok")
+	//annotationProcessor("org.projectlombok:lombok")
+
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
 
@@ -38,6 +46,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-liquibase-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter")

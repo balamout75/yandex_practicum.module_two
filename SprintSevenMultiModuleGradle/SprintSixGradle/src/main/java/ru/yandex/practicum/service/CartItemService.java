@@ -1,10 +1,14 @@
 package ru.yandex.practicum.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.ItemDto;
+import ru.yandex.practicum.dto.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
 import ru.yandex.practicum.model.CartItem;
@@ -18,6 +22,9 @@ public class CartItemService {
     private final CartItemRepository repository;
     @Value("${images.path}")
     private String UPLOAD_DIR;
+
+    @Autowired
+    private ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations;
 
     public CartItemService(ItemService itemService, CartItemRepository repository) {
         this.itemService = itemService;
@@ -34,20 +41,32 @@ public class CartItemService {
         return repository.inCartCount(userId);
     }
 
-    public Mono<Object> changeInCardCount(long userId, long itemId, ActionModes action) {
+    @CacheEvict(
+            value = "item",
+            key   = "#userId.toString().concat('-').concat(#itemId.toString)"
+    )
+    public Mono<Void> changeInCardCount(long userId, long itemId, ActionModes action) {
+        final String KEY = "page"+userId;
         return switch (action) {
             case ActionModes.PLUS ->
                     repository.findByUserIdAndItemId(userId, itemId)
                             .defaultIfEmpty(new CartItem(userId, itemId))
-                            .flatMap(u -> repository.save(u.countPlus()).then());
+                            .flatMap(u -> repository.save(u.countPlus()))
+                            .flatMap(c -> pageDtoHashOperations.delete(KEY))
+                            .then(Mono.empty());
+
             case ActionModes.MINUS ->
                     repository.findByUserIdAndItemId(userId, itemId)
                             .switchIfEmpty(Mono.empty())
-                            .flatMap(u -> (u.getCount() > 1) ? repository.save(u.countMinus()) : repository.delete(u));
+                            .flatMap(d -> pageDtoHashOperations.delete(KEY).thenReturn(d))
+                            .flatMap(u -> (u.getCount() > 1) ? repository.save(u.countMinus()) : repository.delete(u))
+                            .then(Mono.empty());
             case ActionModes.DELETE ->
                     repository.findByUserIdAndItemId(userId, itemId)
                             .switchIfEmpty(Mono.empty())
-                            .flatMap(repository::delete);
+                            .flatMap(d -> pageDtoHashOperations.delete(KEY).thenReturn(d))
+                            .flatMap(repository::delete)
+                            .then(Mono.empty());
             case ActionModes.NOTHING -> Mono.empty();
         };
 

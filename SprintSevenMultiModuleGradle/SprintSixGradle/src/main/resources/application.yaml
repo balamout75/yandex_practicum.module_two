@@ -18,7 +18,19 @@ spring:
     password: ${POSTGRES_PASSWORD:mysecretpassword}
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+  cache:
+    redis:
+      time-to-live: PT60M
 images.path: images/
+
+logging:
+  level:
+    org.springframework.data.*.*: trace
+    org.springframework.cache.*: trace
 
 
 

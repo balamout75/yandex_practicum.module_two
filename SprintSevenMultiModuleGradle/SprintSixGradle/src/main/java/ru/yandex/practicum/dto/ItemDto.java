@@ -1,5 +1,6 @@
 package ru.yandex.practicum.dto;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 public record ItemDto (
@@ -8,7 +9,7 @@ public record ItemDto (
         String description,
         String imgPath,
         long price,
-        long count) {
+        long count) implements Serializable {
 
     public ItemDto() {
         this(-1L, null, null, null, 0L, 0L);

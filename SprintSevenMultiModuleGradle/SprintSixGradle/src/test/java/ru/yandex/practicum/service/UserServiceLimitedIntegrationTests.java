@@ -12,11 +12,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
+import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import ru.yandex.practicum.configuration.TestcontainersCustomConfiguration;
+import ru.yandex.practicum.dto.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
 
 import java.util.stream.Stream;
@@ -43,6 +45,9 @@ class UserServiceLimitedIntegrationTests {
 
     @Autowired
     private ConnectionFactory connectionFactory;
+
+    @Autowired
+    private ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations;
 
 
 
@@ -117,6 +122,8 @@ class UserServiceLimitedIntegrationTests {
         DatabaseClient client = DatabaseClient.create(connectionFactory);
         Mono<Long> deleteRows = client.sql("delete from cart_items").fetch().rowsUpdated();
         Mono<Long> insertRows = client.sql("insert into cart_items values (1, 4, 1), (1, 5, 3)").fetch().rowsUpdated();
+        pageDtoHashOperations.delete("item::1-4").block();
+        pageDtoHashOperations.delete("item::1-5").block();
         Mono<Long> reestoredRows = deleteRows.zipWhen(x -> insertRows.map(y -> y + x)).map(Tuple2::getT2);
 
         log.info("Affected rows 2: " + reestoredRows.block());

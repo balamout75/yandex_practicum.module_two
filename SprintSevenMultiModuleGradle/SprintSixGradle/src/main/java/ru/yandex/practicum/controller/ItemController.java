@@ -1,6 +1,8 @@
 package ru.yandex.practicum.controller;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +20,6 @@ import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.service.CartItemService;
 import ru.yandex.practicum.service.ChartService;
 
-import static reactor.netty.http.HttpConnectionLiveness.log;
-
 @Controller
 @RequestMapping("/items")
 public class ItemController {
@@ -27,6 +27,7 @@ public class ItemController {
     private static final String VIEWS_ITEMS_CHART_FORM = "items";
     private static final String VIEWS_ITEMS_ITEM_FORM = "item";
     private static final long USER_ID = 1;
+    private static final Logger log = LoggerFactory.getLogger(ItemController.class);
     private final ChartService chartService;
     private final CartItemService cartItemService;
 
@@ -42,6 +43,7 @@ public class ItemController {
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
+
         log.info("класс проверили " + itemsRequest);
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
         log.info("класс проверили " + pageable);

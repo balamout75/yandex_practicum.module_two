@@ -22,7 +22,8 @@ public class OrderService {
     private final ItemService itemService;
     private final CartItemService cartItemService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderItemService orderItemService, ItemService itemService, CartItemService cartItemService) {
+    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService,
+                        ItemService itemService, CartItemService cartItemService) {
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.itemService = itemService;
@@ -31,16 +32,19 @@ public class OrderService {
 
     public Mono<OrderDto> findOrder(Long userId, Long orderId) {
         return orderItemService.findByOrder(orderId)
-                .flatMap(orderItem -> Mono.just(orderItem).zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
+                .flatMap(orderItem -> Mono.just(orderItem)
+                                .zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
                 .collectList().map(list -> OrderToDtoMapper.toDto2(list, orderId));
     }
 
     public Flux<OrderDto> findOrders(Long userId) {
         return orderItemService.findByUser(userId)
-                .flatMap(orderItem -> Mono.just(orderItem).zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
+                .flatMap(orderItem -> Mono.just(orderItem).
+                        zipWhen(oi -> itemService.findItemById(oi.getItemId())))
                 .collectList()
-                .map(tuple -> {
-                    Map<Long, List<Tuple2<OrderItem, Item>>> myMap = tuple.stream().collect(Collectors.groupingBy(f -> f.getT1().getOrderId()));
+                .map(tuples -> {
+                    Map<Long, List<Tuple2<OrderItem, Item>>> myMap =
+                            tuples.stream().collect(Collectors.groupingBy(f -> f.getT1().getOrderId()));
                     return myMap.entrySet().stream().map(x -> OrderToDtoMapper.toDto2(x.getValue(), x.getKey())).toList();})
                 .flatMapMany(Flux::fromIterable);
     }
