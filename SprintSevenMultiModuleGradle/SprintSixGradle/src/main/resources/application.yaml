@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: module_two_sprint_six_gradle
   r2dbc:

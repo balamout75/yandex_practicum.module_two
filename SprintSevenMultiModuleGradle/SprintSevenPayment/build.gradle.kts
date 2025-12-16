@@ -34,7 +34,8 @@ openApiGenerate {
 		"reactive" to "true",
 		"useJakartaEe" to "true",
 		"generateSpringApplication" to "false",
-		"dateLibrary" to "java8"
+		"dateLibrary" to "java8",
+		"openApiNullable" to "false"
 		//"hideGenerationTimestamp" to "true",
 		//"requestMappingMode" to "controller",
 		//"interfaceOnly" to "true",

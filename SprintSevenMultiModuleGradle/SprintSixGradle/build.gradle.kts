@@ -20,42 +20,33 @@ repositories {
 	mavenCentral()
 }
 
-/*
-openApiGenerate {
+
+sourceSets {
+	main {
+		java {
+			srcDir("build/generated/src/main/java")
+		}
+	}
+}
+
+
+tasks.register<GenerateTask>("buildClient") {
 	generatorName.set("spring")
 	inputSpec.set("$projectDir/src/main/resources/api-spec.yaml")
 	outputDir.set("$projectDir/build/generated")
-	ignoreFileOverride.set(".openapi-generator-java-sources.ignore")
-	modelPackage.set("ru.yandex.practicum.server.model")
-	invokerPackage.set("ru.yandex.practicum.server")
-	apiPackage.set("ru.yandex.practicum.server.api")
-	configOptions.set(mapOf(
-		"interfaceOnly" to "true",
-		"reactive" to "true",
-		"useJakartaEe" to "true",
-		"generateSpringApplication" to "false",
-		"dateLibrary" to "java8"
-	))
-}
-*/
 
-tasks.register <GenerateTask> ("buildClient" ) {
-	generatorName.set("java")
-	inputSpec.set("$projectDir/src/main/resources/api-spec.yaml")
-	outputDir.set("$projectDir/build/generated")
-	//ignoreFileOverride.set(".openapi-generator-java-sources.ignore")
+	apiPackage.set("ru.yandex.practicum.client.api")
 	modelPackage.set("ru.yandex.practicum.client.model")
-	invokerPackage.set("ru.yandex.practicum.client")
-	apiPackage.set("ru.yandex.practicum.client")
-	configOptions.set(mapOf(
-		"interfaceOnly" to "true",
-		"library" to "webclient",
-		"reactive" to "true",
-		"useJakartaEe" to "true",
-		"useTags" to "true",
-//		"openApiNullable" to "false",
-//		"serializableModel" to "true"
-	))
+
+	configOptions.set(
+		mapOf(
+			"library" to "spring-http-interface", // 🔥 ВАЖНО
+			"interfaceOnly" to "true",
+			"useJakartaEe" to "true",
+			"openApiNullable" to "false",
+			"reactive" to "true"
+		)
+	)
 }
 
 dependencies {
@@ -66,12 +57,13 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 	implementation("org.springframework.boot:spring-boot-starter-cache")
-	implementation("org.springframework:spring-jdbc")
+	//implementation("org.springframework:spring-jdbc")
 	implementation("com.google.guava:guava:32.1.3-jre")
 
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
 
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-liquibase-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
@@ -88,4 +80,8 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.named("compileJava") {
+	dependsOn("buildClient")
 }
