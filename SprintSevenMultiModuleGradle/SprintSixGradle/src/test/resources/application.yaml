@@ -17,4 +17,8 @@ spring:
   sql:
     init:
       mode: always
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
 images.path: images/
