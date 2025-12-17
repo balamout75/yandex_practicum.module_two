@@ -2,35 +2,32 @@ package ru.yandex.practicum.service;
 
 
 import io.r2dbc.spi.ConnectionFactory;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.context.ImportTestcontainers;
+import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.r2dbc.core.DatabaseClient;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
-import ru.yandex.practicum.configuration.TestcontainersCustomConfiguration;
-import ru.yandex.practicum.dto.PageDto;
+import ru.yandex.practicum.configuration.BaseIntegrationTest;
+import ru.yandex.practicum.dto.shoping.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
+import ru.yandex.practicum.service.shoping.CartItemService;
+import ru.yandex.practicum.service.shoping.ChartService;
+import ru.yandex.practicum.service.shoping.OrderService;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static reactor.netty.http.HttpConnectionLiveness.log;
 
-@SpringBootTest
-@Testcontainers
-@ImportTestcontainers(TestcontainersCustomConfiguration.class)
-class UserServiceLimitedIntegrationTests {
+@SpringBootTest(properties = {"spring.cache.type=none"})
+class UserServiceLimitedIntegrationTests extends BaseIntegrationTest {
 
     private static final long USER_ID = 1;
 
@@ -46,10 +43,8 @@ class UserServiceLimitedIntegrationTests {
     @Autowired
     private ConnectionFactory connectionFactory;
 
-    @Autowired
-    private ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations;
-
-
+    //@Autowired
+    //private ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations;
 
     @Test
     void testCloseChartByUserId() {
@@ -122,11 +117,10 @@ class UserServiceLimitedIntegrationTests {
         DatabaseClient client = DatabaseClient.create(connectionFactory);
         Mono<Long> deleteRows = client.sql("delete from cart_items").fetch().rowsUpdated();
         Mono<Long> insertRows = client.sql("insert into cart_items values (1, 4, 1), (1, 5, 3)").fetch().rowsUpdated();
-        pageDtoHashOperations.delete("item::1-4").block();
-        pageDtoHashOperations.delete("item::1-5").block();
+        //pageDtoHashOperations.delete("item::1-4").block();
+        //pageDtoHashOperations.delete("item::1-5").block();
         Mono<Long> reestoredRows = deleteRows.zipWhen(x -> insertRows.map(y -> y + x)).map(Tuple2::getT2);
 
         log.info("Affected rows 2: " + reestoredRows.block());
     }
-
 }

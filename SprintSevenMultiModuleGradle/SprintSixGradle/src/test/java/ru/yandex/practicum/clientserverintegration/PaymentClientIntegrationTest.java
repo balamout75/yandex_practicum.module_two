@@ -1,4 +1,4 @@
-package ru.yandex.practicum.client;
+package ru.yandex.practicum.clientserverintegration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,10 +8,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.test.StepVerifier;
 import ru.yandex.practicum.configuration.TestPaymentClientConfiguration;
-import ru.yandex.practicum.paymentclient.PaymentApi;
-import ru.yandex.practicum.model.PaymentBalance;
-import ru.yandex.practicum.model.PaymentOrder;
-import ru.yandex.practicum.model.PaymentStatus;
+import ru.yandex.practicum.service.payment.PaymentApi;
+import ru.yandex.practicum.model.payment.PaymentBalance;
+import ru.yandex.practicum.model.payment.PaymentOrder;
+import ru.yandex.practicum.model.payment.PaymentStatus;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestPaymentClientConfiguration.class)
@@ -24,15 +24,15 @@ class PaymentClientIntegrationTest {
     @Test
     void getBalance_success() {
         StepVerifier.create(
-                        paymentApi.paymentUserIdBalanceGet(101L)
+                        paymentApi.paymentUserIdBalanceGet(1L)
                 )
                 .assertNext(response -> {
                     assert response.getStatusCode().is2xxSuccessful();
 
                     PaymentBalance body = response.getBody();
                     assert body != null;
-                    assert body.getUserId().equals(101L);
-                    assert body.getBalance() != null;
+                    assert body.getUserId().equals(1L);
+                    assert body.getBalance().equals(50000L);
                 })
                 .verifyComplete();
     }
@@ -53,12 +53,12 @@ class PaymentClientIntegrationTest {
     @Test
     void buy_success() {
         PaymentOrder order = new PaymentOrder();
-        order.setUserId(101L);
+        order.setUserId(1L);
         order.setOrderId(1L);
         order.setTotal(10L);
 
         StepVerifier.create(
-                        paymentApi.paymentUserIdBuyPost(101L, order)
+                        paymentApi.paymentUserIdBuyPost(1L, order)
                 )
                 .assertNext(response -> {
                     assert response.getStatusCode().is2xxSuccessful();
@@ -66,7 +66,7 @@ class PaymentClientIntegrationTest {
                     PaymentStatus status = response.getBody();
                     assert status != null;
                     assert status.getOrderId().equals(1L);
-                    assert status.getStatus() != null;
+                    assert status.getStatus().equals("success");
                 })
                 .verifyComplete();
     }
@@ -92,18 +92,21 @@ class PaymentClientIntegrationTest {
     @Test
     void buy_serviceUnavailable() {
         PaymentOrder order = new PaymentOrder();
-        order.setUserId(101L);
+        order.setUserId(1L);
         order.setOrderId(1L);
         order.setTotal(9999999L);
 
         StepVerifier.create(
-                        paymentApi.paymentUserIdBuyPost(101L, order)
+                        paymentApi.paymentUserIdBuyPost(1L, order)
                 )
-                .expectErrorMatches(ex ->
-                        ex instanceof WebClientResponseException
-                                && ((WebClientResponseException) ex)
-                                .getStatusCode().is5xxServerError()
-                )
-                .verify();
+                .assertNext(response -> {
+                    assert response.getStatusCode().is2xxSuccessful();
+
+                    PaymentStatus status = response.getBody();
+                    assert status != null;
+                    assert status.getOrderId().equals(1L);
+                    assert status.getStatus().equals("rejected");
+                })
+                .verifyComplete();
     }
 }

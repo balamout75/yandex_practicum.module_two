@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.service.OrderService;
+import ru.yandex.practicum.service.shoping.OrderService;
 
 @Controller
 @RequestMapping("/orders")

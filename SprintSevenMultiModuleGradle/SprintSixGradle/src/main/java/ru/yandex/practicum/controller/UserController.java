@@ -5,8 +5,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.dto.ItemsRequest;
-import ru.yandex.practicum.service.OrderService;
+import ru.yandex.practicum.dto.payment.ResultStatus;
+import ru.yandex.practicum.dto.shoping.ItemsRequest;
+import ru.yandex.practicum.model.payment.PaymentOrder;
+import ru.yandex.practicum.service.payment.PaymentService;
+import ru.yandex.practicum.service.shoping.CartItemService;
+import ru.yandex.practicum.service.shoping.OrderService;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Controller
 @RequestMapping()
@@ -14,9 +20,13 @@ class UserController {
 
     private static final long USER_ID = 1;
     private final OrderService orderService;
+    private final PaymentService paymentService;
+    private final CartItemService cartItemService;
 
-    public UserController(OrderService orderService) {
+    UserController(OrderService orderService, PaymentService paymentService, CartItemService cartItemService) {
         this.orderService = orderService;
+        this.paymentService = paymentService;
+        this.cartItemService = cartItemService;
     }
 
     @GetMapping("/")
@@ -31,9 +41,18 @@ class UserController {
 
     @PostMapping(value = {"/buy"})
     public Mono<Rendering> buyCart(Model model) {
-        return orderService.closeCart(USER_ID)
-                .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")
-                        .modelAttribute("id", u)
-                        .build()));
+        return cartItemService.getCartCount(USER_ID)
+                            .zipWhen(total -> paymentService.buy(USER_ID,total))
+                            .flatMap(tuple -> {
+                                if (tuple.getT2().status() == ResultStatus.ACCEPTED) {
+                                    return orderService.closeCart(USER_ID)
+                                            .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")
+                                                    .modelAttribute("id", u)
+                                                    .build()));
+                                } else {
+                                    log.warn("Payment rejected: userId={}, total={}, status={}", USER_ID, tuple.getT1(), tuple.getT2().status());
+                                    return Mono.just(Rendering.redirectTo("cart/items").build());
+                                }
+                            });
     }
 }

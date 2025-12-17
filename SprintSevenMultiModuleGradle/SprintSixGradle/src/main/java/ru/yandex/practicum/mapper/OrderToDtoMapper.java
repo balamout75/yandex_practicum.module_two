@@ -1,10 +1,10 @@
 package ru.yandex.practicum.mapper;
 
 import reactor.util.function.Tuple2;
-import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.dto.ShortItemDto;
-import ru.yandex.practicum.model.Item;
-import ru.yandex.practicum.model.OrderItem;
+import ru.yandex.practicum.dto.shoping.OrderDto;
+import ru.yandex.practicum.dto.shoping.ShortItemDto;
+import ru.yandex.practicum.model.shoping.Item;
+import ru.yandex.practicum.model.shoping.OrderItem;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;

@@ -81,13 +81,15 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
-	testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
+
+	//testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
+	testImplementation("com.github.kstyrc:embedded-redis:0.6")
 	testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 	testImplementation("org.testcontainers:testcontainers-postgresql")
 	testImplementation("org.testcontainers:testcontainers-r2dbc")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	//testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {

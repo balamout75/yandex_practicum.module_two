@@ -1,7 +1,6 @@
-package ru.yandex.practicum.dto;
+package ru.yandex.practicum.dto.shoping;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 public record ItemDto (
         long id,

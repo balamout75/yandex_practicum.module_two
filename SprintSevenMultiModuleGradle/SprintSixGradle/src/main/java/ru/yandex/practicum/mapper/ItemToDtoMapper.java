@@ -1,10 +1,10 @@
 package ru.yandex.practicum.mapper;
 
 import reactor.util.function.Tuple2;
-import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.dto.ShortItemDto;
-import ru.yandex.practicum.model.Item;
-import ru.yandex.practicum.model.OrderItem;
+import ru.yandex.practicum.dto.shoping.ItemDto;
+import ru.yandex.practicum.dto.shoping.ShortItemDto;
+import ru.yandex.practicum.model.shoping.Item;
+import ru.yandex.practicum.model.shoping.OrderItem;
 
 
 public class ItemToDtoMapper {

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.model;
+package ru.yandex.practicum.model.shoping;
 
 
 import org.springframework.data.annotation.Id;

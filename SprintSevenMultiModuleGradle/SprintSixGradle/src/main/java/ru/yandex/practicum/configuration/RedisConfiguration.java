@@ -13,14 +13,12 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.dto.PageDto;
+import ru.yandex.practicum.dto.shoping.ItemDto;
+import ru.yandex.practicum.dto.shoping.PageDto;
 
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Configuration

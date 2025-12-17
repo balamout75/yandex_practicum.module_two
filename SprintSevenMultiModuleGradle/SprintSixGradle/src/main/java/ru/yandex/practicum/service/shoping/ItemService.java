@@ -1,11 +1,10 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.shoping;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.model.Item;
+import ru.yandex.practicum.model.shoping.Item;
 import ru.yandex.practicum.repository.ItemRepository;
 
 @Service

@@ -15,20 +15,24 @@ public class PaymentService {
 
     public PaymentService() {    }
     @Value("${paymentservice.currentuser.userid}")
-    private Long ISERID;
+    private Long ISER_ID;
     @Value("${paymentservice.currentuser.balance}")
     private Long BALANCE;
     @Value("${paymentservice.avaible}")
     private boolean AVAILABLE;
+    @Value("${paymentservice.overheaded.userid}")
+    private Long OVERHEADEDUSER_ID;
+    @Value("${paymentservice.unavailable.userid}")
+    private Long UNAVAILABLEUSER_ID;
 
 
     public Mono<Boolean> checkUser (Long userId) {
-        return Mono.just(ISERID.equals(userId));
+        return Mono.just(ISER_ID.equals(userId)||OVERHEADEDUSER_ID.equals(userId)||UNAVAILABLEUSER_ID.equals(userId));
     }
 
     public Mono <PaymentBalance> getBalance (Long userId) {
         if (!AVAILABLE) return Mono.empty();
-        PaymentBalance balance = new PaymentBalance(); balance.setUserId(ISERID); balance.setBalance(BALANCE);
+        PaymentBalance balance = new PaymentBalance(); balance.setUserId(ISER_ID); balance.setBalance(BALANCE);
         return Mono.just(balance);
     }
 

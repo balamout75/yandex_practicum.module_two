@@ -1,4 +1,4 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.shoping;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,12 +7,12 @@ import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.dto.PageDto;
+import ru.yandex.practicum.dto.shoping.ItemDto;
+import ru.yandex.practicum.dto.shoping.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
-import ru.yandex.practicum.model.CartItem;
-import ru.yandex.practicum.model.CartItemId;
+import ru.yandex.practicum.model.shoping.CartItem;
+import ru.yandex.practicum.model.shoping.CartItemId;
 import ru.yandex.practicum.repository.CartItemRepository;
 
 @Service

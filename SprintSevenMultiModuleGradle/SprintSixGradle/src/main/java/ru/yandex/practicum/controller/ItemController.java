@@ -12,13 +12,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.dto.CartRequest;
-import ru.yandex.practicum.dto.ItemDto;
-import ru.yandex.practicum.dto.ItemsRequest;
-import ru.yandex.practicum.dto.Paging;
+import ru.yandex.practicum.dto.shoping.CartRequest;
+import ru.yandex.practicum.dto.shoping.ItemDto;
+import ru.yandex.practicum.dto.shoping.ItemsRequest;
+import ru.yandex.practicum.dto.shoping.Paging;
 import ru.yandex.practicum.mapper.SortModes;
-import ru.yandex.practicum.service.CartItemService;
-import ru.yandex.practicum.service.ChartService;
+import ru.yandex.practicum.service.shoping.CartItemService;
+import ru.yandex.practicum.service.shoping.ChartService;
 
 @Controller
 @RequestMapping("/items")
@@ -43,10 +43,7 @@ public class ItemController {
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
-
-        log.info("класс проверили " + itemsRequest);
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
-        log.info("класс проверили " + pageable);
         return chartService.findAll(USER_ID, itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
                 items.add(new ItemDto());

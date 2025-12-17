@@ -7,25 +7,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.configuration.TestcontainersCustomConfiguration;
+import ru.yandex.practicum.configuration.BaseIntegrationTest;
 
-import ru.yandex.practicum.dto.ItemDto;
+
+import ru.yandex.practicum.configuration.EmbeddedRedisConfiguration;
+import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.SortModes;
-import ru.yandex.practicum.service.CartItemService;
-import ru.yandex.practicum.service.ChartService;
+import ru.yandex.practicum.service.shoping.CartItemService;
+import ru.yandex.practicum.service.shoping.ChartService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,15 +34,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@Import(EmbeddedRedisConfiguration.class)
 @AutoConfigureWebTestClient
-@Testcontainers
-@ImportTestcontainers(TestcontainersCustomConfiguration.class)
-class UserControllerIntegrationTests {
+class UserControllerIntegrationTests extends BaseIntegrationTest {
 
 	@Autowired
 	WebTestClient webTestClient;

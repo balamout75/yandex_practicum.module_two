@@ -1,14 +1,11 @@
 package ru.yandex.practicum.configuration;
 
-import okhttp3.mockwebserver.MockWebServer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-import ru.yandex.practicum.paymentclient.PaymentApi;
-
-import java.io.IOException;
+import ru.yandex.practicum.service.payment.PaymentApi;
 
 @TestConfiguration
 public class TestPaymentClientConfiguration {

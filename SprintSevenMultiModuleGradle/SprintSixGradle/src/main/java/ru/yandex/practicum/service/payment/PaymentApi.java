@@ -1,4 +1,4 @@
-package ru.yandex.practicum.paymentclient;
+package ru.yandex.practicum.service.payment;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,9 +7,9 @@ import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.model.PaymentBalance;
-import ru.yandex.practicum.model.PaymentOrder;
-import ru.yandex.practicum.model.PaymentStatus;
+import ru.yandex.practicum.model.payment.PaymentBalance;
+import ru.yandex.practicum.model.payment.PaymentOrder;
+import ru.yandex.practicum.model.payment.PaymentStatus;
 
 @HttpExchange("/payment")
 public interface PaymentApi {

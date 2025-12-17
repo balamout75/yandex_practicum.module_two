@@ -1,10 +1,10 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.shoping;
 
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.model.OrderItem;
+import ru.yandex.practicum.model.shoping.OrderItem;
 import ru.yandex.practicum.repository.OrderItemRepository;
 
 

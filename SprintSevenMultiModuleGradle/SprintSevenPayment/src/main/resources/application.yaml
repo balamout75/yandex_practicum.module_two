@@ -12,4 +12,7 @@ paymentservice:
   currentuser:
     userid: 1
     balance: 50000
-  avaible : true
+  overheaded:
+    userid: 2
+  unavialable:
+    userid: 3

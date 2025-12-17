@@ -1,19 +1,16 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.shoping;
 
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
-import ru.yandex.practicum.dto.OrderDto;
+import ru.yandex.practicum.dto.shoping.OrderDto;
 import ru.yandex.practicum.mapper.OrderToDtoMapper;
-import ru.yandex.practicum.model.*;
-import ru.yandex.practicum.repository.OrderItemRepository;
+import ru.yandex.practicum.model.shoping.CartItem;
+import ru.yandex.practicum.model.shoping.CartItemId;
+import ru.yandex.practicum.model.shoping.Order;
+import ru.yandex.practicum.model.shoping.OrderItem;
 import ru.yandex.practicum.repository.OrderRepository;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
