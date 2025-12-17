@@ -8,9 +8,9 @@ import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.server.model.Balance;
-import ru.yandex.practicum.server.model.Order;
-import ru.yandex.practicum.server.model.Status;
+import ru.yandex.practicum.server.model.PaymentBalance;
+import ru.yandex.practicum.server.model.PaymentOrder;
+import ru.yandex.practicum.server.model.PaymentStatus;
 import ru.yandex.practicum.server.service.PaymentService;
 
 import static org.mockito.Mockito.when;
@@ -43,7 +43,7 @@ class PaymentControllerTest {
 
     @Test
     void getBalance_success_returns200() {
-        Balance balance = new Balance();
+        PaymentBalance balance = new PaymentBalance();
         balance.setUserId(1L);
         balance.setBalance(1000L);
 
@@ -85,7 +85,7 @@ class PaymentControllerTest {
 
         webTestClient.post()
                 .uri("/payment/2/buy")
-                .bodyValue(new Order())
+                .bodyValue(new PaymentOrder())
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(String.class)
@@ -95,11 +95,11 @@ class PaymentControllerTest {
 
     @Test
     void buy_success_returns200() {
-        Order order = new Order();
+        PaymentOrder order = new PaymentOrder();
         order.setOrderId(10L);
         order.setTotal(500L);
 
-        Status status = new Status();
+        PaymentStatus status = new PaymentStatus();
         status.setOrderId(10L);
         status.setStatus("success");
 

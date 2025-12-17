@@ -7,21 +7,21 @@ import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.paymentclient.model.Balance;
-import ru.yandex.practicum.paymentclient.model.Order;
-import ru.yandex.practicum.paymentclient.model.Status;
+import ru.yandex.practicum.model.PaymentBalance;
+import ru.yandex.practicum.model.PaymentOrder;
+import ru.yandex.practicum.model.PaymentStatus;
 
 @HttpExchange("/payment")
 public interface PaymentApi {
 
-    @GetExchange("/payment/{userId}/balance")
-    Mono<ResponseEntity<Balance>> paymentUserIdBalanceGet(
+    @GetExchange("/{userId}/balance")
+    Mono<ResponseEntity<PaymentBalance>> paymentUserIdBalanceGet(
             @PathVariable Long userId
     );
 
-    @PostExchange("/payment/{userId}/buy")
-    Mono<ResponseEntity<Status>> paymentUserIdBuyPost(
+    @PostExchange("/{userId}/buy")
+    Mono<ResponseEntity<PaymentStatus>> paymentUserIdBuyPost(
             @PathVariable Long userId,
-            @RequestBody Order order
+            @RequestBody PaymentOrder order
     );
 }

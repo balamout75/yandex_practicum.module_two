@@ -1,4 +1,4 @@
-package ru.yandex.practicum.paymentclient.model;
+package ru.yandex.practicum.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,13 +12,13 @@ import java.util.Objects;
  */
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-16T20:20:54.611610+08:00[Asia/Irkutsk]", comments = "Generator version: 7.17.0")
-public class Status {
+public class PaymentStatus {
 
   private @Nullable Long orderId;
 
   private @Nullable String status;
 
-  public Status orderId(@Nullable Long orderId) {
+  public PaymentStatus orderId(@Nullable Long orderId) {
     this.orderId = orderId;
     return this;
   }
@@ -38,7 +38,7 @@ public class Status {
     this.orderId = orderId;
   }
 
-  public Status status(@Nullable String status) {
+  public PaymentStatus status(@Nullable String status) {
     this.status = status;
     return this;
   }
@@ -66,7 +66,7 @@ public class Status {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Status status = (Status) o;
+    PaymentStatus status = (PaymentStatus) o;
     return Objects.equals(this.orderId, status.orderId) &&
         Objects.equals(this.status, status.status);
   }

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +16,11 @@ import jakarta.annotation.Generated;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.server.api.ApiUtil;
 import ru.yandex.practicum.server.api.PaymentApi;
-import ru.yandex.practicum.server.model.Balance;
-import ru.yandex.practicum.server.model.Order;
-import ru.yandex.practicum.server.model.Status;
+import ru.yandex.practicum.server.model.PaymentBalance;
+
+import ru.yandex.practicum.server.model.PaymentOrder;
+import ru.yandex.practicum.server.model.PaymentStatus;
 import ru.yandex.practicum.server.service.PaymentService;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.17.0")
@@ -36,7 +35,7 @@ public class PaymentController implements PaymentApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Balance>> paymentUserIdBalanceGet(
+    public Mono<ResponseEntity<PaymentBalance>> paymentUserIdBalanceGet(
             @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.PATH) @PathVariable("userId") Long userId,
             @Parameter(hidden = true) final ServerWebExchange exchange
     ) {
@@ -59,9 +58,9 @@ public class PaymentController implements PaymentApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Status>> paymentUserIdBuyPost(
+    public Mono<ResponseEntity<PaymentStatus>> paymentUserIdBuyPost(
             @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.PATH) @PathVariable("userId") Long userId,
-            @Parameter(name = "Order", description = "", required = true) @Valid @RequestBody Mono<Order> order,
+            @Parameter(name = "Order", description = "", required = true) @Valid @RequestBody Mono<PaymentOrder> paymentOrder,
             @Parameter(hidden = true) final ServerWebExchange exchange
     ) {
         return paymentService.checkUser(userId)
@@ -72,7 +71,7 @@ public class PaymentController implements PaymentApi {
                                 "Пользователь не зарегистрирован"
                         )
                 ))
-                .then(order)
+                .then(paymentOrder)
                 .flatMap(paymentService::getStatus)
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.error(

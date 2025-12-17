@@ -86,7 +86,7 @@ public class OrderService {
         return cartItemService.deleteById(new CartItemId(userId, itemId));
     }
 
-    public Mono<Long> closeCart(Long userId) {
+    /*public Mono<Long> closeCart(Long userId) {
         return orderRepository.save(new Order(userId))
                 .flatMap(order ->
                         cartItemService.findByUserId(userId)
@@ -105,9 +105,9 @@ public class OrderService {
                                 )
                                 .then(Mono.just(order.getId())) //
                 );
-    }
+    }*/
 
-    /*
+
     public Mono<Long> closeCart(Long userId) {
         Mono<Long> monoOrderId = orderRepository.getId().zipWhen(u -> orderRepository.save(new Order(u))).map(z -> z.getT2().getId());
         return monoOrderId.flatMapMany(orderId -> getCartItems(userId).flatMap(cartItem -> Mono.just(cartItem).zipWith(Mono.just(orderId))))
@@ -118,6 +118,5 @@ public class OrderService {
                 .collectList().map(list -> list.getFirst().getT1().getT2());
     }
 
-     */
 }
 

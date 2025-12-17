@@ -1,4 +1,4 @@
-package ru.yandex.practicum.paymentclient.model;
+package ru.yandex.practicum.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-16T20:20:54.611610+08:00[Asia/Irkutsk]", comments = "Generator version: 7.17.0")
-public class Order {
+public class PaymentOrder {
 
   private @Nullable Long userId;
 
@@ -20,7 +20,7 @@ public class Order {
 
   private @Nullable Long total;
 
-  public Order userId(@Nullable Long userId) {
+  public PaymentOrder userId(@Nullable Long userId) {
     this.userId = userId;
     return this;
   }
@@ -40,7 +40,7 @@ public class Order {
     this.userId = userId;
   }
 
-  public Order orderId(@Nullable Long orderId) {
+  public PaymentOrder orderId(@Nullable Long orderId) {
     this.orderId = orderId;
     return this;
   }
@@ -60,7 +60,7 @@ public class Order {
     this.orderId = orderId;
   }
 
-  public Order total(@Nullable Long total) {
+  public PaymentOrder total(@Nullable Long total) {
     this.total = total;
     return this;
   }
@@ -88,10 +88,10 @@ public class Order {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Order order = (Order) o;
-    return Objects.equals(this.userId, order.userId) &&
-        Objects.equals(this.orderId, order.orderId) &&
-        Objects.equals(this.total, order.total);
+    PaymentOrder paymentOrder = (PaymentOrder) o;
+    return Objects.equals(this.userId, paymentOrder.userId) &&
+        Objects.equals(this.orderId, paymentOrder.orderId) &&
+        Objects.equals(this.total, paymentOrder.total);
   }
 
   @Override

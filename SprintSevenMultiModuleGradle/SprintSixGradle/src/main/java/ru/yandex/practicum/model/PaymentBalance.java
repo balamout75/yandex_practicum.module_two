@@ -1,4 +1,4 @@
-package ru.yandex.practicum.paymentclient.model;
+package ru.yandex.practicum.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,13 +12,13 @@ import java.util.Objects;
  */
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-16T20:20:54.611610+08:00[Asia/Irkutsk]", comments = "Generator version: 7.17.0")
-public class Balance {
+public class PaymentBalance {
 
   private @Nullable Long userId;
 
   private @Nullable Long balance;
 
-  public Balance userId(@Nullable Long userId) {
+  public PaymentBalance userId(@Nullable Long userId) {
     this.userId = userId;
     return this;
   }
@@ -38,7 +38,7 @@ public class Balance {
     this.userId = userId;
   }
 
-  public Balance balance(@Nullable Long balance) {
+  public PaymentBalance balance(@Nullable Long balance) {
     this.balance = balance;
     return this;
   }
@@ -66,7 +66,7 @@ public class Balance {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Balance balance = (Balance) o;
+    PaymentBalance balance = (PaymentBalance) o;
     return Objects.equals(this.userId, balance.userId) &&
         Objects.equals(this.balance, balance.balance);
   }

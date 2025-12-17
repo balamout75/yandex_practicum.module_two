@@ -4,9 +4,10 @@ package ru.yandex.practicum.server.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.server.model.Balance;
-import ru.yandex.practicum.server.model.Order;
-import ru.yandex.practicum.server.model.Status;
+import ru.yandex.practicum.server.model.PaymentBalance;
+import ru.yandex.practicum.server.model.PaymentOrder;
+import ru.yandex.practicum.server.model.PaymentStatus;
+
 
 
 @Service
@@ -25,27 +26,27 @@ public class PaymentService {
         return Mono.just(ISERID.equals(userId));
     }
 
-    public Mono <Balance> getBalance (Long userId) {
+    public Mono <PaymentBalance> getBalance (Long userId) {
         if (!AVAILABLE) return Mono.empty();
-        Balance balance = new Balance(); balance.setUserId(ISERID); balance.setBalance(BALANCE);
+        PaymentBalance balance = new PaymentBalance(); balance.setUserId(ISERID); balance.setBalance(BALANCE);
         return Mono.just(balance);
     }
 
-    public Mono<Status> getStatus(Order order) {
+    public Mono<PaymentStatus> getStatus(PaymentOrder paymentOrder) {
         if (!AVAILABLE) {
             return Mono.empty();
         }
 
-        Status status = new Status();
-        status.setOrderId(order.getOrderId());
+        PaymentStatus paymentStatus = new PaymentStatus();
+        paymentStatus.setOrderId(paymentOrder.getOrderId());
 
-        if (order.getTotal() <= BALANCE) {
-            status.setStatus("success");
+        if (paymentOrder.getTotal() <= BALANCE) {
+            paymentStatus.setStatus("success");
         } else {
-            status.setStatus("rejected");
+            paymentStatus.setStatus("rejected");
         }
 
-        return Mono.just(status);
+        return Mono.just(paymentStatus);
     }
 }
 

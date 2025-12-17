@@ -36,7 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Balance'
+                $ref: '#/components/schemas/PaymentBalance'
         '404':
           description: Пользователь не зарегистрирован
         '5XX':
@@ -58,21 +58,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/PaymentOrder'
       responses:
         '200':
           description: Успешный ответ
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Status'
+                $ref: '#/components/schemas/PaymentStatus'
         '404':
           description: Пользователь не зарегистрирован
         '5XX':
           description: Сервис не доступен
 components:
   schemas:
-    Balance:
+    PaymentBalance:
       type: object
       properties:
         userId:
@@ -85,7 +85,7 @@ components:
           example: 1
       required:
         - all
-    Order:
+    PaymentOrder:
       type: object
       properties:
         userId:
@@ -102,7 +102,7 @@ components:
           example: 123482
       required:
         - all
-    Status:
+    PaymentStatus:
       type: object
       properties:
         orderId:

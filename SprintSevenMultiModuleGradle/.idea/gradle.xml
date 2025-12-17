@@ -14,15 +14,6 @@
           </set>
         </option>
       </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/SprintSevenPayment" />
-        <option name="gradleHome" value="" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/SprintSevenPayment" />
-          </set>
-        </option>
-      </GradleProjectSettings>
     </option>
   </component>
 </project>
