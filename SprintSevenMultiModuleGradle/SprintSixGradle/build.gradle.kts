@@ -1,9 +1,9 @@
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+//import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 plugins {
 	java
 	id("org.springframework.boot") version "4.0.0"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("org.openapi.generator") version "7.17.0"
+	//id("org.openapi.generator") version "7.17.0"
 }
 
 group = "ru.yandex.practicum"
@@ -21,6 +21,7 @@ repositories {
 }
 
 
+/*
 sourceSets {
 	main {
 		java {
@@ -30,7 +31,7 @@ sourceSets {
 }
 
 
-tasks.register<GenerateTask>("buildClient") {
+tasks.register<GenerateTask>("buildClient2") {
 	generatorName.set("spring")
 	inputSpec.set("$projectDir/src/main/resources/api-spec.yaml")
 	outputDir.set("$projectDir/build/generated")
@@ -40,14 +41,23 @@ tasks.register<GenerateTask>("buildClient") {
 
 	configOptions.set(
 		mapOf(
-			"library" to "spring-http-interface", // 🔥 ВАЖНО
+			"library" to "spring-http-interface",
 			"interfaceOnly" to "true",
 			"useJakartaEe" to "true",
+			"reactive" to "true",
 			"openApiNullable" to "false",
-			"reactive" to "true"
+			"useSwaggerAnnotations" to "false"
 		)
 	)
 }
+*/
+configurations.all {
+	exclude(
+		group = "com.vaadin.external.google",
+		module = "android-json"
+	)
+}
+
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -57,8 +67,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 	implementation("org.springframework.boot:spring-boot-starter-cache")
-	//implementation("org.springframework:spring-jdbc")
+	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.0")
 	implementation("com.google.guava:guava:32.1.3-jre")
+	implementation("org.springframework:spring-web")
 
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
@@ -71,6 +82,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
+	testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 	testImplementation("org.testcontainers:testcontainers-postgresql")
@@ -81,7 +93,8 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
+/*
 tasks.named("compileJava") {
-	dependsOn("buildClient")
+	dependsOn("buildClient2")
 }
+ */

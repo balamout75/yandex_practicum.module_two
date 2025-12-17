@@ -1,0 +1,170 @@
+﻿paths:
+  /books/{bookId}:
+    # В данном случае operation — это метод get
+    get:
+      summary: Получение информации о пользователе
+      parameters:
+        - $ref: '#/components/paramеters/bookId'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Книга не найдена
+components:
+  parameters:
+    BookId:
+      name: bookId
+      in: path
+      description: Идентификатор книги
+      required: true
+      schema:
+        type: integer 
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор книги
+        title:
+          type: string
+          description: Заголовок
+        author:
+          type: string
+          description: Автор
+        year:
+          type: integer
+          description: год написания
+      required:
+        - id
+        - title
+        - author
+        - year
+
+
+
+Сервис платежей представляет собой RESTful-приложение с двумя реактивными HTTP-эндпоинтами:
+получением баланса на счёте (на ваш выбор логика получения баланса: случайный баланс, загрузка из БД, фиксированный баланс, загрузка из конфига) — если баланс меньше суммы цены товаров в корзине, то кнопка оформления заказа основного приложения недоступна;
+осуществлением платежа (при нажатии на кнопку оформления заказа происходит запрос на вычитание суммы заказа из баланса) — если оно даёт отрицательный результат, то считается, что оплата заказа не прошла и он не оформляется, и выдаётся соответствующая ошибка.
+Если сервис платежей недоступен, то должна быть недоступна кнопка оформления заказа. В таком случае показывается соответствующее сообщение.
+Обмен сообщениями с сервисом платежей происходит в формате JSON.
+
+servers:
+  #- url: https://api.example.com/v1
+  #  description: Основной сервер для работы с API
+  - url: http://localhost:{port}/{environment}
+    description: Локальный сервер разработки
+    variables:
+      port:
+        default: 8081
+        description: Номер порта
+      environment:
+        default: development
+        enum:
+          - development
+          - testing
+
+
+
+openapi: 3.0.3
+info:
+  title: Auto Workshop Management API
+  description: API для управления заказами и клиентами автомастерской
+  version: 1.0.0
+paths:
+  /payment/{id}/balance:
+    get:
+      summary: Получить баланс пользователя Id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+	'404':
+          description: Пользователь не зарегистрирован
+	'5XX':
+          description: Сервис не доступен
+  /payment/{id}/buy:
+    post:
+      summary: оплатить счет пользователя Id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+	'404':
+          description: Пользователь не зарегистрирован
+	'5XX':
+          description: Сервис не доступен
+components:
+  schemas:
+    Balance:
+      type: object
+      properties:
+        userId:
+          type: integer
+	  format: int64
+          required: true
+          example: 101
+        balance:
+          type: integer
+	  format: int64	
+          required: true
+          example: 1
+    Order:
+      type: object
+      properties:
+        userId:
+          type: integer
+	  format: int64
+          required: true
+          example: 101
+        orderId:
+          type: integer
+	  format: int64
+          required: true
+          example: 1
+        total:
+          type: integer
+	  format: int64
+          required: true
+          example: 123482
+    Status:
+      type: object
+      properties:
+        orderId:
+          type: integer
+	  format: int64
+          required: true
+          example: 1
+        status:
+          type: string
+	  format: int64
+          required: true
+          example: 1

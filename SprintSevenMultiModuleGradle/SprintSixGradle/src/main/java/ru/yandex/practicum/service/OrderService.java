@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.mapper.OrderToDtoMapper;
 import ru.yandex.practicum.model.*;
@@ -32,10 +33,32 @@ public class OrderService {
 
     public Mono<OrderDto> findOrder(Long userId, Long orderId) {
         return orderItemService.findByOrder(orderId)
+                .flatMap(oi -> itemService.findItemById(oi.getItemId()).map(item -> Tuples.of(oi, item)))
+                .collectList()
+                .map(list -> OrderToDtoMapper.toDto2(list, orderId));
+    }
+
+    public Flux<OrderDto> findOrders(Long userId) {
+        return orderItemService.findByUser(userId)
+                .flatMap(oi -> itemService.findItemById(oi.getItemId()).map(item -> Tuples.of(oi, item)))
+                .collectMultimap(t -> t.getT1().getOrderId())
+                .flatMapMany(map ->
+                        Flux.fromIterable(
+                                map.entrySet().stream()
+                                        .map(e -> OrderToDtoMapper.toDto2(e.getValue().stream().toList(), e.getKey()))
+                                        .toList()
+                        )
+                );
+    }
+    /*
+    public Mono<OrderDto> findOrder(Long userId, Long orderId) {
+        return orderItemService.findByOrder(orderId)
                 .flatMap(orderItem -> Mono.just(orderItem)
                                 .zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
                 .collectList().map(list -> OrderToDtoMapper.toDto2(list, orderId));
     }
+
+
 
     public Flux<OrderDto> findOrders(Long userId) {
         return orderItemService.findByUser(userId)
@@ -48,6 +71,8 @@ public class OrderService {
                     return myMap.entrySet().stream().map(x -> OrderToDtoMapper.toDto2(x.getValue(), x.getKey())).toList();})
                 .flatMapMany(Flux::fromIterable);
     }
+
+     */
 
     private Mono<OrderItem> newOrderItem(long orderId, Long itemId, Long count) {
         return orderItemService.save(new OrderItem(orderId, itemId, count));
@@ -62,6 +87,28 @@ public class OrderService {
     }
 
     public Mono<Long> closeCart(Long userId) {
+        return orderRepository.save(new Order(userId))
+                .flatMap(order ->
+                        cartItemService.findByUserId(userId)
+                                .flatMap(cartItem ->
+                                        orderItemService.save(
+                                                new OrderItem(
+                                                        order.getId(),
+                                                        cartItem.getItemId(),
+                                                        cartItem.getCount()
+                                                )
+                                        ).then(
+                                                cartItemService.deleteById(
+                                                        new CartItemId(userId, cartItem.getItemId())
+                                                )
+                                        )
+                                )
+                                .then(Mono.just(order.getId())) //
+                );
+    }
+
+    /*
+    public Mono<Long> closeCart(Long userId) {
         Mono<Long> monoOrderId = orderRepository.getId().zipWhen(u -> orderRepository.save(new Order(u))).map(z -> z.getT2().getId());
         return monoOrderId.flatMapMany(orderId -> getCartItems(userId).flatMap(cartItem -> Mono.just(cartItem).zipWith(Mono.just(orderId))))
                 .flatMap(x -> newOrderItem(x.getT2(), x.getT1().getItemId(), x.getT1().getCount())
@@ -70,5 +117,7 @@ public class OrderService {
                                 .thenReturn(Mono.just("ok"))))
                 .collectList().map(list -> list.getFirst().getT1().getT2());
     }
+
+     */
 }
 

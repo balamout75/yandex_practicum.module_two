@@ -1,0 +1,15 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: module_two_sprint_six_gradle
+springdoc:
+  swagger-ui:
+    enabled: true
+    tryItOutEnabled: true
+    persistAuthorization: true
+paymentservice:
+  currentuser:
+    userid: 1
+    balance: 50000
+  avaible : true

@@ -2,10 +2,11 @@ package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.client.api.PaymentApi;
-import ru.yandex.practicum.client.model.Balance;
-import ru.yandex.practicum.client.model.Status;
-import ru.yandex.practicum.client.model.Order;
+import ru.yandex.practicum.paymentclient.PaymentApi;
+import ru.yandex.practicum.paymentclient.model.Balance;
+import ru.yandex.practicum.paymentclient.model.Order;
+import ru.yandex.practicum.paymentclient.model.Status;
+
 
 @Service
 public class PaymentService {
@@ -50,7 +51,7 @@ public class PaymentService {
                 });
     }
     public Mono<Status> buy(Long userId, Order order) {
-        return paymentApi.paymentUserIdBuyPost(userId, Mono.just(order))
+        return paymentApi.paymentUserIdBuyPost(userId, order)
                 .flatMap(response -> {
                     if (response.getStatusCode().is2xxSuccessful()) {
                         return Mono.just(response.getBody());
