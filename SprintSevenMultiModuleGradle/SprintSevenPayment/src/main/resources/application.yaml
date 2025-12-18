@@ -9,10 +9,16 @@ springdoc:
     tryItOutEnabled: true
     persistAuthorization: true
 paymentservice:
+  available: true
   currentuser:
     userid: 1
     balance: 50000
   overheaded:
     userid: 2
-  unavialable:
+  unavailable:
     userid: 3
+
+
+
+
+

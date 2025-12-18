@@ -55,6 +55,7 @@ public class PaymentService {
                     if (response.getStatusCode().is2xxSuccessful()) {
                         PaymentStatus  paymentStatus = response.getBody();
                         ResultStatus resultStatus = ResultStatus.REFUSED;
+                        System.out.println("Статус платежа "+paymentStatus.getStatus());
                         if (paymentStatus.getStatus().equalsIgnoreCase("accepted")) { resultStatus = ResultStatus.ACCEPTED; }
                         return Mono.just(new StatusDto(paymentStatus.getOrderId(),resultStatus));
                     } else return Mono.just(new StatusDto(0L, ResultStatus.UNAVAILABLE));

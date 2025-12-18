@@ -18,7 +18,7 @@ public class PaymentService {
     private Long ISER_ID;
     @Value("${paymentservice.currentuser.balance}")
     private Long BALANCE;
-    @Value("${paymentservice.avaible}")
+    @Value("${paymentservice.available}")
     private boolean AVAILABLE;
     @Value("${paymentservice.overheaded.userid}")
     private Long OVERHEADEDUSER_ID;
@@ -45,9 +45,9 @@ public class PaymentService {
         paymentStatus.setOrderId(paymentOrder.getOrderId());
 
         if (paymentOrder.getTotal() <= BALANCE) {
-            paymentStatus.setStatus("success");
+            paymentStatus.setStatus("accepted");
         } else {
-            paymentStatus.setStatus("rejected");
+            paymentStatus.setStatus("refused");
         }
 
         return Mono.just(paymentStatus);

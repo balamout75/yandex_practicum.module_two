@@ -19,25 +19,31 @@ public class OrderService {
     private final OrderItemService orderItemService;
     private final ItemService itemService;
     private final CartItemService cartItemService;
+    private final UserCacheVersionService userCacheVersionService;
 
     public OrderService(OrderRepository orderRepository, OrderItemService orderItemService,
-                        ItemService itemService, CartItemService cartItemService) {
+                        ItemService itemService, CartItemService cartItemService, UserCacheVersionService userCacheVersionService) {
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.itemService = itemService;
         this.cartItemService = cartItemService;
+        this.userCacheVersionService = userCacheVersionService;
     }
+
 
     public Mono<OrderDto> findOrder(Long userId, Long orderId) {
         return orderItemService.findByOrder(orderId)
-                .flatMap(oi -> itemService.findItemById(oi.getItemId()).map(item -> Tuples.of(oi, item)))
+                .flatMap(oi -> itemService.findItemById(oi.getItemId())
+                        .map(item -> Tuples.of(oi, item)))
                 .collectList()
                 .map(list -> OrderToDtoMapper.toDto2(list, orderId));
     }
 
+
     public Flux<OrderDto> findOrders(Long userId) {
         return orderItemService.findByUser(userId)
-                .flatMap(oi -> itemService.findItemById(oi.getItemId()).map(item -> Tuples.of(oi, item)))
+                .flatMap(oi -> itemService.findItemById(oi.getItemId())
+                        .map(item -> Tuples.of(oi, item)))
                 .collectMultimap(t -> t.getT1().getOrderId())
                 .flatMapMany(map ->
                         Flux.fromIterable(
@@ -47,29 +53,6 @@ public class OrderService {
                         )
                 );
     }
-    /*
-    public Mono<OrderDto> findOrder(Long userId, Long orderId) {
-        return orderItemService.findByOrder(orderId)
-                .flatMap(orderItem -> Mono.just(orderItem)
-                                .zipWhen((oi -> itemService.findItemById(oi.getItemId()))))
-                .collectList().map(list -> OrderToDtoMapper.toDto2(list, orderId));
-    }
-
-
-
-    public Flux<OrderDto> findOrders(Long userId) {
-        return orderItemService.findByUser(userId)
-                .flatMap(orderItem -> Mono.just(orderItem).
-                        zipWhen(oi -> itemService.findItemById(oi.getItemId())))
-                .collectList()
-                .map(tuples -> {
-                    Map<Long, List<Tuple2<OrderItem, Item>>> myMap =
-                            tuples.stream().collect(Collectors.groupingBy(f -> f.getT1().getOrderId()));
-                    return myMap.entrySet().stream().map(x -> OrderToDtoMapper.toDto2(x.getValue(), x.getKey())).toList();})
-                .flatMapMany(Flux::fromIterable);
-    }
-
-     */
 
     private Mono<OrderItem> newOrderItem(long orderId, Long itemId, Long count) {
         return orderItemService.save(new OrderItem(orderId, itemId, count));
@@ -79,40 +62,35 @@ public class OrderService {
         return cartItemService.findByUserId(userId);
     }
 
-    private Mono<Void> deleteCartItem(long userId, long itemId) {
-        return cartItemService.deleteById(new CartItemId(userId, itemId));
+    public Mono<Void> clearCart(Long userId) {
+        return cartItemService.deleteByUserId(userId);
     }
 
-    /*public Mono<Long> closeCart(Long userId) {
-        return orderRepository.save(new Order(userId))
-                .flatMap(order ->
-                        cartItemService.findByUserId(userId)
-                                .flatMap(cartItem ->
-                                        orderItemService.save(
-                                                new OrderItem(
-                                                        order.getId(),
-                                                        cartItem.getItemId(),
-                                                        cartItem.getCount()
-                                                )
-                                        ).then(
-                                                cartItemService.deleteById(
-                                                        new CartItemId(userId, cartItem.getItemId())
-                                                )
-                                        )
-                                )
-                                .then(Mono.just(order.getId())) //
-                );
-    }*/
+    private Mono<Void> copyCartItems(Long userId, Long orderId) {
+        return getCartItems(userId)
+                .flatMap(cartItem ->
+                        newOrderItem(
+                                orderId,
+                                cartItem.getItemId(),
+                                cartItem.getCount()
+                        )
+                )
+                .then();
+    }
 
+    private Mono<Void> createOrder(Long orderId) {
+        return orderRepository.save(new Order(orderId)).then();
+    }
 
     public Mono<Long> closeCart(Long userId) {
-        Mono<Long> monoOrderId = orderRepository.getId().zipWhen(u -> orderRepository.save(new Order(u))).map(z -> z.getT2().getId());
-        return monoOrderId.flatMapMany(orderId -> getCartItems(userId).flatMap(cartItem -> Mono.just(cartItem).zipWith(Mono.just(orderId))))
-                .flatMap(x -> newOrderItem(x.getT2(), x.getT1().getItemId(), x.getT1().getCount())
-                        .zipWith(Mono.just(x.getT2()))
-                        .zipWhen(ex -> deleteCartItem(userId, ex.getT1().getItemId())
-                                .thenReturn(Mono.just("ok"))))
-                .collectList().map(list -> list.getFirst().getT1().getT2());
+        return orderRepository.getId()
+                .flatMap(orderId ->
+                        createOrder(orderId)
+                                .then(copyCartItems(userId, orderId))
+                                .then(clearCart(userId))
+                                .then(userCacheVersionService.increment(userId))
+                                .thenReturn(orderId)
+                );
     }
 
 }

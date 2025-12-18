@@ -6,13 +6,15 @@ import java.util.Objects;
 
 public class PageDto implements Serializable {
 
-        String name="1";
+        Long userId;
+
         List<ItemDto> items;
 
         public PageDto() {
         }
 
-        public PageDto(List<ItemDto> items) {
+        public PageDto(Long userId, List<ItemDto> items) {
+                this.userId = userId;
                 this.items = items;
         }
 
@@ -20,29 +22,27 @@ public class PageDto implements Serializable {
         public boolean equals(Object o) {
                 if (o == null || getClass() != o.getClass()) return false;
                 PageDto pageDto = (PageDto) o;
-                return Objects.equals(name, pageDto.name) && Objects.equals(items, pageDto.items);
+                return Objects.equals(userId, pageDto.userId) && Objects.equals(items, pageDto.items);
         }
 
         @Override
         public int hashCode() {
-                return Objects.hash(name, items);
+                return Objects.hash(userId, items);
         }
 
-        public String getName() {
-                return name;
+        public Long getUserId() {
+                return userId;
         }
 
-        public void setName(String name) {
-                this.name = name;
+        public void setUserId(Long userId) {
+                this.userId = userId;
         }
 
         public List<ItemDto> getItems() {
-                System.out.println("ItemGet "+items.size());
                 return items;
         }
 
         public void setItems(List<ItemDto> items) {
-                System.out.println("ItemSet "+items.size());
                 this.items = items;
         }
 

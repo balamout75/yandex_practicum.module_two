@@ -17,4 +17,6 @@ public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Car
     Mono<CartItem> findByUserIdAndItemId(long userId, long itemId);
 
     Flux<CartItem> findByUserId(long userId);
+
+    Mono<Void> deleteByUserId(Long userId);
 }

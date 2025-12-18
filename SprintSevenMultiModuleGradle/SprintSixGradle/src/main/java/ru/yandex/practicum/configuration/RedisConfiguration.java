@@ -18,32 +18,49 @@ import ru.yandex.practicum.dto.shoping.PageDto;
 
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 
 @Configuration
 public class RedisConfiguration {
 
     @Bean
+    public ReactiveRedisTemplate<String, Long> reactiveRedisLongTemplate(
+            ReactiveRedisConnectionFactory connectionFactory) {
+
+        RedisSerializationContext<String, Long> context =
+                RedisSerializationContext.<String, Long>newSerializationContext(new StringRedisSerializer())
+                        .value(new GenericToStringSerializer<>(Long.class))
+                        .build();
+
+        return new ReactiveRedisTemplate<>(connectionFactory, context);
+    }
+
+    @Bean
     public RedisCacheManagerBuilderCustomizer itemCacheCustomizer() {
         return builder -> builder
                 .withCacheConfiguration("itemDto",                                         // Имя кеша
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.of(30, ChronoUnit.MINUTES))  // TTL
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))  // TTL
                         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                                         new JacksonJsonRedisSerializer<>(ItemDto.class)
-                                        //new GenericJacksonJsonRedisSerializer(ItemDto.class)
                                 )
                         )
         );
     }
 
     @Bean
-    public ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations(
+    public RedisCacheManagerBuilderCustomizer pageCacheCustomizer() {
+        return builder -> builder
+                .withCacheConfiguration("page",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))
+        );
+    }
+
+    @Bean
+    public ReactiveHashOperations<String, String, PageDto> pageDtoHashOperations(
             ReactiveRedisConnectionFactory connectionFactory) {
 
         // Define serializers
         StringRedisSerializer keySerializer = new StringRedisSerializer();
-        GenericToStringSerializer<Integer> hashKeySerializer = new GenericToStringSerializer<>(Integer.class);
+        GenericToStringSerializer <String> hashKeySerializer    = new GenericToStringSerializer<>(String.class);
         JacksonJsonRedisSerializer<PageDto> hashValueSerializer = new JacksonJsonRedisSerializer<>(PageDto.class);
 
         // Build the serialization context

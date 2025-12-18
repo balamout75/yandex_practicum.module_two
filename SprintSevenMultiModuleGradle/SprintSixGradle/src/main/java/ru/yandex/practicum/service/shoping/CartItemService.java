@@ -1,14 +1,11 @@
 package ru.yandex.practicum.service.shoping;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.shoping.ItemDto;
-import ru.yandex.practicum.dto.shoping.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
 import ru.yandex.practicum.model.shoping.CartItem;
@@ -20,21 +17,22 @@ public class CartItemService {
 
     private final ItemService itemService;
     private final CartItemRepository repository;
+    private final UserCacheVersionService userCacheVersionService;
+
     @Value("${images.path}")
     private String UPLOAD_DIR;
+    final String KEY = "page";
 
-    @Autowired
-    private ReactiveHashOperations<String, Integer, PageDto> pageDtoHashOperations;
-
-    public CartItemService(ItemService itemService, CartItemRepository repository) {
+    public CartItemService(ItemService itemService, CartItemRepository repository, UserCacheVersionService userCacheVersionService) {
         this.itemService = itemService;
         this.repository = repository;
+        this.userCacheVersionService = userCacheVersionService;
     }
 
     public Flux<ItemDto> getCart(long userId) {
         return repository.findByUserId(userId)
-                .flatMap(cartItem -> Mono.just(cartItem).zipWhen(ci -> itemService.findItemById(ci.getItemId())))
-                .map(u -> ItemToDtoMapper.toDto(u.getT2(), u.getT1().getCount(), UPLOAD_DIR));
+                .flatMap(cartItem -> itemService.findItemById(cartItem.getItemId())
+                        .map(item -> ItemToDtoMapper.toDto(item, cartItem.getCount(), UPLOAD_DIR)));
     }
 
     public Mono<Long> getCartCount(long userId) {
@@ -43,28 +41,25 @@ public class CartItemService {
 
     @CacheEvict(
             value = "item",
-            key   = "#userId.toString().concat('-').concat(#itemId.toString)"
+            key = "#userId + '-' + #itemId"
     )
     public Mono<Void> changeInCardCount(long userId, long itemId, ActionModes action) {
-        final String KEY = "page"+userId;
         return switch (action) {
             case ActionModes.PLUS ->
                     repository.findByUserIdAndItemId(userId, itemId)
                             .defaultIfEmpty(new CartItem(userId, itemId))
                             .flatMap(u -> repository.save(u.countPlus()))
-                            .flatMap(c -> pageDtoHashOperations.delete(KEY))
+                            .flatMap(c -> userCacheVersionService.increment(userId))
                             .then(Mono.empty());
 
             case ActionModes.MINUS ->
                     repository.findByUserIdAndItemId(userId, itemId)
-                            .switchIfEmpty(Mono.empty())
-                            .flatMap(d -> pageDtoHashOperations.delete(KEY).thenReturn(d))
+                            .flatMap(d ->  userCacheVersionService.increment(userId).thenReturn(d))
                             .flatMap(u -> (u.getCount() > 1) ? repository.save(u.countMinus()) : repository.delete(u))
                             .then(Mono.empty());
             case ActionModes.DELETE ->
                     repository.findByUserIdAndItemId(userId, itemId)
-                            .switchIfEmpty(Mono.empty())
-                            .flatMap(d -> pageDtoHashOperations.delete(KEY).thenReturn(d))
+                            .flatMap(d ->  userCacheVersionService.increment(userId).thenReturn(d))
                             .flatMap(repository::delete)
                             .then(Mono.empty());
             case ActionModes.NOTHING -> Mono.empty();
@@ -84,4 +79,6 @@ public class CartItemService {
     public Mono<Void> deleteById(CartItemId cartItemId) {
         return repository.deleteById(cartItemId);
     }
+
+    public Mono<Void> deleteByUserId(Long userId) { return repository.deleteByUserId(userId); }
 }
