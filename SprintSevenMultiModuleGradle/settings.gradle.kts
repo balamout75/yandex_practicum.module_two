@@ -1,3 +1,3 @@
 rootProject.name = "SprintSevenMultiModuleGradle"
-include("SprintSixGradle")
-include("SprintSevenPayment")
+include("ShopCatalogue")
+include("ShopPayment")

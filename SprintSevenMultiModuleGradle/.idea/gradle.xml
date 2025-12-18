@@ -9,8 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/SprintSevenPayment" />
-            <option value="$PROJECT_DIR$/SprintSixGradle" />
+            <option value="$PROJECT_DIR$/ShopCatalogue" />
+            <option value="$PROJECT_DIR$/ShopPayment" />
           </set>
         </option>
       </GradleProjectSettings>
