@@ -12,10 +12,10 @@ import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGe
     basePackages = {"ru.yandex.practicum.server", "ru.yandex.practicum.server.api"},
     nameGenerator = FullyQualifiedAnnotationBeanNameGenerator.class
 )
-public class ShopPaymentService {
+public class ShopPayment {
 
     public static void main(String[] args) {
-        SpringApplication.run(ShopPaymentService.class, args);
+        SpringApplication.run(ShopPayment.class, args);
     }
 
 

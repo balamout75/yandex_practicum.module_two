@@ -93,11 +93,14 @@ dependencies {
 	//testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+tasks.test {
+	useJUnitPlatform {
+		excludeTags("integration")
+	}
 }
-/*
-tasks.named("compileJava") {
-	dependsOn("buildClient2")
+
+tasks.register<Test>("integrationTest") {
+	useJUnitPlatform {
+		includeTags("integration")
+	}
 }
- */

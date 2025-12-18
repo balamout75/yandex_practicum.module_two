@@ -66,3 +66,7 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.named("compileJava") {
+	dependsOn("openApiGenerate")
+}

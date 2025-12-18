@@ -10,4 +10,7 @@ spring:
     init:
       mode: always
 payment_service_url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+tests:
+  payment:
+    enabled: false
 images.path: images/

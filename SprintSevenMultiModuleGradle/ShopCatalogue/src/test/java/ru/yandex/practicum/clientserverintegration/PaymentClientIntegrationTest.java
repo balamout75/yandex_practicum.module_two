@@ -1,8 +1,10 @@
 package ru.yandex.practicum.clientserverintegration;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -15,6 +17,7 @@ import ru.yandex.practicum.model.payment.PaymentStatus;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestPaymentClientConfiguration.class)
+@Tag("integration")
 class PaymentClientIntegrationTest {
 
     @Autowired
