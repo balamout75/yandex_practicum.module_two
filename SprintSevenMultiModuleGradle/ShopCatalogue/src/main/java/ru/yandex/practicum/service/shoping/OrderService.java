@@ -1,6 +1,7 @@
 package ru.yandex.practicum.service.shoping;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
@@ -20,14 +21,17 @@ public class OrderService {
     private final ItemService itemService;
     private final CartItemService cartItemService;
     private final UserCacheVersionService userCacheVersionService;
+    private final TransactionalOperator txOperator;
+
 
     public OrderService(OrderRepository orderRepository, OrderItemService orderItemService,
-                        ItemService itemService, CartItemService cartItemService, UserCacheVersionService userCacheVersionService) {
+                        ItemService itemService, CartItemService cartItemService, UserCacheVersionService userCacheVersionService, TransactionalOperator txOperator) {
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.itemService = itemService;
         this.cartItemService = cartItemService;
         this.userCacheVersionService = userCacheVersionService;
+        this.txOperator = txOperator;
     }
 
 
@@ -83,14 +87,16 @@ public class OrderService {
     }
 
     public Mono<Long> closeCart(Long userId) {
-        return orderRepository.getId()
-                .flatMap(orderId ->
-                        createOrder(orderId)
-                                .then(copyCartItems(userId, orderId))
-                                .then(clearCart(userId))
-                                .then(userCacheVersionService.increment(userId))
-                                .thenReturn(orderId)
-                );
+        return txOperator.transactional(
+                orderRepository.getId()
+                        .flatMap(orderId ->
+                                createOrder(orderId)
+                                        .then(copyCartItems(userId, orderId))
+                                        .then(clearCart(userId))
+                                        .then(userCacheVersionService.increment(userId))
+                                        .thenReturn(orderId)
+                        )
+        );
     }
 
 }
