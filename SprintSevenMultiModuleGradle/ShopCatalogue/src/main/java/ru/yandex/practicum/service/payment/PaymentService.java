@@ -51,22 +51,22 @@ public class PaymentService {
         paymentOrder.setOrderId(1L);
         paymentOrder.setTotal(total);
         return paymentApi.paymentUserIdBuyPost(userId, paymentOrder)
-                .flatMap(response -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        PaymentStatus  paymentStatus = response.getBody();
-                        ResultStatus resultStatus = ResultStatus.REFUSED;
-                        System.out.println("Статус платежа "+paymentStatus.getStatus());
-                        if (paymentStatus.getStatus().equalsIgnoreCase("accepted")) { resultStatus = ResultStatus.ACCEPTED; }
-                        return Mono.just(new StatusDto(paymentStatus.getOrderId(),resultStatus));
-                    } else return Mono.just(new StatusDto(0L, ResultStatus.UNAVAILABLE));
+                .map(response -> {
+                    PaymentStatus paymentStatus = response.getBody();
+
+                    ResultStatus resultStatus = switch (paymentStatus.getStatus()) {
+                        case "accepted" -> ResultStatus.ACCEPTED;
+                        case "rejected" -> ResultStatus.REJECTED;
+                        default -> ResultStatus.UNAVAILABLE;
+                    };
+
+                    return new StatusDto(paymentStatus.getOrderId(), resultStatus);
                 })
-                .onErrorResume(WebClientResponseException.NotFound.class, ex ->{
-                    String body = ex.getResponseBodyAsString();
-                    ResultStatus status = ResultStatus.NOT_FOUND;
-                    return Mono.just(new StatusDto(0L,status));}
+                .onErrorResume(WebClientResponseException.NotFound.class, ex ->
+                        Mono.just(new StatusDto(0L, ResultStatus.NOT_FOUND))
                 )
                 .onErrorResume(WebClientResponseException.class, ex ->
-                    Mono.just(new StatusDto(0L,ResultStatus.UNAVAILABLE))
+                        Mono.just(new StatusDto(0L, ResultStatus.UNAVAILABLE))
                 );
     }
 }

@@ -9,14 +9,11 @@ springdoc:
     tryItOutEnabled: true
     persistAuthorization: true
 paymentservice:
-  available: true
-  currentuser:
-    userid: 1
+  game-mode: false  #Игровой режим
+  current-user:
+    user-id: 1
     balance: 50000
-  overheaded:
-    userid: 2
-  unavailable:
-    userid: 3
+
 
 
 
