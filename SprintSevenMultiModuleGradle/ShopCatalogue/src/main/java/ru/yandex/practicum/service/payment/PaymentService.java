@@ -35,11 +35,6 @@ public class PaymentService {
                             BalanceStatus.ACCEPTED
                     );
                 })
-                .retryWhen(
-                        Retry.backoff(3, Duration.ofMillis(500))
-                                .filter(this::isRetryable)
-                                .onRetryExhaustedThrow((spec, signal) -> signal.failure())
-                )
                 .onErrorResume(WebClientResponseException.NotFound.class, ex ->{
                         String body = ex.getResponseBodyAsString();
                         BalanceStatus status = body.contains("Пользователь не зарегистрирован")
@@ -47,6 +42,7 @@ public class PaymentService {
                                 : BalanceStatus.SERVICE_NOT_FOUND;
                         return Mono.just(new BalanceDto(userId,0L,status));}
                 )
+                .retryWhen(Retry.backoff(3, Duration.ofMillis(500)))
                 .onErrorResume(WebClientResponseException.class, ex ->
                         Mono.just(new BalanceDto(userId,0L, BalanceStatus.SERVICE_UNAVAILABLE))
                 );
