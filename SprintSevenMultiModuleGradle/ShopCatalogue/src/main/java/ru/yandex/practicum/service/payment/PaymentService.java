@@ -3,6 +3,7 @@ package ru.yandex.practicum.service.payment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 import ru.yandex.practicum.dto.payment.BalanceDto;
 import ru.yandex.practicum.dto.payment.BalanceStatus;
 import ru.yandex.practicum.dto.payment.ResultStatus;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.model.payment.PaymentBalance;
 import ru.yandex.practicum.model.payment.PaymentOrder;
 import ru.yandex.practicum.model.payment.PaymentStatus;
 
+import java.time.Duration;
 import java.util.Locale;
 
 
@@ -33,6 +35,11 @@ public class PaymentService {
                             BalanceStatus.ACCEPTED
                     );
                 })
+                .retryWhen(
+                        Retry.backoff(3, Duration.ofMillis(500))
+                                .filter(this::isRetryable)
+                                .onRetryExhaustedThrow((spec, signal) -> signal.failure())
+                )
                 .onErrorResume(WebClientResponseException.NotFound.class, ex ->{
                         String body = ex.getResponseBodyAsString();
                         BalanceStatus status = body.contains("Пользователь не зарегистрирован")

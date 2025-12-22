@@ -3,7 +3,6 @@ package ru.yandex.practicum.server.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -11,7 +10,7 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.server.model.PaymentBalance;
 import ru.yandex.practicum.server.model.PaymentOrder;
 import ru.yandex.practicum.server.model.PaymentStatus;
-import ru.yandex.practicum.server.service.PaymentService;
+import ru.yandex.practicum.server.service.GamingValidationService;
 
 import static org.mockito.Mockito.when;
 
@@ -24,7 +23,7 @@ class PaymentControllerTest {
     private WebTestClient webTestClient;
 
     @MockitoBean
-    private PaymentService paymentService;
+    private GamingValidationService paymentService;
 
     // ---------- BALANCE ----------
 

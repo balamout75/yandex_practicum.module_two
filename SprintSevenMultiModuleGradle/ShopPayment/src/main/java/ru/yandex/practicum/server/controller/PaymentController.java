@@ -21,16 +21,16 @@ import ru.yandex.practicum.server.model.PaymentBalance;
 
 import ru.yandex.practicum.server.model.PaymentOrder;
 import ru.yandex.practicum.server.model.PaymentStatus;
-import ru.yandex.practicum.server.service.PaymentService;
+import ru.yandex.practicum.server.service.PaymentValidationService;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.17.0")
 @Controller
 @RequestMapping("${openapi.shopPaymentService.base-path:}")
 public class PaymentController implements PaymentApi {
 
-    PaymentService paymentService;
+    PaymentValidationService paymentService;
 
-    PaymentController(PaymentService paymentService) {
+    PaymentController(PaymentValidationService paymentService) {
         this.paymentService = paymentService;
     }
 
