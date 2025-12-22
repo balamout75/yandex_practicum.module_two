@@ -62,6 +62,7 @@ configurations.all {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-liquibase")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -82,6 +83,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
+
 
 	//testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
 	testImplementation("com.github.kstyrc:embedded-redis:0.6")
