@@ -20,15 +20,11 @@ import java.util.concurrent.TimeUnit;
 public class PaymentClientConfiguration {
 
     @Value("${payment.client.base-url}")
-    private String baseUrl;
+    private String      baseUrl;
     @Value("${payment.client.timeout.connect}")
-    private Duration connectTimeout;
+    private Duration    connectTimeout;
     @Value("${payment.client.timeout.response}")
-    private Duration responseTimeout;
-    @Value("${payment.client.retry.attempts}")
-    private int retryAttempts;
-    @Value("${payment.client.retry.backoff}")
-    private Duration retryBackoff;
+    private Duration    responseTimeout;
 
     @Bean
     WebClient paymentWebClient() {

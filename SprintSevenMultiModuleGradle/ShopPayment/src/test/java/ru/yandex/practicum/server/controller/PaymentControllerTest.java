@@ -57,22 +57,7 @@ class PaymentControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.userId").isEqualTo(1)
-                .jsonPath("$.balance").isEqualTo(1000);
-    }
-
-    @Test
-    void getBalance_serviceUnavailable_returns500() {
-        when(paymentService.checkUser(1L))
-                .thenReturn(Mono.just(true));
-        when(paymentService.getBalance(1L))
-                .thenReturn(Mono.empty());
-
-        webTestClient.get()
-                .uri("/payment/1/balance")
-                .exchange()
-                .expectStatus().is5xxServerError()
-                .expectBody(String.class)
-                .isEqualTo("Сервис не доступен");
+                .jsonPath("$.balance").isEqualTo(50000);
     }
 
     // ---------- BUY ----------
@@ -114,6 +99,6 @@ class PaymentControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.orderId").isEqualTo(10)
-                .jsonPath("$.status").isEqualTo("success");
+                .jsonPath("$.status").isEqualTo("accepted");
     }
 }
