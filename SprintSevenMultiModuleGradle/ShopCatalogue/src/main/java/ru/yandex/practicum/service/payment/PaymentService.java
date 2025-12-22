@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service.payment;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,12 @@ public class PaymentService {
 
     private final PaymentApi paymentApi;
 
+    @Value("${payment.client.retry.attempts}")
+    private int retryAttempts;
+
+    @Value("${payment.client.retry.backoff}")
+    private Duration retryBackoff;
+
     public PaymentService(PaymentApi paymentApi) {
         this.paymentApi = paymentApi;
     }
@@ -35,6 +42,10 @@ public class PaymentService {
                             BalanceStatus.ACCEPTED
                     );
                 })
+                .retryWhen(Retry.backoff(retryAttempts, retryBackoff)
+                        .filter(ex ->
+                                !(ex instanceof WebClientResponseException.NotFound)
+                        ))
                 .onErrorResume(WebClientResponseException.NotFound.class, ex ->{
                         String body = ex.getResponseBodyAsString();
                         BalanceStatus status = body.contains("Пользователь не зарегистрирован")
@@ -42,7 +53,6 @@ public class PaymentService {
                                 : BalanceStatus.SERVICE_NOT_FOUND;
                         return Mono.just(new BalanceDto(userId,0L,status));}
                 )
-                .retryWhen(Retry.backoff(3, Duration.ofMillis(500)))
                 .onErrorResume(WebClientResponseException.class, ex ->
                         Mono.just(new BalanceDto(userId,0L, BalanceStatus.SERVICE_UNAVAILABLE))
                 );
@@ -65,6 +75,10 @@ public class PaymentService {
 
                     return new StatusDto(paymentStatus.getOrderId(), resultStatus);
                 })
+                .retryWhen(Retry.backoff(retryAttempts, retryBackoff)
+                        .filter(ex ->
+                                !(ex instanceof WebClientResponseException.NotFound)
+                        ))
                 .onErrorResume(WebClientResponseException.NotFound.class, ex ->
                         Mono.just(new StatusDto(0L, ResultStatus.NOT_FOUND))
                 )
