@@ -9,8 +9,13 @@ spring:
   sql:
     init:
       mode: always
-payment_service_url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
-tests:
-  payment:
-    enabled: false
+payment:
+  client:
+    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+    timeout:
+      connect: 3s
+      response: 5s
+    retry:
+      attempts: 3
+      backoff: 500ms
 images.path: images/

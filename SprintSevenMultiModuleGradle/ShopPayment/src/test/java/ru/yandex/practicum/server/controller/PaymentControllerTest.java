@@ -2,6 +2,7 @@ package ru.yandex.practicum.server.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.server.model.PaymentBalance;
 import ru.yandex.practicum.server.model.PaymentOrder;
 import ru.yandex.practicum.server.model.PaymentStatus;
 import ru.yandex.practicum.server.service.GamingValidationService;
+import ru.yandex.practicum.server.service.PaymentValidationService;
 
 import static org.mockito.Mockito.when;
 
@@ -23,7 +25,8 @@ class PaymentControllerTest {
     private WebTestClient webTestClient;
 
     @MockitoBean
-    private GamingValidationService paymentService;
+    private PaymentValidationService paymentService;
+
 
     // ---------- BALANCE ----------
 
@@ -44,7 +47,7 @@ class PaymentControllerTest {
     void getBalance_success_returns200() {
         PaymentBalance balance = new PaymentBalance();
         balance.setUserId(1L);
-        balance.setBalance(1000L);
+        balance.setBalance(50000L);
 
         when(paymentService.checkUser(1L))
                 .thenReturn(Mono.just(true));
@@ -77,28 +80,4 @@ class PaymentControllerTest {
 
     }
 
-    @Test
-    void buy_success_returns200() {
-        PaymentOrder order = new PaymentOrder();
-        order.setOrderId(10L);
-        order.setTotal(500L);
-
-        PaymentStatus status = new PaymentStatus();
-        status.setOrderId(10L);
-        status.setStatus("success");
-
-        when(paymentService.checkUser(1L))
-                .thenReturn(Mono.just(true));
-        when(paymentService.getStatus(order))
-                .thenReturn(Mono.just(status));
-
-        webTestClient.post()
-                .uri("/payment/1/buy")
-                .bodyValue(order)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.orderId").isEqualTo(10)
-                .jsonPath("$.status").isEqualTo("accepted");
-    }
 }

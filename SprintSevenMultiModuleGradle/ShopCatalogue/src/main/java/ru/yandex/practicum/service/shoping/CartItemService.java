@@ -1,20 +1,27 @@
 package ru.yandex.practicum.service.shoping;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
+import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.model.shoping.CartItem;
 import ru.yandex.practicum.model.shoping.CartItemId;
 import ru.yandex.practicum.repository.CartItemRepository;
 
+import java.util.Comparator;
+
 @Service
 public class CartItemService {
 
+    private static final Logger log = LoggerFactory.getLogger(CartItemService.class);
     private final ItemService itemService;
     private final CartItemRepository repository;
     private final UserCacheVersionService userCacheVersionService;
@@ -32,7 +39,8 @@ public class CartItemService {
     public Flux<ItemDto> getCart(long userId) {
         return repository.findByUserId(userId)
                 .flatMap(cartItem -> itemService.findItemById(cartItem.getItemId())
-                        .map(item -> ItemToDtoMapper.toDto(item, cartItem.getCount(), UPLOAD_DIR)));
+                        .map(item -> ItemToDtoMapper.toDto(item, cartItem.getCount(), UPLOAD_DIR)))
+                .sort(Comparator.comparing(ItemDto::id)); /// надоели прыгающие картинки в корзине
     }
 
     public Mono<Long> getCartCount(long userId) {
@@ -44,6 +52,7 @@ public class CartItemService {
             key = "#userId + '-' + #itemId"
     )
     public Mono<Void> changeInCardCount(long userId, long itemId, ActionModes action) {
+        log.info("В корзине "+userId + " изменилось состояние товара " + itemId + '-' + action.toString());
         return switch (action) {
             case ActionModes.PLUS ->
                     repository.findByUserIdAndItemId(userId, itemId)
@@ -74,10 +83,6 @@ public class CartItemService {
 
     public Flux<CartItem> findByUserId(long userId) {
         return repository.findByUserId(userId);
-    }
-
-    public Mono<Void> deleteById(CartItemId cartItemId) {
-        return repository.deleteById(cartItemId);
     }
 
     public Mono<Void> deleteByUserId(Long userId) { return repository.deleteByUserId(userId); }

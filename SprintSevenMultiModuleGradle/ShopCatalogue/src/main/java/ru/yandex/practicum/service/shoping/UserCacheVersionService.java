@@ -21,16 +21,13 @@ public class UserCacheVersionService {
     public Mono<Long> getVersion(Long userId) {
         return redis.opsForValue()
                 .get(USER_VERSION_KEY + userId)
-                .defaultIfEmpty(0L);
+                .switchIfEmpty(Mono.just(0L));
     }
 
     public Mono<Long> increment(Long userId) {
         String key = USER_VERSION_KEY + userId;
         return redis.opsForValue()
-                .increment(USER_VERSION_KEY + userId)
-                .flatMap(version ->
-                        redis.expire(key, VERSION_TTL)
-                                .thenReturn(version)
-                );
+                .increment(key)
+                .flatMap(version -> redis.expire(key, VERSION_TTL).thenReturn(version));
     }
 }

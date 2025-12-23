@@ -9,7 +9,7 @@ springdoc:
     tryItOutEnabled: true
     persistAuthorization: true
 paymentservice:
-  game-mode: false  #Игровой режим
+  game-mode: true  #Игровой режим
   current-user:
     user-id: 1
     balance: 50000

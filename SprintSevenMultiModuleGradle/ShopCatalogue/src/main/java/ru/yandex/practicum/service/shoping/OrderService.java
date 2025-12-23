@@ -1,10 +1,12 @@
 package ru.yandex.practicum.service.shoping;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
+import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.dto.shoping.OrderDto;
 import ru.yandex.practicum.mapper.OrderToDtoMapper;
 import ru.yandex.practicum.model.shoping.CartItem;
@@ -12,6 +14,8 @@ import ru.yandex.practicum.model.shoping.CartItemId;
 import ru.yandex.practicum.model.shoping.Order;
 import ru.yandex.practicum.model.shoping.OrderItem;
 import ru.yandex.practicum.repository.OrderRepository;
+
+import java.util.Comparator;
 
 @Service
 public class OrderService {
@@ -42,7 +46,6 @@ public class OrderService {
                 .collectList()
                 .map(list -> OrderToDtoMapper.toDto2(list, orderId));
     }
-
 
     public Flux<OrderDto> findOrders(Long userId) {
         return orderItemService.findByUser(userId)

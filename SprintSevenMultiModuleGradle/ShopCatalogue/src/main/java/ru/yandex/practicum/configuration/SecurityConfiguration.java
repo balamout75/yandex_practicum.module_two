@@ -3,12 +3,15 @@ package ru.yandex.practicum.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.security.AnonymousUserAuthentication;
+import ru.yandex.practicum.security.UserPrincipal;
 
 @Configuration
+@EnableWebFluxSecurity
 public class SecurityConfiguration {
 
     @Bean
@@ -19,7 +22,9 @@ public class SecurityConfiguration {
                 .authorizeExchange(exchange -> exchange
                         .anyExchange().permitAll()
                 )
-                .authenticationManager(anonymousAuthManager())
+                .anonymous(anonymous -> anonymous
+                        .principal(new UserPrincipal(1L))
+                )
                 .build();
     }
 

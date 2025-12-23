@@ -14,7 +14,7 @@ import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
 @ConditionalOnProperty(name = "paymentservice.game-mode", havingValue = "true")
-public class GamingValidationService {
+public class GamingValidationService implements PaymentValidationService {
 
     public GamingValidationService() {    }
     @Value("${paymentservice.current-user.user-id}")

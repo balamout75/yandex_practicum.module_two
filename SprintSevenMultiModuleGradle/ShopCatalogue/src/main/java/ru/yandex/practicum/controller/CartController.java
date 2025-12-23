@@ -1,5 +1,7 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -10,6 +12,8 @@ import ru.yandex.practicum.dto.shoping.CartRequest;
 
 import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.model.shoping.CartItem;
+import ru.yandex.practicum.security.AnonymousUserAuthentication;
+import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.payment.PaymentService;
 import ru.yandex.practicum.service.shoping.CartItemService;
 
@@ -26,31 +30,18 @@ class CartController {
     private final CartItemService cartItemService;
     private final PaymentService paymentService;
     private static final String VIEWS_ITEMS_CART_FORM = "cart";
-    private static final long USER_ID = 1;
 
     public CartController(CartItemService cartItemService, PaymentService paymentService) {
         this.cartItemService = cartItemService;
         this.paymentService = paymentService;
     }
 
-    /*
     @GetMapping("/items")
-    public Mono<Rendering> getItems() {
-        return cartItemService.getCart(USER_ID).collectList().zipWith(cartItemService.getCartCount(USER_ID))
-                .map(u -> Rendering.view(VIEWS_ITEMS_CART_FORM)
-                        .modelAttribute("items", u.getT1())
-                        .modelAttribute("total", u.getT2()).build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("redirect:/items").build()));
-    }
+    public Mono<Rendering> getItems(@AuthenticationPrincipal UserPrincipal user) {
 
-     */
-
-    @GetMapping("/items")
-    public Mono<Rendering> getItems() {
-
-        Mono<List<ItemDto>> itemsMono = cartItemService.getCart(USER_ID).collectList();
-        Mono<Long> totalMono = cartItemService.getCartCount(USER_ID);
-        Mono<BalanceDto> balanceMono =  paymentService.getBalance(USER_ID);
+        Mono<List<ItemDto>> itemsMono = cartItemService.getCart(user.userId()).collectList();
+        Mono<Long> totalMono = cartItemService.getCartCount(user.userId());
+        Mono<BalanceDto> balanceMono =  paymentService.getBalance(user.userId());
 
         return Mono.zip(itemsMono, totalMono, balanceMono)
                 .filter(tuple -> !tuple.getT1().isEmpty())
@@ -82,8 +73,8 @@ class CartController {
     }
 
     @PostMapping("/items")
-    public Mono<String> postItems(@ModelAttribute CartRequest itemsRequest) {
-        return cartItemService.changeInCardCount(USER_ID, itemsRequest.id(), itemsRequest.action())
+    public Mono<String> postItems(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute CartRequest itemsRequest) {
+        return cartItemService.changeInCardCount(user.userId(), itemsRequest.id(), itemsRequest.action())
                 .thenReturn("redirect:/cart/items");
     }
 }

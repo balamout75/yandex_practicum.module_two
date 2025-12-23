@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.dto.shoping.ItemsRequest;
 import ru.yandex.practicum.dto.shoping.Paging;
 import ru.yandex.practicum.mapper.SortModes;
+import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.shoping.CartItemService;
 import ru.yandex.practicum.service.shoping.CatalogueService;
 
@@ -26,8 +28,6 @@ public class CatalogueController {
 
     private static final String VIEWS_ITEMS_CHART_FORM = "items";
     private static final String VIEWS_ITEMS_ITEM_FORM = "item";
-    private static final long USER_ID = 1;
-    private static final Logger log = LoggerFactory.getLogger(CatalogueController.class);
     private final CatalogueService catalogueService;
     private final CartItemService cartItemService;
 
@@ -37,14 +37,14 @@ public class CatalogueController {
     }
 
     @GetMapping
-    public Mono<Rendering> list(@ModelAttribute ItemsRequest itemsRequest) {
+    public Mono<Rendering> list(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute ItemsRequest itemsRequest) {
         Sort sortmode = switch (itemsRequest.getSort()) {
             case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
-        return catalogueService.findAll(USER_ID, itemsRequest.getSearch(), pageable).collectList().map(items -> {
+        return catalogueService.findAll(user.userId(), itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
                 items.add(new ItemDto());
             }
@@ -64,8 +64,8 @@ public class CatalogueController {
 
 
     @GetMapping(value = {"/{id}"})
-    public Mono<Rendering> getItem(@PathVariable(name = "id") Long itemId) {
-        return catalogueService.findItem(USER_ID, itemId)
+    public Mono<Rendering> getItem(@AuthenticationPrincipal UserPrincipal user, @PathVariable(name = "id") Long itemId) {
+        return catalogueService.findItem(user.userId(), itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
                         .build())
@@ -73,19 +73,19 @@ public class CatalogueController {
     }
 
     @PostMapping()
-    public Mono<String> postItems(@ModelAttribute ItemsRequest itemsRequest, Model model) {
+    public Mono<String> postItems(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute ItemsRequest itemsRequest, Model model) {
         model.addAttribute("search", itemsRequest.getSearch());
         model.addAttribute("sort", itemsRequest.getSort());
         model.addAttribute("pageNumber", itemsRequest.getPageNumber());
         model.addAttribute("pageSize", itemsRequest.getPageSize());
-        return cartItemService.changeInCardCount(USER_ID, itemsRequest.getId(), itemsRequest.getAction())
+        return cartItemService.changeInCardCount(user.userId(), itemsRequest.getId(), itemsRequest.getAction())
                 .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
     }
 
     @PostMapping(value = {"/{id}"})
-    public Mono<String> postItem(@ModelAttribute CartRequest cartRequest, Model model) {
+    public Mono<String> postItem(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute CartRequest cartRequest, Model model) {
         model.addAttribute("id", cartRequest.id());
-        return cartItemService.changeInCardCount(USER_ID, cartRequest.id(), cartRequest.action())
+        return cartItemService.changeInCardCount(user.userId(), cartRequest.id(), cartRequest.action())
                 .thenReturn("redirect:/items/{id}");
     }
 
