@@ -1,0 +1,116 @@
+﻿openapi: 3.0.3
+info:
+  title: Shop payment service API
+  description: API для оплаты заказов в интернет магазине
+  version: 1.0.0
+  contact:
+    name: Balamout Support Team
+    email: support@balamout.com
+    url: 'https://balamout.com/support'
+servers:
+  - url: 'http://localhost:{port}'
+    description: Локальный сервер разработки
+    variables:
+      port:
+        default: 8081
+        description: Номер порта
+tags:
+  - name: Payment
+    description: Операции оплаты
+paths:
+  /payment/{userId}/balance:
+    get:
+      tags:
+        - Payment
+      summary: Получить баланс пользователя userId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentBalance'
+        '404':
+          description: Пользователь не зарегистрирован
+        '5XX':
+          description: Сервис не доступен
+  /payment/{userId}/buy:
+    post:
+      tags:
+        - Payment
+      summary: оплатить счет пользователя userId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentOrder'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatus'
+        '404':
+          description: Пользователь не зарегистрирован
+        '5XX':
+          description: Сервис не доступен
+components:
+  schemas:
+    PaymentBalance:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 101
+        balance:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - all
+    PaymentOrder:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 101
+        orderId:
+          type: integer
+          format: int64
+          example: 1
+        total:
+          type: integer
+          format: int64
+          example: 123482
+      required:
+        - all
+    PaymentStatus:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+          example: 1
+        status:
+          type: string
+          example: 1
+      required:
+        - all

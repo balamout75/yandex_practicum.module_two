@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:18.1
+    container_name: yp-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: practicum_db
+      POSTGRES_USER: practicum_user
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - db-data:/var/lib/postgresql/18/docker
+
+  redis:
+    image: redis:7.4
+    container_name: yp-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  yp-payment:
+    container_name: yp-payment
+    build:
+      context: ./ShopPayment
+      dockerfile: Dockerfile
+    image: yp-payment
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  yp-shop:
+    container_name: yp-shop
+    build:
+      context: ./ShopCatalogue
+      dockerfile: Dockerfile
+    image: yp-shop
+    restart: on-failure
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: practicum_db
+      POSTGRES_USER: practicum_user
+      POSTGRES_PASSWORD: mysecretpassword
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      PAYMENT_SERVICE_URL: http://yp-payment:8081
+
+    depends_on:
+      - postgres
+      - redis
+      - yp-payment
+
+  gw:
+    image: nginx:latest
+    container_name: yp-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy/nginx-practicum-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - yp-shop
+
+volumes:
+  db-data:

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: module_two_sprint_five_gradle
+  r2dbc:
+    pool:
+      enabled: false
+  liquibase:
+    enabled: false
+  sql:
+    init:
+      mode: always
+payment:
+  client:
+    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+    timeout:
+      connect: 3s
+      response: 5s
+    retry:
+      attempts: 3
+      backoff: 500ms
+images.path: images/
