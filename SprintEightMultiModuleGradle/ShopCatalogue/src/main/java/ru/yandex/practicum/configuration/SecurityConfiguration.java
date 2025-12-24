@@ -14,7 +14,8 @@ import ru.yandex.practicum.security.UserPrincipal;
 @EnableWebFluxSecurity
 public class SecurityConfiguration {
 
-    @Bean
+
+    /*@Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
         return http
@@ -31,5 +32,5 @@ public class SecurityConfiguration {
     @Bean
     ReactiveAuthenticationManager anonymousAuthManager() {
         return authentication -> Mono.just(new AnonymousUserAuthentication());
-    }
+    }*/
 }

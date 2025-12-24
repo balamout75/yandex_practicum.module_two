@@ -57,9 +57,12 @@ dependencies {
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.5.1")
 	implementation("jakarta.validation:jakarta.validation-api:3.1.1")
 	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.0")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
+	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
