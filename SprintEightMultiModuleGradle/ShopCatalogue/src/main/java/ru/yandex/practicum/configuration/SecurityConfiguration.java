@@ -58,20 +58,17 @@ public class SecurityConfiguration {
                                 CookieServerCsrfTokenRepository.withHttpOnlyFalse()
                         )
                 )
-
                 .authorizeExchange(ex -> ex
+                        .pathMatchers("/oidc/logout").permitAll()
                         .pathMatchers(HttpMethod.GET, "/items/**").permitAll()
                         .pathMatchers("/cart/**", "/orders/**").authenticated()
                         .anyExchange().permitAll()
                 )
-
                 .oauth2Login(Customizer.withDefaults())
-
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler(oidcLogoutSuccessHandler)
                 )
-
                 // ⚠️ ТОЛЬКО стандартный anonymous
                 .anonymous(Customizer.withDefaults())
                 .build();

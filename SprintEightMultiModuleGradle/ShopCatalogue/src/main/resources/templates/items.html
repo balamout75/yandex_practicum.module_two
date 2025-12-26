@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"
+<html lang="ru"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="utf-8">
@@ -16,24 +15,22 @@
 
 <body class="bg-light">
 
-<!-- ОСНОВНАЯ ФОРМА ДЛЯ ПОИСКА И ФИЛЬТРАЦИИ -->
-<form id="main" th:action="@{/items}" method="get">
-    <!-- CSRF токен для GET не нужен, но для POST форм ниже будет -->
-</form>
+<!-- ОСНОВНАЯ ФОРМА ДЛЯ ПОИСКА / ПАГИНАЦИИ -->
+<form id="main" th:action="@{/items}" method="get" class="mb-0"></form>
 
 <div class="container p-2">
 
     <!-- HEADER -->
     <div class="row p-2">
         <div class="col">
-            <div class="hstack gap-3">
-                <h2>
+            <div class="hstack gap-3 align-items-center">
+
+                <h2 class="mb-0">
                     <span class="badge text-bg-success">Витрина магазина</span>
                 </h2>
 
-                <!-- AUTHENTICATED USERS -->
-                <div sec:authorize="isAuthenticated() and !hasAuthority('ANONYMOUS')"
-                     class="hstack gap-2 ms-auto">
+                <!-- AUTHENTICATED -->
+                <div th:if="${authorized}" class="hstack gap-2 ms-auto">
 
                     <a href="/orders"
                        class="btn btn-secondary bi bi-file-earmark-text">
@@ -44,18 +41,13 @@
                        class="btn btn-secondary bi bi-cart4">
                         Корзина
                     </a>
-
-                    <!-- LOGOUT FORM -->
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit"
-                                class="btn btn-outline-danger bi bi-box-arrow-right">
-                            Выйти
-                        </button>
-                    </form>
+                    <a href="/oidc/logout"
+                       class="btn btn-outline-danger bi bi-box-arrow-right">
+                        Выйти
+                    </a>
                 </div>
-
-                <!-- ANONYMOUS USERS -->
-                <div sec:authorize="hasAuthority('ANONYMOUS')" class="ms-auto">
+                <!-- NOT AUTHENTICATED -->
+                <div th:if="${!authorized}" class="ms-auto">
                     <a href="/oauth2/authorization/keycloak"
                        class="btn btn-success">
                         Войти
@@ -69,7 +61,8 @@
     <div class="row p-2">
         <div class="col">
             <div class="hstack gap-3">
-                <input class="form-control me-2"
+
+                <input class="form-control"
                        type="search"
                        placeholder="Найти..."
                        name="search"
@@ -110,11 +103,12 @@
                     </select>
                     <label for="pageSize">На странице</label>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- ITEMS -->
+    <!-- ITEMS GRID -->
     <div class="row p-2" th:each="itemsRow : ${items}">
         <div class="col" th:each="item : ${itemsRow}">
 
@@ -133,22 +127,20 @@
 
                     <h5>
                         <span class="badge text-bg-success"
-                              th:text="${item.price()} + ' руб.'">
-                        </span>
+                              th:text="${item.price()} + ' руб.'"></span>
                     </h5>
 
                     <p class="card-text"
                        th:text="${item.description()}"></p>
 
-                    <!-- CART CONTROLS (AUTH ONLY) -->
-                    <form sec:authorize="isAuthenticated() and !hasAuthority('ANONYMOUS')"
+                    <!-- CART CONTROLS (ONLY AUTHENTICATED) -->
+                    <form th:if="${authorized}"
                           method="post"
                           th:action="@{/items}"
                           class="mb-0">
-                        <input type="hidden"
-                               th:name="${_csrf.parameterName}"
-                               th:value="${_csrf.token}"/>
+
                         <div class="hstack gap-3">
+
                             <input type="hidden" name="id" th:value="${item.id()}">
                             <input type="hidden" name="search" th:value="${search}">
                             <input type="hidden" name="sort" th:value="${sort}">
@@ -161,8 +153,8 @@
                                     value="MINUS">-
                             </button>
 
-                            <span class="align-self-center"
-                                  th:text="${item.count()}"></span>
+                            <span th:text="${item.count()}"
+                                  class="align-self-center"></span>
 
                             <button type="submit"
                                     class="btn btn-outline-secondary"
@@ -177,10 +169,12 @@
                                     th:if="${item.count()==0}">
                                 В корзину
                             </button>
+
                         </div>
                     </form>
                 </div>
             </div>
+
             <div th:unless="${item.id() != -1}">&nbsp;</div>
         </div>
     </div>
@@ -189,6 +183,7 @@
     <div class="row p-2">
         <div class="col">
             <div class="hstack gap-3 justify-content-center">
+
                 <button type="submit"
                         class="btn btn-light"
                         th:if="${paging.hasPrevious()}"
@@ -198,8 +193,8 @@
                     &larr;
                 </button>
 
-                <span class="align-self-center"
-                      th:text="${'Страница: ' + paging.pageNumber()}"></span>
+                <span th:text="${'Страница: ' + paging.pageNumber()}"
+                      class="align-self-center"></span>
 
                 <button type="submit"
                         class="btn btn-light"
@@ -209,11 +204,12 @@
                         form="main">
                     &rarr;
                 </button>
+
             </div>
         </div>
     </div>
 
-</div> <!-- Закрытие container -->
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
 </body>

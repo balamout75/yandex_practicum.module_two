@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,12 @@ import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.dto.shoping.ItemsRequest;
 import ru.yandex.practicum.dto.shoping.Paging;
 import ru.yandex.practicum.mapper.SortModes;
+import ru.yandex.practicum.security.CurrentUserId;
 import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.shoping.CartItemService;
 import ru.yandex.practicum.service.shoping.CatalogueService;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Controller
 @RequestMapping("/items")
@@ -37,13 +41,25 @@ public class CatalogueController {
         this.cartItemService = cartItemService;
     }
 
+    @GetMapping("/debug")
+    public Mono<String> debug() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication().getPrincipal())
+                .doOnNext(principal ->
+                        log.info("Principal class: {}", principal.getClass().getName())
+                )
+                .thenReturn("Ок");
+    }
+
     @GetMapping
-    public Mono<Rendering> list(@AuthenticationPrincipal(expression = "userId ?: 0") Long userId, @ModelAttribute ItemsRequest itemsRequest) {
+    public Mono<Rendering> list(@CurrentUserId Long userId, @ModelAttribute ItemsRequest itemsRequest) {
+        boolean authorized = userId != null && userId > 0;
         Sort sortmode = switch (itemsRequest.getSort()) {
             case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
+        log.info("Current User: "+userId.toString());
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
         return catalogueService.findAll(userId, itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
@@ -56,6 +72,7 @@ public class CatalogueController {
                 .modelAttribute("items", u)
                 .modelAttribute("search", itemsRequest.getSearch())
                 .modelAttribute("sort", itemsRequest.getSort().toString())
+                .modelAttribute("authorized", authorized)
                 .modelAttribute("paging", new Paging(itemsRequest.getPageSize(),
                         itemsRequest.getPageNumber(),
                         u.hasPrevious(),
@@ -65,7 +82,8 @@ public class CatalogueController {
 
 
     @GetMapping(value = {"/{id}"})
-    public Mono<Rendering> getItem(@AuthenticationPrincipal(expression = "userId ?: 0") Long userId, @PathVariable(name = "id") Long itemId) {
+    public Mono<Rendering> getItem(@CurrentUserId Long userId, @PathVariable(name = "id") Long itemId) {
+        log.info("Current User: "+userId.toString());
         return catalogueService.findItem(userId, itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
@@ -74,21 +92,19 @@ public class CatalogueController {
     }
 
     @PostMapping()
-    public Mono<String> postItems(Authentication authentication, @ModelAttribute ItemsRequest itemsRequest, Model model) {
-        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
+    public Mono<String> postItems(@CurrentUserId Long userId, @ModelAttribute ItemsRequest itemsRequest, Model model) {
         model.addAttribute("search", itemsRequest.getSearch());
         model.addAttribute("sort", itemsRequest.getSort());
         model.addAttribute("pageNumber", itemsRequest.getPageNumber());
         model.addAttribute("pageSize", itemsRequest.getPageSize());
-        return cartItemService.changeInCardCount(user.userId(), itemsRequest.getId(), itemsRequest.getAction())
+        return cartItemService.changeInCardCount(userId, itemsRequest.getId(), itemsRequest.getAction())
                 .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
     }
 
     @PostMapping(value = {"/{id}"})
-    public Mono<String> postItem(Authentication authentication, @ModelAttribute CartRequest cartRequest, Model model) {
-        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
+    public Mono<String> postItem(@CurrentUserId Long userId, @ModelAttribute CartRequest cartRequest, Model model) {
         model.addAttribute("id", cartRequest.id());
-        return cartItemService.changeInCardCount(user.userId(), cartRequest.id(), cartRequest.action())
+        return cartItemService.changeInCardCount(userId, cartRequest.id(), cartRequest.action())
                 .thenReturn("redirect:/items/{id}");
     }
 
