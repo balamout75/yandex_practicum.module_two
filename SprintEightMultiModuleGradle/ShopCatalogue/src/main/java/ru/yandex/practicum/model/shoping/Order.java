@@ -19,7 +19,8 @@ public class Order implements Persistable<Long> {
     @Transient
     private boolean isNew = false;
 
-    public Order(Long id) {
+    public Order(Long userId, Long id) {
+        this.userId = userId;
         this.id = id;
         isNew=true;
     }

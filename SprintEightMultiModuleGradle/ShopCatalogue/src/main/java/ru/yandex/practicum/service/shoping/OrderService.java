@@ -85,15 +85,15 @@ public class OrderService {
                 .then();
     }
 
-    private Mono<Void> createOrder(Long orderId) {
-        return orderRepository.save(new Order(orderId)).then();
+    private Mono<Void> createOrder(Long userId, Long orderId) {
+        return orderRepository.save(new Order(userId, orderId)).then();
     }
 
     public Mono<Long> closeCart(Long userId) {
         return txOperator.transactional(
                 orderRepository.getId()
                         .flatMap(orderId ->
-                                createOrder(orderId)
+                                createOrder(userId, orderId)
                                         .then(copyCartItems(userId, orderId))
                                         .then(clearCart(userId))
                                         .then(userCacheVersionService.increment(userId))

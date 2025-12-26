@@ -17,8 +17,6 @@ import static reactor.netty.http.HttpConnectionLiveness.log;
 public class GamingValidationService implements PaymentValidationService {
 
     public GamingValidationService() {    }
-    @Value("${paymentservice.current-user.user-id}")
-    private Long ISER_ID;
     @Value("${paymentservice.current-user.balance}")
     private Long BALANCE;
 
@@ -28,7 +26,7 @@ public class GamingValidationService implements PaymentValidationService {
 
     public Mono <PaymentBalance> getBalance (Long userId) {
         PaymentBalance balance = new PaymentBalance();
-        balance.setUserId(ISER_ID);
+        balance.setUserId(userId);
         balance.setBalance(BALANCE);
         return Mono.just(balance);
     }

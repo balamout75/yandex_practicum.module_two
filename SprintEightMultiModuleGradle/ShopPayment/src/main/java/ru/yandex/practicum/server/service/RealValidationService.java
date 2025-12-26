@@ -16,18 +16,16 @@ import java.util.Objects;
 public class RealValidationService implements PaymentValidationService {
 
     public RealValidationService() {    }
-    @Value("${paymentservice.current-user.user-id}")
-    private Long ISER_ID;
     @Value("${paymentservice.current-user.balance}")
     private Long BALANCE;
 
     public Mono<Boolean> checkUser (Long userId) {
-        return Mono.just(Objects.equals(userId, ISER_ID));
+        return Mono.just(true);
     }
 
     public Mono <PaymentBalance> getBalance (Long userId) {
         PaymentBalance balance = new PaymentBalance();
-        balance.setUserId(ISER_ID);
+        balance.setUserId(userId);
         balance.setBalance(BALANCE);
         return Mono.just(balance);
     }

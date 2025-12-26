@@ -8,7 +8,13 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +30,10 @@ import ru.yandex.practicum.server.model.PaymentOrder;
 import ru.yandex.practicum.server.model.PaymentStatus;
 import ru.yandex.practicum.server.service.PaymentValidationService;
 
+import java.util.Map;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.17.0")
 @Controller
 @RequestMapping("${openapi.shopPaymentService.base-path:}")
@@ -34,6 +44,7 @@ public class PaymentController implements PaymentApi {
     PaymentController(PaymentValidationService paymentService) {
         this.paymentService = paymentService;
     }
+
 
     @Override
     @PreAuthorize("hasAuthority('SERVICE')")
@@ -66,6 +77,7 @@ public class PaymentController implements PaymentApi {
             @Parameter(name = "Order", description = "", required = true) @Valid @RequestBody Mono<PaymentOrder> paymentOrder,
             @Parameter(hidden = true) final ServerWebExchange exchange
     ) {
+        log.info("Запрошен платеж");
         return paymentService.checkUser(userId)
                 .filter(Boolean::booleanValue)
                 .switchIfEmpty(Mono.error(

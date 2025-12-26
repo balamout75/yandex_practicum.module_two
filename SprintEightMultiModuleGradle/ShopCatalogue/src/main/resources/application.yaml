@@ -33,18 +33,25 @@ spring:
     oauth2:
       client:
         registration:
-          keycloak:
+          keycloak-client:
             provider: keycloak
             client-id: frontend-service
             client-secret: 4rAug3q5tM2QMb418UWgK0V9gPwFZrnL
+            authorization-grant-type: authorization_code
             scope: openid,profile
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          keycloak-service:
+            provider: keycloak
+            client-id: backend-service
+            client-secret: ePkuwWwNYTBa5zq0scy8S8qTJEm9T0id
+            authorization-grant-type: client_credentials
+            scope: openid
         provider:
           keycloak:
             issuer-uri: http://localhost:8080/realms/demo-realm
 payment:
   client:
-    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8082}
     timeout:
       connect: 3s
       response: 5s

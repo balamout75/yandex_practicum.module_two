@@ -7,6 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -27,8 +34,8 @@ public class PaymentClientConfiguration {
     private Duration    responseTimeout;
 
     @Bean
-    WebClient paymentWebClient() {
-
+    WebClient paymentWebClient(ReactiveClientRegistrationRepository clientRegistrations,
+                               ServerOAuth2AuthorizedClientRepository authorizedClients ) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectTimeout.toMillis())
                 .responseTimeout(responseTimeout)
@@ -45,10 +52,12 @@ public class PaymentClientConfiguration {
                                 )
                         )
                 );
-
+        var oauth2 = new ServerOAuth2AuthorizedClientExchangeFilterFunction(clientRegistrations,authorizedClients);
+        oauth2.setDefaultClientRegistrationId("keycloak-service");
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .filter(oauth2) // 👈 ВАЖНО
                 .build();
     }
 

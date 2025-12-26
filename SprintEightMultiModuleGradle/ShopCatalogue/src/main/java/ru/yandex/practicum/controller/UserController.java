@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.payment.ResultStatus;
 import ru.yandex.practicum.dto.shoping.ItemsRequest;
 import ru.yandex.practicum.model.payment.PaymentOrder;
+import ru.yandex.practicum.security.CurrentUserId;
 import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.payment.PaymentService;
 import ru.yandex.practicum.service.shoping.CartItemService;
@@ -47,17 +48,17 @@ class UserController {
     }
 
     @PostMapping(value = {"/buy"})
-    public Mono<Rendering> buyCart(@AuthenticationPrincipal UserPrincipal user, Model model) {
-        return cartItemService.getCartCount(user.userId())
-                            .zipWhen(total -> paymentService.buy(user.userId(), total))
+    public Mono<Rendering> buyCart(@CurrentUserId Long userId, Model model) {
+        return cartItemService.getCartCount(userId)
+                            .zipWhen(total -> paymentService.buy(userId, total))
                             .flatMap(tuple -> {
                                 if (tuple.getT2().status() == ResultStatus.ACCEPTED) {
-                                    return orderService.closeCart(user.userId())
+                                    return orderService.closeCart(userId)
                                             .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")
                                                     .modelAttribute("id", u)
                                                     .build()));
                                 } else {
-                                    log.warn("Payment rejected: userId={}, total={}, status={}", user.userId(), tuple.getT1(), tuple.getT2().status());
+                                    log.warn("Payment rejected: userId={}, total={}, status={}", userId, tuple.getT1(), tuple.getT2().status());
                                     return Mono.just(Rendering.redirectTo("cart/items").build());
                                 }
                             });

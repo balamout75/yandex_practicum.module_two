@@ -16,6 +16,8 @@ import ru.yandex.practicum.model.payment.PaymentStatus;
 import java.time.Duration;
 import java.util.Locale;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 
 @Service
 public class PaymentService {
@@ -33,6 +35,7 @@ public class PaymentService {
     }
 
     public Mono<BalanceDto> getBalance(Long userId) {
+        log.info("Getting balance for user {}", userId);
         return paymentApi.paymentUserIdBalanceGet(userId)
                 .map(response -> {
                     PaymentBalance paymentBalance = response.getBody();
