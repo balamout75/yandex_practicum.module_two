@@ -1,8 +1,13 @@
 server:
-  port: 8081
+  port: 8082
 spring:
   application:
-    name: module_two_sprint_six_gradle
+    name: ShopPayment
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/demo-realm
 springdoc:
   swagger-ui:
     enabled: true

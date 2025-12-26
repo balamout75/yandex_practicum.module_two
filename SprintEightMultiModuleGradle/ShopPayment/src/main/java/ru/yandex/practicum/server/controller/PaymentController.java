@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,7 @@ public class PaymentController implements PaymentApi {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SERVICE')")
     public Mono<ResponseEntity<PaymentBalance>> paymentUserIdBalanceGet(
             @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.PATH) @PathVariable("userId") Long userId,
             @Parameter(hidden = true) final ServerWebExchange exchange
@@ -58,6 +60,7 @@ public class PaymentController implements PaymentApi {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SERVICE')")
     public Mono<ResponseEntity<PaymentStatus>> paymentUserIdBuyPost(
             @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.PATH) @PathVariable("userId") Long userId,
             @Parameter(name = "Order", description = "", required = true) @Valid @RequestBody Mono<PaymentOrder> paymentOrder,

@@ -25,7 +25,7 @@ class OrderController {
 
     @GetMapping()
     public Mono<Rendering> getOrders(@AuthenticationPrincipal UserPrincipal user) {
-        return orderService.findOrders(user.userId()).collectList()
+        return orderService.findOrders(user.getUserId()).collectList()
                 .map(u -> Rendering.view(VIEW_ORDERS)
                         .modelAttribute("orders", u)
                         .build())
@@ -34,7 +34,7 @@ class OrderController {
 
     @GetMapping("/{id}")
     public Mono<Rendering> getOrder(@AuthenticationPrincipal UserPrincipal user, @PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder) {
-        return orderService.findOrder(user.userId(), orderId)
+        return orderService.findOrder(user.getUserId(), orderId)
                 .map(u -> Rendering.view(VIEW_ORDER)
                         .modelAttribute("order", u)
                         .modelAttribute("newOrder", newOrder)

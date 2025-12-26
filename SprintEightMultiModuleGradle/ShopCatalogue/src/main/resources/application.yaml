@@ -1,3 +1,5 @@
+server:
+  port: 8081
 spring:
   main:
     web-application-type: reactive
@@ -27,6 +29,19 @@ spring:
   cache:
     redis:
       time-to-live: PT60M
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: frontend-service
+            client-secret: 4rAug3q5tM2QMb418UWgK0V9gPwFZrnL
+            scope: openid,profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/demo-realm
 payment:
   client:
     base-url: ${PAYMENT_SERVICE_URL:http://localhost:8081}

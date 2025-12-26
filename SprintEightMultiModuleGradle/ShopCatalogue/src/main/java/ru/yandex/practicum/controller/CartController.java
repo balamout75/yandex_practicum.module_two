@@ -9,17 +9,11 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.payment.BalanceDto;
 import ru.yandex.practicum.dto.payment.BalanceStatus;
 import ru.yandex.practicum.dto.shoping.CartRequest;
-
 import ru.yandex.practicum.dto.shoping.ItemDto;
-import ru.yandex.practicum.model.shoping.CartItem;
-import ru.yandex.practicum.security.AnonymousUserAuthentication;
 import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.payment.PaymentService;
 import ru.yandex.practicum.service.shoping.CartItemService;
-
 import java.util.List;
-
-import static reactor.netty.http.HttpConnectionLiveness.log;
 
 
 @Controller
@@ -39,9 +33,9 @@ class CartController {
     @GetMapping("/items")
     public Mono<Rendering> getItems(@AuthenticationPrincipal UserPrincipal user) {
 
-        Mono<List<ItemDto>> itemsMono = cartItemService.getCart(user.userId()).collectList();
-        Mono<Long> totalMono = cartItemService.getCartCount(user.userId());
-        Mono<BalanceDto> balanceMono =  paymentService.getBalance(user.userId());
+        Mono<List<ItemDto>> itemsMono = cartItemService.getCart(user.getUserId()).collectList();
+        Mono<Long> totalMono = cartItemService.getCartCount(user.getUserId());
+        Mono<BalanceDto> balanceMono =  paymentService.getBalance(user.getUserId());
 
         return Mono.zip(itemsMono, totalMono, balanceMono)
                 .filter(tuple -> !tuple.getT1().isEmpty())
@@ -74,7 +68,7 @@ class CartController {
 
     @PostMapping("/items")
     public Mono<String> postItems(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute CartRequest itemsRequest) {
-        return cartItemService.changeInCardCount(user.userId(), itemsRequest.id(), itemsRequest.action())
+        return cartItemService.changeInCardCount(user.getUserId(), itemsRequest.id(), itemsRequest.action())
                 .thenReturn("redirect:/cart/items");
     }
 }

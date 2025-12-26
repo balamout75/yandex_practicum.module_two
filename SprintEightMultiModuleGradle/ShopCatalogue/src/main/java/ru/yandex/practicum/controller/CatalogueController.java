@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,14 +38,15 @@ public class CatalogueController {
     }
 
     @GetMapping
-    public Mono<Rendering> list(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute ItemsRequest itemsRequest) {
+    public Mono<Rendering> list(Authentication authentication, @ModelAttribute ItemsRequest itemsRequest) {
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         Sort sortmode = switch (itemsRequest.getSort()) {
             case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
-        return catalogueService.findAll(user.userId(), itemsRequest.getSearch(), pageable).collectList().map(items -> {
+        return catalogueService.findAll(user.getUserId(), itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
                 items.add(new ItemDto());
             }
@@ -64,8 +66,9 @@ public class CatalogueController {
 
 
     @GetMapping(value = {"/{id}"})
-    public Mono<Rendering> getItem(@AuthenticationPrincipal UserPrincipal user, @PathVariable(name = "id") Long itemId) {
-        return catalogueService.findItem(user.userId(), itemId)
+    public Mono<Rendering> getItem(Authentication authentication, @PathVariable(name = "id") Long itemId) {
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
+        return catalogueService.findItem(user.getUserId(), itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
                         .build())
@@ -73,19 +76,21 @@ public class CatalogueController {
     }
 
     @PostMapping()
-    public Mono<String> postItems(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute ItemsRequest itemsRequest, Model model) {
+    public Mono<String> postItems(Authentication authentication, @ModelAttribute ItemsRequest itemsRequest, Model model) {
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         model.addAttribute("search", itemsRequest.getSearch());
         model.addAttribute("sort", itemsRequest.getSort());
         model.addAttribute("pageNumber", itemsRequest.getPageNumber());
         model.addAttribute("pageSize", itemsRequest.getPageSize());
-        return cartItemService.changeInCardCount(user.userId(), itemsRequest.getId(), itemsRequest.getAction())
+        return cartItemService.changeInCardCount(user.getUserId(), itemsRequest.getId(), itemsRequest.getAction())
                 .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
     }
 
     @PostMapping(value = {"/{id}"})
-    public Mono<String> postItem(@AuthenticationPrincipal UserPrincipal user, @ModelAttribute CartRequest cartRequest, Model model) {
+    public Mono<String> postItem(Authentication authentication, @ModelAttribute CartRequest cartRequest, Model model) {
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         model.addAttribute("id", cartRequest.id());
-        return cartItemService.changeInCardCount(user.userId(), cartRequest.id(), cartRequest.action())
+        return cartItemService.changeInCardCount(user.getUserId(), cartRequest.id(), cartRequest.action())
                 .thenReturn("redirect:/items/{id}");
     }
 
