@@ -48,16 +48,16 @@ class UserController {
 
     @PostMapping(value = {"/buy"})
     public Mono<Rendering> buyCart(@AuthenticationPrincipal UserPrincipal user, Model model) {
-        return cartItemService.getCartCount(user.getUserId())
-                            .zipWhen(total -> paymentService.buy(user.getUserId(), total))
+        return cartItemService.getCartCount(user.userId())
+                            .zipWhen(total -> paymentService.buy(user.userId(), total))
                             .flatMap(tuple -> {
                                 if (tuple.getT2().status() == ResultStatus.ACCEPTED) {
-                                    return orderService.closeCart(user.getUserId())
+                                    return orderService.closeCart(user.userId())
                                             .flatMap(u -> Mono.just(Rendering.redirectTo("/orders/{id}?newOrder=true")
                                                     .modelAttribute("id", u)
                                                     .build()));
                                 } else {
-                                    log.warn("Payment rejected: userId={}, total={}, status={}", user.getUserId(), tuple.getT1(), tuple.getT2().status());
+                                    log.warn("Payment rejected: userId={}, total={}, status={}", user.userId(), tuple.getT1(), tuple.getT2().status());
                                     return Mono.just(Rendering.redirectTo("cart/items").build());
                                 }
                             });
