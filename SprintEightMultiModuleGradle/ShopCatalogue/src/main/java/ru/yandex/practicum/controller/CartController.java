@@ -11,7 +11,6 @@ import ru.yandex.practicum.dto.payment.BalanceStatus;
 import ru.yandex.practicum.dto.shoping.CartRequest;
 import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.security.CurrentUserId;
-import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.payment.PaymentService;
 import ru.yandex.practicum.service.shoping.CartItemService;
 import java.util.List;
@@ -32,11 +31,11 @@ class CartController {
     }
 
     @GetMapping("/items")
-    public Mono<Rendering> getItems(@CurrentUserId Long userId) {
+    public Mono<Rendering> getItems() {
 
-        Mono<List<ItemDto>> itemsMono = cartItemService.getCart(userId).collectList();
-        Mono<Long> totalMono = cartItemService.getCartCount(userId);
-        Mono<BalanceDto> balanceMono =  paymentService.getBalance(userId);
+        Mono<List<ItemDto>> itemsMono = cartItemService.getCart().collectList();
+        Mono<Long> totalMono = cartItemService.getCartTotal();
+        Mono<BalanceDto> balanceMono =  paymentService.getBalance();
 
         return Mono.zip(itemsMono, totalMono, balanceMono)
                 .filter(tuple -> !tuple.getT1().isEmpty())
@@ -68,8 +67,8 @@ class CartController {
     }
 
     @PostMapping("/items")
-    public Mono<String> postItems(@CurrentUserId Long userId, @ModelAttribute CartRequest itemsRequest) {
-        return cartItemService.changeInCardCount(userId, itemsRequest.id(), itemsRequest.action())
+    public Mono<String> postItems(@ModelAttribute CartRequest itemsRequest) {
+        return cartItemService.changeInCardCount(itemsRequest.id(), itemsRequest.action())
                 .thenReturn("redirect:/cart/items");
     }
 }

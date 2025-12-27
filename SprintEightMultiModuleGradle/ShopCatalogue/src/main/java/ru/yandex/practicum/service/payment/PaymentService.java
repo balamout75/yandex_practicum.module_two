@@ -12,6 +12,9 @@ import ru.yandex.practicum.dto.payment.StatusDto;
 import ru.yandex.practicum.model.payment.PaymentBalance;
 import ru.yandex.practicum.model.payment.PaymentOrder;
 import ru.yandex.practicum.model.payment.PaymentStatus;
+import ru.yandex.practicum.model.shoping.CartItem;
+import ru.yandex.practicum.security.CurrentUserFacade;
+import ru.yandex.practicum.service.shoping.CartItemService;
 
 import java.time.Duration;
 import java.util.Locale;
@@ -23,6 +26,8 @@ import static reactor.netty.http.HttpConnectionLiveness.log;
 public class PaymentService {
 
     private final PaymentApi paymentApi;
+    private final CurrentUserFacade currentUserFacade;
+    private final CartItemService cartItemService;
 
     @Value("${payment.client.retry.attempts}")
     private int retryAttempts;
@@ -30,11 +35,20 @@ public class PaymentService {
     @Value("${payment.client.retry.backoff}")
     private Duration retryBackoff;
 
-    public PaymentService(PaymentApi paymentApi) {
+    public PaymentService(PaymentApi paymentApi,
+                          CurrentUserFacade currentUserFacade,
+                          CartItemService cartItemService) {
         this.paymentApi = paymentApi;
+        this.currentUserFacade = currentUserFacade;
+        this.cartItemService = cartItemService;
     }
 
-    public Mono<BalanceDto> getBalance(Long userId) {
+    public Mono<BalanceDto> getBalance() {
+        return this.currentUserFacade.getUserId()
+                .flatMap(this::getBalanceForUser);
+    }
+
+    Mono<BalanceDto> getBalanceForUser(Long userId) {
         log.info("Getting balance for user {}", userId);
         return paymentApi.paymentUserIdBalanceGet(userId)
                 .map(response -> {
@@ -61,7 +75,13 @@ public class PaymentService {
                 );
     }
 
-    public Mono<StatusDto> buy(Long userId, Long total) {
+    public Mono<StatusDto> buy() {
+        return this.currentUserFacade.getUserId()
+                .zipWhen(userId -> cartItemService.getCartTotal())
+                .flatMap(pair->this.buyForUser(pair.getT1(), pair.getT2()));
+    }
+
+    Mono<StatusDto> buyForUser(Long userId, Long total) {
         PaymentOrder paymentOrder = new PaymentOrder();
         paymentOrder.setUserId(userId);
         paymentOrder.setOrderId(1L);
@@ -69,24 +89,22 @@ public class PaymentService {
         return paymentApi.paymentUserIdBuyPost(userId, paymentOrder)
                 .map(response -> {
                     PaymentStatus paymentStatus = response.getBody();
-
                     ResultStatus resultStatus = switch (paymentStatus.getStatus()) {
                         case "accepted" -> ResultStatus.ACCEPTED;
                         case "rejected" -> ResultStatus.REJECTED;
                         default -> ResultStatus.UNAVAILABLE;
                     };
-
-                    return new StatusDto(paymentStatus.getOrderId(), resultStatus);
+                    return new StatusDto(paymentStatus.getOrderId(), total, resultStatus);
                 })
                 .retryWhen(Retry.backoff(retryAttempts, retryBackoff)
                         .filter(ex ->
                                 !(ex instanceof WebClientResponseException.NotFound)
                         ))
                 .onErrorResume(WebClientResponseException.NotFound.class, ex ->
-                        Mono.just(new StatusDto(0L, ResultStatus.NOT_FOUND))
+                        Mono.just(new StatusDto(0L, total, ResultStatus.NOT_FOUND))
                 )
                 .onErrorResume(WebClientResponseException.class, ex ->
-                        Mono.just(new StatusDto(0L, ResultStatus.UNAVAILABLE))
+                        Mono.just(new StatusDto(0L, total, ResultStatus.UNAVAILABLE))
                 );
     }
 }

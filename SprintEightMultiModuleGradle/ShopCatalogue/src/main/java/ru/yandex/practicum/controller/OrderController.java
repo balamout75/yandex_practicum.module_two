@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.security.CurrentUserId;
-import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.shoping.OrderService;
 
 @Controller
@@ -26,7 +25,7 @@ class OrderController {
 
     @GetMapping()
     public Mono<Rendering> getOrders(@CurrentUserId Long userId) {
-        return orderService.findOrders(userId).collectList()
+        return orderService.findAllOrders().collectList()
                 .map(u -> Rendering.view(VIEW_ORDERS)
                         .modelAttribute("orders", u)
                         .build())
@@ -35,7 +34,7 @@ class OrderController {
 
     @GetMapping("/{id}")
     public Mono<Rendering> getOrder(@CurrentUserId Long userId, @PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder) {
-        return orderService.findOrder(userId, orderId)
+        return orderService.findOrder(orderId)
                 .map(u -> Rendering.view(VIEW_ORDER)
                         .modelAttribute("order", u)
                         .modelAttribute("newOrder", newOrder)

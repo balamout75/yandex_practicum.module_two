@@ -21,7 +21,6 @@ import ru.yandex.practicum.dto.shoping.ItemsRequest;
 import ru.yandex.practicum.dto.shoping.Paging;
 import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.security.CurrentUserId;
-import ru.yandex.practicum.security.UserPrincipal;
 import ru.yandex.practicum.service.shoping.CartItemService;
 import ru.yandex.practicum.service.shoping.CatalogueService;
 
@@ -61,7 +60,7 @@ public class CatalogueController {
         };
         log.info("Current User: "+userId.toString());
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
-        return catalogueService.findAll(userId, itemsRequest.getSearch(), pageable).collectList().map(items -> {
+        return catalogueService.findAll(itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
                 items.add(new ItemDto());
             }
@@ -84,7 +83,7 @@ public class CatalogueController {
     @GetMapping(value = {"/{id}"})
     public Mono<Rendering> getItem(@CurrentUserId Long userId, @PathVariable(name = "id") Long itemId) {
         log.info("Current User: "+userId.toString());
-        return catalogueService.findItem(userId, itemId)
+        return catalogueService.findItem(itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
                         .build())
@@ -97,14 +96,14 @@ public class CatalogueController {
         model.addAttribute("sort", itemsRequest.getSort());
         model.addAttribute("pageNumber", itemsRequest.getPageNumber());
         model.addAttribute("pageSize", itemsRequest.getPageSize());
-        return cartItemService.changeInCardCount(userId, itemsRequest.getId(), itemsRequest.getAction())
+        return cartItemService.changeInCardCount(itemsRequest.getId(), itemsRequest.getAction())
                 .thenReturn("redirect:/items?search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}");
     }
 
     @PostMapping(value = {"/{id}"})
     public Mono<String> postItem(@CurrentUserId Long userId, @ModelAttribute CartRequest cartRequest, Model model) {
         model.addAttribute("id", cartRequest.id());
-        return cartItemService.changeInCardCount(userId, cartRequest.id(), cartRequest.action())
+        return cartItemService.changeInCardCount(cartRequest.id(), cartRequest.action())
                 .thenReturn("redirect:/items/{id}");
     }
 

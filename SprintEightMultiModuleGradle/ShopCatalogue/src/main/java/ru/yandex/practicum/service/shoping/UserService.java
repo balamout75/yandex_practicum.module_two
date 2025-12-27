@@ -13,6 +13,7 @@ public class UserService {
 
     private final UserRepository repository;
 
+    //Сервисный класс для поиска userId по ключу из Keycloak
     public UserService(UserRepository repository) {
         this.repository = repository;
     }

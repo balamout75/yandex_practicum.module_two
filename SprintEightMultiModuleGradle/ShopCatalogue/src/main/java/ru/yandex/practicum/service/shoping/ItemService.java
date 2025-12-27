@@ -16,7 +16,7 @@ public class ItemService {
         this.repository = repository;
     }
 
-    public Flux<Item> findAll(Long userId, String searchstring, Pageable pageable) {
+    Flux<Item> findAll(String searchstring, Pageable pageable) {
         return searchstring.isBlank() ? repository.findAllBy(pageable) :
                repository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchstring, searchstring, pageable);
     }

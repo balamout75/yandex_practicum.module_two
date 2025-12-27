@@ -1,9 +1,7 @@
 package ru.yandex.practicum.service.shoping;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.model.shoping.OrderItem;
 import ru.yandex.practicum.repository.OrderItemRepository;
@@ -18,15 +16,13 @@ public class OrderItemService {
         this.orderItemRepository = orderItemRepository;
     }
 
-    public Flux<OrderItem> findByOrder(Long orderId) {
+    Flux<OrderItem> findByOrder(Long orderId) {
         return orderItemRepository.findByOrder(orderId);
     }
 
-    public Flux<OrderItem> findByUser(Long userId) {
-        return orderItemRepository.findByUser(userId);
-    }
+    Flux<OrderItem> findByUser(Long userId) { return orderItemRepository.findByUser(userId); }
 
-    public Mono<OrderItem> save(OrderItem orderItem) {
+    Mono<OrderItem> save(OrderItem orderItem) {
         return orderItemRepository.save(orderItem);
     }
 }
