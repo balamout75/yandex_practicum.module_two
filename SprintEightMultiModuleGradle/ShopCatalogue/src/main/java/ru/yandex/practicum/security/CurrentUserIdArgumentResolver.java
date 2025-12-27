@@ -10,6 +10,7 @@ import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.dto.shoping.UserDto;
 import ru.yandex.practicum.service.shoping.UserService;
 
 @Component
@@ -59,7 +60,7 @@ public class CurrentUserIdArgumentResolver
         if (principal instanceof OidcUser oidc) {
             String sub = oidc.getSubject(); // ✅ ВАЖНО
             return userService.findOrCreate(sub)
-                    .map(u -> u.getId());
+                    .map(UserDto::id);
         }
 
         return Mono.just(0L);

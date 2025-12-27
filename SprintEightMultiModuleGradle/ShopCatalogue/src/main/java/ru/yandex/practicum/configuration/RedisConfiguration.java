@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
@@ -15,7 +14,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import ru.yandex.practicum.dto.shoping.ItemDto;
 import ru.yandex.practicum.dto.shoping.PageDto;
-
+import ru.yandex.practicum.dto.shoping.UserDto;
 
 import java.time.Duration;
 
@@ -37,7 +36,7 @@ public class RedisConfiguration {
     @Bean
     public RedisCacheManagerBuilderCustomizer itemCacheCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("itemDto",                                         // Имя кеша
+                .withCacheConfiguration("item",                                          // Имя кеша
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))  // TTL
                         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                                         new JacksonJsonRedisSerializer<>(ItemDto.class)
@@ -47,33 +46,28 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisCacheManagerBuilderCustomizer pageCacheCustomizer() {
+    public RedisCacheManagerBuilderCustomizer userCacheCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("page",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))
-        );
+                .withCacheConfiguration("user",                                        // Имя кеша
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))  // TTL
+                                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
+                                                new JacksonJsonRedisSerializer<>(UserDto.class)
+                                        )
+                                )
+                );
     }
 
     @Bean
-    public ReactiveHashOperations<String, String, PageDto> pageDtoHashOperations(
-            ReactiveRedisConnectionFactory connectionFactory) {
-
-        // Define serializers
+    public ReactiveRedisTemplate<String, PageDto> pageRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
         StringRedisSerializer keySerializer = new StringRedisSerializer();
-        GenericToStringSerializer <String> hashKeySerializer    = new GenericToStringSerializer<>(String.class);
-        JacksonJsonRedisSerializer<PageDto> hashValueSerializer = new JacksonJsonRedisSerializer<>(PageDto.class);
+        GenericToStringSerializer<String> hashKeySerializer = new GenericToStringSerializer<>(String.class);
+        JacksonJsonRedisSerializer<PageDto> valueSerializer = new JacksonJsonRedisSerializer<>(PageDto.class);
 
-        // Build the serialization context
-        RedisSerializationContext<String, PageDto> serializationContext =
-                RedisSerializationContext.<String, PageDto>newSerializationContext(keySerializer)
+        RedisSerializationContext<String, PageDto> context = RedisSerializationContext.<String, PageDto>newSerializationContext(keySerializer)
                         .hashKey(hashKeySerializer)
-                        .hashValue(hashValueSerializer)
+                        .hashValue(valueSerializer)
                         .build();
 
-        // Create the reactive template and get hash operations
-        ReactiveRedisTemplate<String, PageDto> reactiveRedisTemplate = new ReactiveRedisTemplate<>(
-                connectionFactory, serializationContext);
-
-        return reactiveRedisTemplate.opsForHash();
+        return new ReactiveRedisTemplate<>(connectionFactory, context);
     }
 }

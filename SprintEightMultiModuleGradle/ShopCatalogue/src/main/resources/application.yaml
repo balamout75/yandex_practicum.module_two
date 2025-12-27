@@ -26,9 +26,6 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
       port: ${SPRING_DATA_REDIS_PORT:6379}
-  cache:
-    redis:
-      time-to-live: PT60M
   security:
     oauth2:
       client:

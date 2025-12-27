@@ -28,7 +28,6 @@ public class CartItemService {
 
     @Value("${images.path}")
     private String UPLOAD_DIR;
-    final String KEY = "page";
 
     public CartItemService(ItemService itemService, CartItemRepository repository, UserCacheVersionService userCacheVersionService) {
         this.itemService = itemService;
@@ -47,10 +46,6 @@ public class CartItemService {
         return repository.inCartCount(userId);
     }
 
-    @CacheEvict(
-            value = "item",
-            key = "#userId + '-' + #itemId"
-    )
     public Mono<Void> changeInCardCount(long userId, long itemId, ActionModes action) {
         log.info("В корзине "+userId + " изменилось состояние товара " + itemId + '-' + action.toString());
         return switch (action) {
