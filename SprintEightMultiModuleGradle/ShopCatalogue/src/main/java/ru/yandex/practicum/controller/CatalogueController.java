@@ -1,14 +1,10 @@
 package ru.yandex.practicum.controller;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,7 +54,6 @@ public class CatalogueController {
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
-        log.info("Current User: "+userId.toString());
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
         return catalogueService.findAll(itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
@@ -81,8 +76,7 @@ public class CatalogueController {
 
 
     @GetMapping(value = {"/{id}"})
-    public Mono<Rendering> getItem(@CurrentUserId Long userId, @PathVariable(name = "id") Long itemId) {
-        log.info("Current User: "+userId.toString());
+    public Mono<Rendering> getItem(@PathVariable(name = "id") Long itemId) {
         return catalogueService.findItem(itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
@@ -91,7 +85,7 @@ public class CatalogueController {
     }
 
     @PostMapping()
-    public Mono<String> postItems(@CurrentUserId Long userId, @ModelAttribute ItemsRequest itemsRequest, Model model) {
+    public Mono<String> postItems(@ModelAttribute ItemsRequest itemsRequest, Model model) {
         model.addAttribute("search", itemsRequest.getSearch());
         model.addAttribute("sort", itemsRequest.getSort());
         model.addAttribute("pageNumber", itemsRequest.getPageNumber());
@@ -101,11 +95,9 @@ public class CatalogueController {
     }
 
     @PostMapping(value = {"/{id}"})
-    public Mono<String> postItem(@CurrentUserId Long userId, @ModelAttribute CartRequest cartRequest, Model model) {
+    public Mono<String> postItem(@ModelAttribute CartRequest cartRequest, Model model) {
         model.addAttribute("id", cartRequest.id());
         return cartItemService.changeInCardCount(cartRequest.id(), cartRequest.action())
                 .thenReturn("redirect:/items/{id}");
     }
-
-
 }

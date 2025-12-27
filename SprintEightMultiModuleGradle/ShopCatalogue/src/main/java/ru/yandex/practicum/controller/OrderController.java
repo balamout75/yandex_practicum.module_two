@@ -1,6 +1,5 @@
 package ru.yandex.practicum.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.security.CurrentUserId;
 import ru.yandex.practicum.service.shoping.OrderService;
 
 @Controller
@@ -24,7 +22,7 @@ class OrderController {
     }
 
     @GetMapping()
-    public Mono<Rendering> getOrders(@CurrentUserId Long userId) {
+    public Mono<Rendering> getOrders() {
         return orderService.findAllOrders().collectList()
                 .map(u -> Rendering.view(VIEW_ORDERS)
                         .modelAttribute("orders", u)
@@ -33,7 +31,7 @@ class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Rendering> getOrder(@CurrentUserId Long userId, @PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder) {
+    public Mono<Rendering> getOrder(@PathVariable(name = "id") Long orderId, @RequestParam(defaultValue = "false") String newOrder) {
         return orderService.findOrder(orderId)
                 .map(u -> Rendering.view(VIEW_ORDER)
                         .modelAttribute("order", u)
