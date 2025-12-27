@@ -17,10 +17,10 @@ import ru.yandex.practicum.service.shoping.UserService;
 public class CurrentUserIdArgumentResolver
         implements HandlerMethodArgumentResolver {
 
-    private final UserService userService;
+    private final CurrentUserFacade currentUserFacade;
 
-    public CurrentUserIdArgumentResolver(UserService userService) {
-        this.userService = userService;
+    public CurrentUserIdArgumentResolver(CurrentUserFacade currentUserFacade) {
+        this.currentUserFacade = currentUserFacade;
     }
 
     @Override
@@ -36,33 +36,7 @@ public class CurrentUserIdArgumentResolver
             ServerWebExchange exchange
     ) {
 
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .flatMap(this::resolveUserId)
-                .defaultIfEmpty(0L)
+        return currentUserFacade.getUserId()
                 .cast(Object.class);
-    }
-
-    private Mono<Long> resolveUserId(Authentication auth) {
-
-        if (auth == null) {
-            return Mono.just(0L);
-        }
-
-        Object principal = auth.getPrincipal();
-
-        // anonymous
-        if (principal == null || principal instanceof String) {
-            return Mono.just(0L);
-        }
-
-        // OIDC
-        if (principal instanceof OidcUser oidc) {
-            String sub = oidc.getSubject(); // ✅ ВАЖНО
-            return userService.findOrCreate(sub)
-                    .map(UserDto::id);
-        }
-
-        return Mono.just(0L);
     }
 }
