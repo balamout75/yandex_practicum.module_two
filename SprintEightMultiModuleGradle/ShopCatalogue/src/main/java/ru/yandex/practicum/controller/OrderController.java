@@ -23,7 +23,7 @@ class OrderController {
 
     @GetMapping()
     public Mono<Rendering> getOrders() {
-        return orderService.findAllOrders().collectList()
+        return orderService.findOrders().collectList()
                 .map(u -> Rendering.view(VIEW_ORDERS)
                         .modelAttribute("orders", u)
                         .build())

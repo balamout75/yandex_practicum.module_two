@@ -15,7 +15,8 @@ create sequence users_sequence start 2 increment by 1;
 create table if not exists users(
                                     id          bigint primary key DEFAULT nextval('users_sequence'),
                                     firstname   varchar NOT NULL,
-                                    lastname    varchar NOT NULL);
+                                    lastname    varchar NOT NULL,
+                                    sub         varchar NOT NULL);
 
 create table if not exists items(
                                     id          bigint primary key DEFAULT nextval('items_sequence'),
@@ -47,7 +48,7 @@ create table if not exists order_items(
                                     FOREIGN KEY   (item_id)     REFERENCES items (id) ON DELETE CASCADE,
                                     primary key  (order_id, item_id));
 
-insert into users (id, firstname, lastname) values (1, 'John','Smith');
+insert into users (id, firstname, lastname, sub) values (1, 'John','Smith', 'resident');
 
 insert into items values (1,'Кепка','бейсболка большого размера',1200,12,'cap.jpg'),
                          (2,'Самокат','Моноколесо',120000,12,'cap.jpg'),

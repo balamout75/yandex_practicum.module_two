@@ -1,6 +1,5 @@
 package ru.yandex.practicum.repository;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,7 @@ import ru.yandex.practicum.model.shoping.CartItemId;
 public interface CartItemRepository extends ReactiveSortingRepository<CartItem, CartItemId> {
 
     @Query("select SUM(i.price*ci.count) from items i join cart_items ci on i.id = ci.item_id where ci.user_id  = :userId")
-    Mono<Long> inCartCount(Long userId);
+    Mono<Long> inCartTotal(Long userId);
 
     Mono<CartItem> findByUserIdAndItemId(long userId, long itemId);
 

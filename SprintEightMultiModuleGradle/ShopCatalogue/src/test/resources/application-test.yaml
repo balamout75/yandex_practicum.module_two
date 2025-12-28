@@ -1,0 +1,19 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration: {}
+        provider: {}
+
+  r2dbc:
+    pool:
+      enabled: false
+
+  liquibase:
+    enabled: false
+
+payment:
+  client:
+    base-url: http://localhost:8082
+
+images.path: images/

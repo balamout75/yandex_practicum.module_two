@@ -25,16 +25,20 @@ public class CatalogueService {
     private String UPLOAD_DIR;
 
     private final ReactiveRedisTemplate<String, PageDto> pageRedisTemplate;
+    private final ReactiveRedisTemplate<String, ItemDto> itemRedisTemplate;
     private final CurrentUserFacade currentUserFacade;
     private final UserCacheVersionService userCacheVersionService;
 
     public CatalogueService(ItemService itemService,
                             CartItemService cartItemService,
-                            ReactiveRedisTemplate<String, PageDto> pageRedisTemplate, CurrentUserFacade currentUserFacade,
+                            ReactiveRedisTemplate<String, PageDto> pageRedisTemplate,
+                            ReactiveRedisTemplate<String, ItemDto> itemRedisTemplate,
+                            CurrentUserFacade currentUserFacade,
                             UserCacheVersionService userCacheVersionService) {
         this.itemService = itemService;
         this.cartItemService = cartItemService;
         this.pageRedisTemplate = pageRedisTemplate;
+        this.itemRedisTemplate = itemRedisTemplate;
         this.currentUserFacade = currentUserFacade;
         this.userCacheVersionService = userCacheVersionService;
     }
@@ -69,7 +73,7 @@ public class CatalogueService {
                 .flatMapMany(userId -> findAllForUser(userId, rawsearchstring, pageable));
     }
 
-    private Flux<ItemDto> findAllForUser(Long userId, String rawsearchstring, Pageable pageable) {
+    Flux<ItemDto> findAllForUser(Long userId, String rawsearchstring, Pageable pageable) {
         final String searchstring = rawsearchstring.trim();
         Comparator<ItemDto> compare = getComparator(pageable);
         return userCacheVersionService.getVersion()
@@ -112,7 +116,7 @@ public class CatalogueService {
                 .flatMap(userId -> findItemForUser(userId, itemId));
     }
 
-    protected Mono<ItemDto> findItemForUser(Long userId, Long itemId) {
+    Mono<ItemDto> findItemForUser(Long userId, Long itemId) {
         String redisKey="item:"+userId;
         return getCachedItemDto(redisKey, itemId.toString())
                 .switchIfEmpty(Mono.defer(() -> itemService.findItemById(itemId))
@@ -123,14 +127,14 @@ public class CatalogueService {
     }
 
     private  Mono<ItemDto> getCachedItemDto(String redisKey, String itemKey) {
-        return pageRedisTemplate.opsForHash()
+        return itemRedisTemplate.opsForHash()
                 .get(redisKey, itemKey)
                 .cast(ItemDto.class);
     }
 
     private Mono<Boolean> putCachedItemDto(String redisKey, String itemKey, ItemDto itemDto) {
-        return pageRedisTemplate.opsForHash().put(redisKey, itemKey, itemDto)
-                .flatMap(saved -> pageRedisTemplate.expire(redisKey, Duration.ofMinutes(10)).thenReturn(saved));
+        return itemRedisTemplate.opsForHash().put(redisKey, itemKey, itemDto)
+                .flatMap(saved -> itemRedisTemplate.expire(redisKey, Duration.ofMinutes(10)).thenReturn(saved));
     }
 
     //Общее число товаров в каталоге

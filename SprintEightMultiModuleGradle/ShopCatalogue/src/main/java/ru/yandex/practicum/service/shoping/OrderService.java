@@ -49,12 +49,12 @@ public class OrderService {
     }
 
     //Работа с заказами по userId
-    public Flux<OrderDto> findAllOrders() {
+    public Flux<OrderDto> findOrders() {
         return currentUserFacade.getUserId()
-                .flatMapMany(this::findOrders);
+                .flatMapMany(this::findOrdersForUser);
     }
 
-    Flux<OrderDto> findOrders(Long userId) {
+    Flux<OrderDto> findOrdersForUser(Long userId) {
         return orderItemService.findByUser(userId)
                 .flatMap(oi -> itemService.findItemById(oi.getItemId())
                         .map(item -> Tuples.of(oi, item)))
@@ -74,11 +74,11 @@ public class OrderService {
     }
 
     private Flux<CartItem> getCartItems(long userId) {
-        return cartItemService.findByUserId(userId);
+        return cartItemService.findForUser(userId);
     }
 
     public Mono<Void> clearCart(Long userId) {
-        return cartItemService.deleteByUserId(userId);
+        return cartItemService.deleteForUser(userId);
     }
 
     private Mono<Void> copyCartItems(Long userId, Long orderId) {

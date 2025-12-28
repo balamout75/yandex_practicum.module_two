@@ -11,7 +11,7 @@ spring:
       mode: always
 payment:
   client:
-    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8082}
     timeout:
       connect: 3s
       response: 5s

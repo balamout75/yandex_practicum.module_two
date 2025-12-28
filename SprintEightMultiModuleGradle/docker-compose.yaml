@@ -1,6 +1,20 @@
 version: "3.9"
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    container_name: yp-keycloak
+    command: start-dev
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME: localhost
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
 
   postgres:
     image: postgres:18.1
@@ -49,7 +63,7 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
-      PAYMENT_SERVICE_URL: http://yp-payment:8081
+      PAYMENT_SERVICE_URL: http://yp-payment:8082
 
     depends_on:
       - postgres
@@ -68,3 +82,4 @@ services:
 
 volumes:
   db-data:
+  keycloak-data:

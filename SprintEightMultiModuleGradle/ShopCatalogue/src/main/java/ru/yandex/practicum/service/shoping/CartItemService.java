@@ -3,19 +3,14 @@ package ru.yandex.practicum.service.shoping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.shoping.ItemDto;
-import ru.yandex.practicum.dto.shoping.PageDto;
 import ru.yandex.practicum.mapper.ActionModes;
 import ru.yandex.practicum.mapper.ItemToDtoMapper;
-import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.model.shoping.CartItem;
-import ru.yandex.practicum.model.shoping.CartItemId;
 import ru.yandex.practicum.repository.CartItemRepository;
 import ru.yandex.practicum.security.CurrentUserFacade;
 
@@ -28,7 +23,7 @@ public class CartItemService {
     private final ItemService itemService;
     private final CartItemRepository repository;
     private final UserCacheVersionService userCacheVersionService;
-    private final ReactiveRedisTemplate<String, PageDto> pageRedisTemplate;
+    private final ReactiveRedisTemplate<String, ItemDto> itemRedisTemplate;
     private final CurrentUserFacade currentUserFacade;
 
     @Value("${images.path}")
@@ -36,23 +31,22 @@ public class CartItemService {
 
     public CartItemService(ItemService itemService,
                            CartItemRepository repository,
-                           UserCacheVersionService userCacheVersionService,
-                           ReactiveRedisTemplate<String, PageDto> pageRedisTemplate,
+                           UserCacheVersionService userCacheVersionService, ReactiveRedisTemplate<String, ItemDto> itemRedisTemplate,
                            CurrentUserFacade currentUserFacade) {
         this.itemService = itemService;
         this.repository = repository;
         this.userCacheVersionService = userCacheVersionService;
-        this.pageRedisTemplate = pageRedisTemplate;
+        this.itemRedisTemplate = itemRedisTemplate;
         this.currentUserFacade = currentUserFacade;
     }
 
     //getCart - список товаров в корзине аторизованного пользователя
     //getCartForUser - внутренний метод для известного пользователя
-    public Flux<ItemDto> getCart() {
+    public Flux<ItemDto> getInCartItems() {
         return currentUserFacade.getUserId()
-                .flatMapMany(this::getCartForUser);
+                .flatMapMany(this::getInCartItemsForUser);
     }
-    Flux<ItemDto> getCartForUser(long userId) {
+    Flux<ItemDto> getInCartItemsForUser(long userId) {
         return repository.findByUserId(userId)
                 .flatMap(cartItem -> itemService.findItemById(cartItem.getItemId())
                         .map(item -> ItemToDtoMapper.toDto(item, cartItem.getCount(), UPLOAD_DIR)))
@@ -62,7 +56,7 @@ public class CartItemService {
     //Стоимость корзины
     public Mono<Long> getCartTotal() {
         return currentUserFacade.getUserId()
-                .flatMap(repository::inCartCount);
+                .flatMap(repository::inCartTotal);
     }
 
     //changeInCardCount - ручка для контроллера
@@ -101,7 +95,7 @@ public class CartItemService {
 
     private Mono<Void> evictItemCache(long userId, long itemId) {
         String redisKey = "item:" + userId;
-        return pageRedisTemplate.opsForHash()
+        return itemRedisTemplate.opsForHash()
                 .remove(redisKey, String.valueOf(itemId))
                 .then();
     }
@@ -114,9 +108,9 @@ public class CartItemService {
 
 
     //findByUserId и deleteByUserId - сервисные методы для OrderService
-    Flux<CartItem> findByUserId(long userId) {
+    Flux<CartItem> findForUser(long userId) {
         return repository.findByUserId(userId);
     }
 
-    Mono<Void> deleteByUserId(Long userId) { return repository.deleteByUserId(userId); }
+    Mono<Void> deleteForUser(Long userId) { return repository.deleteByUserId(userId); }
 }

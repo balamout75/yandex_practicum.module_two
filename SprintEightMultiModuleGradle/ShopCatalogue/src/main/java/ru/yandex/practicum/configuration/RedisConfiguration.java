@@ -22,30 +22,6 @@ import java.time.Duration;
 public class RedisConfiguration {
 
     @Bean
-    public ReactiveRedisTemplate<String, Long> reactiveRedisLongTemplate(
-            ReactiveRedisConnectionFactory connectionFactory) {
-
-        RedisSerializationContext<String, Long> context =
-                RedisSerializationContext.<String, Long>newSerializationContext(new StringRedisSerializer())
-                        .value(new GenericToStringSerializer<>(Long.class))
-                        .build();
-
-        return new ReactiveRedisTemplate<>(connectionFactory, context);
-    }
-
-    @Bean
-    public RedisCacheManagerBuilderCustomizer itemCacheCustomizer() {
-        return builder -> builder
-                .withCacheConfiguration("item",                                          // Имя кеша
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))  // TTL
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                                        new JacksonJsonRedisSerializer<>(ItemDto.class)
-                                )
-                        )
-        );
-    }
-
-    @Bean
     public RedisCacheManagerBuilderCustomizer userCacheCustomizer() {
         return builder -> builder
                 .withCacheConfiguration("user",                                        // Имя кеша
@@ -66,6 +42,29 @@ public class RedisConfiguration {
         RedisSerializationContext<String, PageDto> context = RedisSerializationContext.<String, PageDto>newSerializationContext(keySerializer)
                         .hashKey(hashKeySerializer)
                         .hashValue(valueSerializer)
+                        .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, context);
+    }
+
+    @Bean
+    public ReactiveRedisTemplate<String, ItemDto> itemRedisTemplate(ReactiveRedisConnectionFactory connectionFactory) {
+        StringRedisSerializer keySerializer = new StringRedisSerializer();
+        GenericToStringSerializer<String> hashKeySerializer = new GenericToStringSerializer<>(String.class);
+        JacksonJsonRedisSerializer<ItemDto> valueSerializer = new JacksonJsonRedisSerializer<>(ItemDto.class);
+
+        RedisSerializationContext<String, ItemDto> context = RedisSerializationContext.<String, ItemDto>newSerializationContext(keySerializer)
+                .hashKey(hashKeySerializer)
+                .hashValue(valueSerializer)
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, context);
+    }
+
+    @Bean
+    public ReactiveRedisTemplate<String, Long> reactiveRedisLongTemplate(
+            ReactiveRedisConnectionFactory connectionFactory) {
+        RedisSerializationContext<String, Long> context =
+                RedisSerializationContext.<String, Long>newSerializationContext(new StringRedisSerializer())
+                        .value(new GenericToStringSerializer<>(Long.class))
                         .build();
 
         return new ReactiveRedisTemplate<>(connectionFactory, context);
