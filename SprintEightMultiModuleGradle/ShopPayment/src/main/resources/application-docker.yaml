@@ -18,9 +18,12 @@ paymentservice:
   current-user:
     user-id: 1
     balance: 50000
-
-
-
-
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE
+    org.springframework.security.oauth2.server.resource: TRACE
+    org.springframework.security.web.server.authorization: TRACE
+    org.springframework.web.reactive.function.client: DEBUG
 
 

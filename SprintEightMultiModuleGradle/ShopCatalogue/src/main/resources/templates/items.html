@@ -32,6 +32,11 @@
                 <!-- AUTHENTICATED -->
                 <div th:if="${authorized}" class="hstack gap-2 ms-auto">
 
+                    <span class="badge text-bg-primary">
+                        <i class="bi bi-person"></i>
+                        <span th:text="${username}"></span>
+                    </span>
+
                     <a href="/orders"
                        class="btn btn-secondary bi bi-file-earmark-text">
                         Заказы

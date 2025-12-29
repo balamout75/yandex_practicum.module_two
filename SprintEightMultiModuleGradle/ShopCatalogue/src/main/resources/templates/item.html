@@ -13,12 +13,26 @@
         <div class="row p-2">
             <div class="col">
                 <div class="hstack gap-3">
-                    <h2>
+                    <!-- Заголовок слева -->
+                    <h2 class="mb-0">
                         <span class="badge text-bg-success">Витрина магазина</span>
                     </h2>
-                    <a href="/orders" class="btn btn-secondary ms-auto bi bi-file-earmark-text"> Заказы</a>
-                    <a href="/cart/items" class="btn btn-secondary bi bi-cart4"> Корзина</a>
-                    <a href="/items" class="btn btn-secondary bi bi-arrow-left-square"> Главная</a>
+
+                    <!-- Пустой элемент для растяжения пространства между заголовком и кнопками -->
+                    <div class="flex-grow-1"></div>
+
+                    <!-- Кнопки справа -->
+                    <div class="d-flex gap-2">
+                        <a href="/orders" class="btn btn-secondary">
+                            <i class="bi bi-file-earmark-text"></i> Заказы
+                        </a>
+                        <a href="/cart/items" class="btn btn-secondary">
+                            <i class="bi bi-cart4"></i> Корзина
+                        </a>
+                        <a href="/items" class="btn btn-secondary">
+                            <i class="bi bi-house"></i> Главная
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,7 +46,7 @@
                             <span class="badge text-bg-success justify-content-end" th:text="${item.price()}+' руб.'"></span>
                         </h5>
                         <p class="card-text" th:text="${item.description()}"></p>
-                        <form th:action="@{${'/items/'+item.id()}}" method="post">
+                        <form th:action="@{${'/items/'+item.id()}}" method="post" th:if="${authorized}">
                             <div class="hstack gap-3">
                                 <button type="submit" class="btn btn-outline-secondary" name="action" value="MINUS">-</button>
                                 <span th:text="${item.count()}"></span>
@@ -40,6 +54,11 @@
                                 <button type="submit" class="btn btn-warning ms-auto bi bi-cart4" name="action" value="PLUS" th:if="${item.count()==0}"></button>
                             </div>
                         </form>
+                        <!-- Сообщение для неавторизованных -->
+                        <div class="alert alert-info mt-3"
+                             th:if="${!authorized}">
+                            Для добавления товара в корзину необходимо войти в систему
+                        </div>
                     </div>
                 </div>
             </div>

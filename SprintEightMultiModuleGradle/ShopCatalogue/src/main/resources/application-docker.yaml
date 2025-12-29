@@ -37,7 +37,7 @@ spring:
             client-secret: 4rAug3q5tM2QMb418UWgK0V9gPwFZrnL
             authorization-grant-type: authorization_code
             scope: openid,profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}" #"{baseUrl}/login/oauth2/code/{registrationId}"# "http://localhost:8081/login/oauth2/code/keycloak-client"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           keycloak-service:
             provider: keycloak
             client-id: backend-service

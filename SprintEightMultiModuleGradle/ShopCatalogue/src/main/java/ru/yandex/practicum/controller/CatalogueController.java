@@ -5,16 +5,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import ru.yandex.practicum.dto.shoping.CartRequest;
-import ru.yandex.practicum.dto.shoping.ItemDto;
-import ru.yandex.practicum.dto.shoping.ItemsRequest;
-import ru.yandex.practicum.dto.shoping.Paging;
+import ru.yandex.practicum.dto.shoping.*;
 import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.security.CurrentUserId;
 import ru.yandex.practicum.service.shoping.CartItemService;
@@ -47,13 +46,15 @@ public class CatalogueController {
     }
 
     @GetMapping
-    public Mono<Rendering> list(@CurrentUserId Long userId, @ModelAttribute ItemsRequest itemsRequest) {
+    public Mono<Rendering> list(@CurrentUserId Long userId,  @AuthenticationPrincipal OidcUser oidcUser,
+                                @ModelAttribute ItemsRequest itemsRequest) {
         boolean authorized = userId != null && userId > 0;
         Sort sortmode = switch (itemsRequest.getSort()) {
             case SortModes.PRICE    -> Sort.by(Sort.Direction.ASC, "price");
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
+        String username = authorized ? oidcUser.getPreferredUsername() : null;
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
         return catalogueService.findAll(itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
@@ -66,20 +67,20 @@ public class CatalogueController {
                 .modelAttribute("items", u)
                 .modelAttribute("search", itemsRequest.getSearch())
                 .modelAttribute("sort", itemsRequest.getSort().toString())
+                .modelAttribute("paging", new Paging(itemsRequest.getPageSize(), itemsRequest.getPageNumber(), u.hasPrevious(), u.hasNext()))
                 .modelAttribute("authorized", authorized)
-                .modelAttribute("paging", new Paging(itemsRequest.getPageSize(),
-                        itemsRequest.getPageNumber(),
-                        u.hasPrevious(),
-                        u.hasNext()))
+                .modelAttribute("username", username)
                 .build());
     }
 
 
     @GetMapping(value = {"/{id}"})
-    public Mono<Rendering> getItem(@PathVariable(name = "id") Long itemId) {
+    public Mono<Rendering> getItem(@CurrentUserId Long userId, @PathVariable(name = "id") Long itemId) {
+        boolean authorized = userId != null && userId > 0;
         return catalogueService.findItem(itemId)
                 .map(u -> Rendering.view(VIEWS_ITEMS_ITEM_FORM)
                         .modelAttribute("item", u)
+                        .modelAttribute("authorized", authorized)
                         .build())
                 .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
     }

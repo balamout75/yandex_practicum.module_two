@@ -56,10 +56,7 @@ payment:
       attempts: 3
       backoff: 500ms
 images.path: images/
-logging:
-  level:
-    org.springframework.data.*.*: trace
-    org.springframework.cache.*: trace
+
 
 
 
