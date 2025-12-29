@@ -48,8 +48,8 @@
       "clientId": "frontend-service",
       "enabled": true,
       "secret": "4rAug3q5tM2QMb418UWgK0V9gPwFZrnL",
-      "redirectUris": ["http://localhost:8081/*"],
-      "webOrigins": ["http://localhost:8081"],
+      "redirectUris": ["http://localhost:8081/*", "https://pseudovelar-fumeless-sung.ngrok-free.dev/*"],
+      "webOrigins": ["http://localhost:8081","https://pseudovelar-fumeless-sung.ngrok-free.dev"],
       "standardFlowEnabled": true,
       "serviceAccountsEnabled": true,
       "publicClient": false

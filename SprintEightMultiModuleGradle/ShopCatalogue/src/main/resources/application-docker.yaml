@@ -1,5 +1,6 @@
 server:
   port: 8081
+server.forward-headers-strategy: framework
 spring:
   main:
     web-application-type: reactive
@@ -36,7 +37,7 @@ spring:
             client-secret: 4rAug3q5tM2QMb418UWgK0V9gPwFZrnL
             authorization-grant-type: authorization_code
             scope: openid,profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}" #"{baseUrl}/login/oauth2/code/{registrationId}"# "http://localhost:8081/login/oauth2/code/keycloak-client"
           keycloak-service:
             provider: keycloak
             client-id: backend-service
@@ -58,9 +59,8 @@ payment:
 images.path: images/
 logging:
   level:
-    org.springframework.data.*.*: trace
-    org.springframework.cache.*: trace
-
-
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2.client: TRACE
+    org.springframework.session: TRACE
 
 #driver-class-name: org.postgresql.Driver

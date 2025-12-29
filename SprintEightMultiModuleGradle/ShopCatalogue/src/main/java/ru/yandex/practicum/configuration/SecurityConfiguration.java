@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                 //.csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
+                        .pathMatchers("/whoami").permitAll()
                         .pathMatchers("/oidc/logout").permitAll()
                         .pathMatchers(HttpMethod.POST, "/items/**").authenticated()
                         .pathMatchers("/items/**").permitAll()

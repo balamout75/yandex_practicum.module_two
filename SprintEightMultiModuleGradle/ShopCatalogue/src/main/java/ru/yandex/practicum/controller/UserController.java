@@ -1,5 +1,8 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -9,6 +12,9 @@ import ru.yandex.practicum.dto.shoping.ItemsRequest;
 import ru.yandex.practicum.security.CurrentUserId;
 import ru.yandex.practicum.service.payment.PaymentService;
 import ru.yandex.practicum.service.shoping.OrderService;
+
+import java.util.Map;
+
 import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Controller
@@ -23,10 +29,31 @@ class UserController {
         this.paymentService = paymentService;
     }
 
-    @GetMapping("/login")
-    public String login() {
-        // Шаблон: login.html
-        return "login";
+    @GetMapping("/whoami")
+    public Mono<Map<String, Object>> whoami(@AuthenticationPrincipal OidcUser user) {
+        return Mono.justOrEmpty(user)
+                .doOnNext(u -> {
+                    log.info("WHOAMI: authenticated = true");
+                    log.info("WHOAMI: sub = {}", u.getSubject());
+                    log.info("WHOAMI: username = {}", u.getPreferredUsername());
+                    log.info("WHOAMI: email = {}", u.getEmail());
+                    log.info("WHOAMI: authorities = {}",
+                            u.getAuthorities().stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .toList());
+                    log.info("WHOAMI: attributes = {}", u.getAttributes());
+                })
+                .map(u -> Map.<String, Object>of(
+                        "authenticated", true,
+                        "sub", u.getSubject(),
+                        "username", u.getPreferredUsername(),
+                        "email", u.getEmail(),
+                        "authorities", u.getAuthorities()
+                ))
+                .switchIfEmpty(Mono.fromSupplier(() -> {
+                    log.warn("WHOAMI: user is NOT authenticated");
+                    return Map.of("authenticated", false);
+                }));
     }
 
     @GetMapping("/")

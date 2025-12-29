@@ -18,10 +18,10 @@ public class UserService {
         this.repository = repository;
     }
 
-    @Cacheable(
-            value = "user",
-            key = "#sub"
-    )
+    //@Cacheable(
+    //        value = "user",
+    //        key = "#sub"
+    //)
     public Mono<UserDto> findOrCreate(String sub) {
         Mono<User> user = repository.findBySub(sub).switchIfEmpty(Mono.defer(() -> this.registerNewUser(sub)));
         return user.map(u -> new UserDto(u.getId(), u.getFirstName(), u.getLastName(), u.getSub()));

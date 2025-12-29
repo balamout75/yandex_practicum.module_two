@@ -3,11 +3,14 @@ package ru.yandex.practicum.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.shoping.UserDto;
 import ru.yandex.practicum.service.shoping.UserService;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
 public class CurrentUserFacade {
@@ -29,30 +32,23 @@ public class CurrentUserFacade {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .flatMap(this::resolveUser)
-                .defaultIfEmpty(ANONYMOUS);
+                .switchIfEmpty(Mono.just(ANONYMOUS));
     }
 
     private Mono<UserDto> resolveUser(Authentication auth) {
 
-        // anonymous / no security context
         if (auth == null || !auth.isAuthenticated()) {
-            return Mono.just(ANONYMOUS);
+            return Mono.empty();
         }
 
-        Object principal = auth.getPrincipal();
-
-        // Spring Security anonymous
-        if (principal instanceof String) {
-            return Mono.just(ANONYMOUS);
+        if (!(auth instanceof OAuth2AuthenticationToken token)) {
+            return Mono.empty();
         }
 
-        // Frontend (authorization_code)
-        if (principal instanceof OidcUser oidc) {
-            return userService.findOrCreate(oidc.getSubject());
+        if (!(token.getPrincipal() instanceof OidcUser oidc)) {
+            return Mono.empty();
         }
 
-        return Mono.error(new IllegalStateException(
-                "Unsupported principal type: " + principal.getClass()
-        ));
+        return userService.findOrCreate(oidc.getSubject());
     }
 }

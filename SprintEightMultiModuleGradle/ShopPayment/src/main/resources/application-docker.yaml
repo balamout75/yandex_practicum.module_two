@@ -7,7 +7,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/demo-realm
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/demo-realm}
 springdoc:
   swagger-ui:
     enabled: true
