@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -69,6 +70,7 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 
 	@Test
 	void anonymousShouldBeRedirectedToLogin() {
+		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
 		webTestClient.get()
 				.uri("/items")
 				.exchange()
@@ -93,6 +95,7 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 	@ParameterizedTest
 	@MethodSource("applyPattern")
 	void findItemsByTitleOrDescription(SearchPattern searchPattern) {
+		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
 		webTestClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path("/items")
@@ -119,6 +122,7 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 	@Test
 	void getItemByIdSuccessfully() throws Exception {
 		ItemDto item = new ItemDto (1,"Кепка","бейсболка большого размера",UPLOAD_DIR+"cap.jpg", 1200,0);
+		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
 		webTestClient.get()
 				.uri("/items/1")
 				.exchange()
@@ -135,6 +139,8 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 
 	@Test
 	void getItemByIdNotFound() throws Exception {
+		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
+		ItemDto item = new ItemDto (1,"Кепка","бейсболка большого размера",UPLOAD_DIR+"cap.jpg", 1200,0);
 		webTestClient.get()
 				.uri("/items/21")
 				.exchange()
@@ -168,6 +174,7 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 	@ParameterizedTest
 	@MethodSource("applySortModeString")
 	void testRequestSortParameterConverter(SortRequest sortRequest) {
+		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
 		Sort sortmode = switch (sortRequest.sortModes) {
 			case SortModes.PRICE -> Sort.by(Sort.Direction.ASC, "price");
 			case SortModes.ALPHA -> Sort.by(Sort.Direction.ASC, "title");

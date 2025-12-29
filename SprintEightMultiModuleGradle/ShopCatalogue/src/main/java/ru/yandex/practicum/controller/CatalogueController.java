@@ -46,7 +46,7 @@ public class CatalogueController {
     }
 
     @GetMapping
-    public Mono<Rendering> list(@CurrentUserId Long userId,  @AuthenticationPrincipal OidcUser oidcUser,
+    public Mono<Rendering> list(@CurrentUserId Long userId,
                                 @ModelAttribute ItemsRequest itemsRequest) {
         boolean authorized = userId != null && userId > 0;
         Sort sortmode = switch (itemsRequest.getSort()) {
@@ -54,7 +54,6 @@ public class CatalogueController {
             case SortModes.ALPHA    -> Sort.by(Sort.Direction.ASC, "title");
             default                 -> Sort.by(Sort.Direction.ASC, "id");
         };
-        String username = authorized ? oidcUser.getPreferredUsername() : null;
         Pageable pageable = PageRequest.of(itemsRequest.getPageNumber() - 1, itemsRequest.getPageSize(), sortmode);
         return catalogueService.findAll(itemsRequest.getSearch(), pageable).collectList().map(items -> {
             while ((items.size() % 3) != 0) {
@@ -69,7 +68,6 @@ public class CatalogueController {
                 .modelAttribute("sort", itemsRequest.getSort().toString())
                 .modelAttribute("paging", new Paging(itemsRequest.getPageSize(), itemsRequest.getPageNumber(), u.hasPrevious(), u.hasNext()))
                 .modelAttribute("authorized", authorized)
-                .modelAttribute("username", username)
                 .build());
     }
 

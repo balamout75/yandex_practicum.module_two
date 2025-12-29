@@ -52,3 +52,5 @@ Thumbs.db
 # ===============================
 **/build/generated/
 **/generated/
+ngrok
+/ngrok 

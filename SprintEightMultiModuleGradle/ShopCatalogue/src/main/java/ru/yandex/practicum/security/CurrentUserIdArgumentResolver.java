@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.dto.shoping.UserDto;
 import ru.yandex.practicum.service.shoping.UserService;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 @Component
 public class CurrentUserIdArgumentResolver
         implements HandlerMethodArgumentResolver {
@@ -35,7 +37,6 @@ public class CurrentUserIdArgumentResolver
             BindingContext bindingContext,
             ServerWebExchange exchange
     ) {
-
         return currentUserFacade.getUserId()
                 .cast(Object.class);
     }

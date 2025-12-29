@@ -24,7 +24,9 @@ public class CurrentUserFacade {
 
     /** Для сервисов */
     public Mono<Long> getUserId() {
-        return getCurrentUser().map(UserDto::id);
+        return getCurrentUser()
+                .map(UserDto::id)
+                .defaultIfEmpty(0L);
     }
 
     /** Если нужны данные пользователя */
