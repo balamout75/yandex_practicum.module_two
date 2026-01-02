@@ -30,17 +30,12 @@ import ru.yandex.practicum.mapper.SortModes;
 import ru.yandex.practicum.security.CurrentUserFacade;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
 
-//import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,7 +64,7 @@ class UserControllerIntegrationTests extends BaseIntegrationTest {
 
 
 	@Test
-	void anonymousShouldBeRedirectedToLogin() {
+	void simpleTest() throws Exception {
 		doReturn(Mono.just(1L)).when(currentUserFacade).getUserId();
 		webTestClient.get()
 				.uri("/items")

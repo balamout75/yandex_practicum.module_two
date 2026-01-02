@@ -15,7 +15,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/cart")
-class CartController {
+public class CartController {
 
 
     private final CartItemService cartItemService;

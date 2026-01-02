@@ -87,6 +87,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.springframework.security:spring-security-test")
 
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
+
 	testImplementation("com.github.kstyrc:embedded-redis:0.6")
 	testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
@@ -99,11 +102,5 @@ dependencies {
 tasks.test {
 	useJUnitPlatform {
 		excludeTags("integration")
-	}
-}
-
-tasks.register<Test>("integrationTest") {
-	useJUnitPlatform {
-		includeTags("integration")
 	}
 }
