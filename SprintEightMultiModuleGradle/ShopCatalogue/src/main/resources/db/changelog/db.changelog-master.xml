@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="add-tag-1.0.0" author="Ivan Vasilyev">
+        <tagDatabase tag="v.1.0.0"/>
+    </changeSet>
+
+    <include file="v.1.0.0/001-init-users-schema.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/002-init-items-schema.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/003-init-orders-schema.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/004-init-cart-items-schema.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/005-init-order-items-schema.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/006-init-users-data.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/007-init-items-data.xml" relativeToChangelogFile="true"/>
+    <include file="changes/2025-12-28-add-user-sub.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

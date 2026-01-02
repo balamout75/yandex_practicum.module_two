@@ -1,0 +1,66 @@
+server:
+  port: 8081
+server.forward-headers-strategy: framework
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: module_two_sprint_six_gradle
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:practicum_db}
+    username: ${POSTGRES_USER:practicum_user}
+    password: ${POSTGRES_PASSWORD:mysecretpassword}
+    pool:
+      enabled: true                               # Включение пула соединений
+      initial-size: 10                            # Начальное количество соединений в пуле
+      max-size: 50                                # Максимальное количество соединений
+      max-idle-time: 30s                          # Время бездействия соединения перед закрытием
+      max-life-time: 10m                          # Максимальное время жизни соединения
+      validation-query: SELECT 1
+  liquibase:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:practicum_db}
+    user: ${POSTGRES_USER:practicum_user}
+    password: ${POSTGRES_PASSWORD:mysecretpassword}
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak-client:
+            provider: keycloak
+            client-id: frontend-service
+            client-secret: 4rAug3q5tM2QMb418UWgK0V9gPwFZrnL
+            authorization-grant-type: authorization_code
+            scope: openid,profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          keycloak-service:
+            provider: keycloak
+            client-id: backend-service
+            client-secret: ePkuwWwNYTBa5zq0scy8S8qTJEm9T0id
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/demo-realm}
+payment:
+  client:
+    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8082}
+    timeout:
+      connect: 3s
+      response: 5s
+    retry:
+      attempts: 3
+      backoff: 500ms
+images.path: images/
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2.client: TRACE
+    org.springframework.session: TRACE
+
+#driver-class-name: org.postgresql.Driver

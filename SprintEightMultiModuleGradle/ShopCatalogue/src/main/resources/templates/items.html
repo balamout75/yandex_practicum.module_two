@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+
+<head>
+    <meta charset="utf-8">
+    <title>Витрина магазина</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/shop.css}">
+</head>
+
+<body class="bg-light">
+
+<!-- ОСНОВНАЯ ФОРМА ДЛЯ ПОИСКА / ПАГИНАЦИИ -->
+<form id="main" th:action="@{/items}" method="get" class="mb-0"></form>
+
+<div class="container p-2">
+
+    <!-- HEADER -->
+    <div class="row p-2">
+        <div class="col">
+            <div class="hstack gap-3 align-items-center">
+
+                <h2 class="mb-0">
+                    <span class="badge text-bg-success">Витрина магазина</span>
+                </h2>
+
+                <!-- AUTHENTICATED -->
+                <div th:if="${authorized}" class="hstack gap-2 ms-auto">
+
+                    <a href="/orders"
+                       class="btn btn-secondary bi bi-file-earmark-text">
+                        Заказы
+                    </a>
+
+                    <a href="/cart/items"
+                       class="btn btn-secondary bi bi-cart4">
+                        Корзина
+                    </a>
+                    <a href="/oidc/logout"
+                       class="btn btn-outline-danger bi bi-box-arrow-right">
+                        Выйти
+                    </a>
+                </div>
+                <!-- NOT AUTHENTICATED -->
+                <div th:if="${!authorized}" class="ms-auto">
+                    <a href="/oauth2/authorization/keycloak-client"
+                       class="btn btn-success">
+                        Войти
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH / FILTER -->
+    <div class="row p-2">
+        <div class="col">
+            <div class="hstack gap-3">
+
+                <input class="form-control"
+                       type="search"
+                       placeholder="Найти..."
+                       name="search"
+                       th:value="${search}"
+                       form="main"/>
+
+                <button class="btn btn-outline-success"
+                        type="submit"
+                        form="main">
+                    Найти
+                </button>
+
+                <div class="form-floating w-25">
+                    <select class="form-select"
+                            id="sort"
+                            name="sort"
+                            onchange="document.getElementById('main').submit()"
+                            form="main">
+                        <option value="NO" th:selected="${sort=='NO'}">нет</option>
+                        <option value="ALPHA" th:selected="${sort=='ALPHA'}">по алфавиту</option>
+                        <option value="PRICE" th:selected="${sort=='PRICE'}">по цене</option>
+                    </select>
+                    <label for="sort">Сортировка</label>
+                </div>
+
+                <div class="form-floating w-25">
+                    <select class="form-select"
+                            id="pageSize"
+                            name="pageSize"
+                            onchange="document.getElementById('main').submit()"
+                            form="main">
+                        <option value="2" th:selected="${paging.pageSize()==2}">2</option>
+                        <option value="5" th:selected="${paging.pageSize()==5}">5</option>
+                        <option value="10" th:selected="${paging.pageSize()==10}">10</option>
+                        <option value="20" th:selected="${paging.pageSize()==20}">20</option>
+                        <option value="50" th:selected="${paging.pageSize()==50}">50</option>
+                        <option value="100" th:selected="${paging.pageSize()==100}">100</option>
+                    </select>
+                    <label for="pageSize">На странице</label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ITEMS GRID -->
+    <div class="row p-2" th:each="itemsRow : ${items}">
+        <div class="col" th:each="item : ${itemsRow}">
+
+            <div class="card" th:if="${item.id() != -1}">
+                <a th:href="${'/items/' + item.id()}">
+                    <div class="product-img-wrapper">
+                        <img th:src="${'/' + item.imgPath()}"
+                             alt="Нет изображения"
+                             class="img-fluid">
+                    </div>
+                </a>
+
+                <div class="card-body">
+                    <h5 class="card-title"
+                        th:text="${item.title()}"></h5>
+
+                    <h5>
+                        <span class="badge text-bg-success"
+                              th:text="${item.price()} + ' руб.'"></span>
+                    </h5>
+
+                    <p class="card-text"
+                       th:text="${item.description()}"></p>
+
+                    <!-- CART CONTROLS (ONLY AUTHENTICATED) -->
+                    <form th:if="${authorized}"
+                          method="post"
+                          th:action="@{/items}"
+                          class="mb-0">
+
+                        <div class="hstack gap-3">
+
+                            <input type="hidden" name="id" th:value="${item.id()}">
+                            <input type="hidden" name="search" th:value="${search}">
+                            <input type="hidden" name="sort" th:value="${sort}">
+                            <input type="hidden" name="pageSize" th:value="${paging.pageSize()}">
+                            <input type="hidden" name="pageNumber" th:value="${paging.pageNumber()}">
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    name="action"
+                                    value="MINUS">-
+                            </button>
+
+                            <span th:text="${item.count()}"
+                                  class="align-self-center"></span>
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary"
+                                    name="action"
+                                    value="PLUS">+
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-warning ms-auto bi bi-cart4"
+                                    name="action"
+                                    value="PLUS"
+                                    th:if="${item.count()==0}">
+                                В корзину
+                            </button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div th:unless="${item.id() != -1}">&nbsp;</div>
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="row p-2">
+        <div class="col">
+            <div class="hstack gap-3 justify-content-center">
+
+                <button type="submit"
+                        class="btn btn-light"
+                        th:if="${paging.hasPrevious()}"
+                        name="pageNumber"
+                        th:value="${paging.pageNumber()-1}"
+                        form="main">
+                    &larr;
+                </button>
+
+                <span th:text="${'Страница: ' + paging.pageNumber()}"
+                      class="align-self-center"></span>
+
+                <button type="submit"
+                        class="btn btn-light"
+                        th:if="${paging.hasNext()}"
+                        name="pageNumber"
+                        th:value="${paging.pageNumber()+1}"
+                        form="main">
+                    &rarr;
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

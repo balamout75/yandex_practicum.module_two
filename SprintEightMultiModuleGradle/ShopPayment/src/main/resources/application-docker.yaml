@@ -1,0 +1,29 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: ShopPayment
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/demo-realm}
+springdoc:
+  swagger-ui:
+    enabled: true
+    tryItOutEnabled: true
+    persistAuthorization: true
+paymentservice:
+  game-mode: false  #Игровой режим
+  current-user:
+    user-id: 1
+    balance: 50000
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE
+    org.springframework.security.oauth2.server.resource: TRACE
+    org.springframework.security.web.server.authorization: TRACE
+    org.springframework.web.reactive.function.client: DEBUG
+
+
